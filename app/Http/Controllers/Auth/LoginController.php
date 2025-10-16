@@ -19,7 +19,7 @@ class LoginController extends Controller
         $credentials = $request->validated();
 
         if (Auth::attempt($credentials)) {
-            return redirect()->intended('welcome');
+            return redirect()->intended();
         }
 
         return back()->withErrors([

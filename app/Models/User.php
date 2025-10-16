@@ -15,6 +15,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role'
     ];
 
     protected $hidden = [
@@ -24,6 +25,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'role' => 'array',
     ];
 
     public function getAuthPassword()
