@@ -32,4 +32,10 @@ class User extends Authenticatable
     {
         return $this->password;
     }
+
+    public function hasAnyRole(array $roles): bool
+    {
+        $own = collect($this->role ?? [])->map(fn($r) => strtolower((string) $r));
+        return $own->intersect(collect($roles)->map(fn($r) => strtolower($r)))->isNotEmpty();
+    }
 }

@@ -25,6 +25,6 @@ class StrategicObjective extends Model
     }
     public function kpis()
     {
-        return $this->hasMany(Kpi::class, 'objetive_id');
+        return $this->hasMany(Kpi::class, 'objective_id');
     }
 }

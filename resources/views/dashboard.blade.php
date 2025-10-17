@@ -15,7 +15,6 @@
             @endcan
         </div>
     @else
-        {{-- Tarjeta del último plan --}}
         <section class="mb-6">
             <div class="rounded-2xl shadow bg-white p-5">
                 <div class="flex items-baseline justify-between">

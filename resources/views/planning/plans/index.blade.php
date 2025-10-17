@@ -21,7 +21,8 @@
                 @forelse ($plans as $plan)
                     <tr>
                         <td class="p-2 border">{{ $plan->title }}</td>
-                        <td class="p-2 border">{{ $plan->start_date }} — {{ $plan->end_date }}</td>
+                        <td class="p-2 border">{{ $plan->start_date->format('Y-m-d') }} —
+                            {{ $plan->end_date->format('Y-m-d') }}</td>
                         <td class="p-2 border"><span
                                 class="px-2 py-1 rounded bg-green-100 text-green-700">{{ $plan->status }}</span></td>
                         <td class="p-2 border">

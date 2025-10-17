@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\KpiController;
+use App\Http\Controllers\Planning\KpiController;
 use App\Http\Controllers\Planning\PlanningController;
 use App\Http\Controllers\Planning\StrategicObjectiveController;
 use App\Http\Controllers\Planning\StrategicPlanController;

@@ -49,6 +49,8 @@
     @if (session('error'))
         <div class="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded">{{ session('error') }}</div>
     @endif
+    @stack('chartjs')
+    @stack('scripts')
 </body>
 
 </html>
