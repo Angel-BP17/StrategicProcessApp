@@ -37,6 +37,10 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard Route (ejemplo)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/collaboration', function () {
+        return view('collaboration');
+    })->name('collaboration');
 });
 
 Route::middleware(['auth', 'role:any,admin,planner'])->prefix('planning')->name('planning.')->group(function () {

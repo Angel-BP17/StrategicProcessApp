@@ -17,6 +17,14 @@
   --color-smoky-black: #0f0f02;
 }
 
+:root {
+  --color-bg: #f9fafb;
+  --color-surface: #ffffff;
+  --color-text: #1f2937;
+  --color-border: #e5e7eb;
+  --color-primary: #26bbff;
+}
+
 /* Estilos base mejorados con la paleta de colores */
 body {
   font-family: var(--font-sans);
@@ -26,33 +34,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: #ffffff;
-  font-weight: 700;
-}
-
 a {
-  color: var(--color-primary);
   text-decoration: none;
   transition: color 0.2s ease;
-}
-
-a:hover {
-  color: rgba(38, 187, 255, 0.8);
-}
-
-/* Estilos para inputs mejorados */
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(38, 187, 255, 0.1);
 }
 
 /* Animaciones suaves */
