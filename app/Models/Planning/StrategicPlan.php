@@ -28,4 +28,8 @@ class StrategicPlan extends Model
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
     }
+    public function dashboards()
+    {
+        return $this->hasMany(Dashboard::class, 'plan_id');
+    }
 }

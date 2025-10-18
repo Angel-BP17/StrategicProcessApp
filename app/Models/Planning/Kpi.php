@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Kpi extends Model
 {
     protected $fillable = [
-        'objetive_id',
+        'objective_id',
         'name',
         'description',
         'target_value',
@@ -17,7 +17,7 @@ class Kpi extends Model
 
     public function objective()
     {
-        return $this->belongsTo(StrategicObjetive::class, 'objetive_id');
+        return $this->belongsTo(StrategicObjetive::class, 'objective_id');
     }
     public function measurements()
     {

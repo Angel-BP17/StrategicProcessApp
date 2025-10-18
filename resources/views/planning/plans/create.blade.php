@@ -2,6 +2,17 @@
 @section('content')
     <div class="container mx-auto p-4">
         @include('planning._nav')
+
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <h1 class="text-xl font-bold mb-4">Nuevo plan</h1>
 
         <form method="POST" action="{{ route('planning.plans.store') }}" class="space-y-3">

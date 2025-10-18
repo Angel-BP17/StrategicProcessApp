@@ -22,7 +22,7 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPolicies();
-
-        //
+        Gate::define('plan.manage', fn($user) => $user->hasAnyRole(['admin', 'planner']));
+        Gate::define('objective.manage', fn($user) => $user->hasAnyRole(['admin', 'planner']));
     }
 }

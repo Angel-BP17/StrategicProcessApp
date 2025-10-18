@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\KpiController;
+use App\Http\Controllers\Planning\KpiController;
 use App\Http\Controllers\Planning\PlanningController;
 use App\Http\Controllers\Planning\StrategicObjectiveController;
 use App\Http\Controllers\Planning\StrategicPlanController;
@@ -37,6 +37,10 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard Route (ejemplo)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/collaboration', function () {
+        return view('collaboration');
+    })->name('collaboration');
 });
 
 Route::middleware(['auth', 'role:any,admin,planner'])->prefix('planning')->name('planning.')->group(function () {
