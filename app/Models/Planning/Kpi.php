@@ -12,12 +12,12 @@ class Kpi extends Model
         'description',
         'target_value',
         'unit',
-        'frecuency',
+        'frequency',
     ];
 
     public function objective()
     {
-        return $this->belongsTo(StrategicObjetive::class, 'objective_id');
+        return $this->belongsTo(StrategicObjective::class, 'objective_id');
     }
     public function measurements()
     {

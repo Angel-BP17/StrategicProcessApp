@@ -1,7 +1,7 @@
 @php
     $items = [
         ['label' => 'Planificación institucional', 'href' => route('planning.plans.index'), 'match' => 'planning*'],
-        ['label' => 'Alianzas y convenios', 'href' => url('/alliances'), 'match' => 'alliances*'],
+        ['label' => 'Alianzas y convenios', 'href' => route('alliances.index'), 'match' => 'alliances*'],
         ['label' => 'Documentación y evidencias', 'href' => url('/documents'), 'match' => 'documents*'],
         ['label' => 'Innovación y mejora continua', 'href' => url('/innovation'), 'match' => 'innovation*'],
         ['label' => 'Calidad educativa', 'href' => url('/quality'), 'match' => 'quality*'],
@@ -30,3 +30,4 @@
         @endforeach
     </nav>
 </aside>
+

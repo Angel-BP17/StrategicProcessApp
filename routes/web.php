@@ -10,6 +10,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\AllianceController;
+use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\AgreementController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -100,3 +103,14 @@ Route::get('/debug/roles', function () {
         'as_array' => is_array($u->roles ?? $u->role ?? null),
     ]);
 })->middleware('auth');
+
+Route::middleware(['auth'])->group(function () {
+    // Vista general
+    Route::get('/alliances', [AllianceController::class, 'index'])->name('alliances.index');
+
+    // CRUD de Socios
+    Route::resource('partners', PartnerController::class);
+
+    // CRUD de Convenios
+    Route::resource('agreements', AgreementController::class);
+});
