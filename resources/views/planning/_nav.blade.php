@@ -1,10 +1,10 @@
-<nav class="mb-4 border-b pb-2 text-sm">
-    <a href="{{ route('dashboard') }}">Inicio</a>
-    <span class="mx-1">/</span>
-    <a href="{{ route('planning.index') }}">Planificación</a>
-    <span class="mx-1">—</span>
+<nav class="mb-6 border-b border-slate-800/60 pb-3 text-xs sm:text-sm text-slate-400 flex flex-wrap items-center gap-2">
+    <a href="{{ route('dashboard') }}" class="hover:text-slate-100 transition">Inicio</a>
+    <span class="text-slate-600">/</span>
+    <a href="{{ route('planning.index') }}" class="hover:text-slate-100 transition">Planificación</a>
+    <span class="text-slate-600">—</span>
 
-    <a href="{{ route('planning.plans.index') }}">Planes</a>
-    <span class="mx-1">·</span>
-    <a href="{{ route('planning.dashboards.index') }}">Dashboards</a>
+    <a href="{{ route('planning.plans.index') }}" class="hover:text-slate-100 transition">Planes</a>
+    <span class="text-slate-600">·</span>
+    <a href="{{ route('planning.dashboards.index') }}" class="hover:text-slate-100 transition">Dashboards</a>
 </nav>
