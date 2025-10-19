@@ -1,224 +1,135 @@
 @extends('layouts.app')
-
+@section('title', 'Nueva iniciativa')
 @section('content')
-<div class="container mx-auto px-4 py-8 max-w-4xl">
-    <!-- Breadcrumb -->
-    <nav class="text-sm mb-4">
-        <ol class="flex items-center space-x-2 text-gray-600">
-            <li><a href="{{ route('innovacion-mejora-continua.index') }}" class="hover:text-blue-600">Innovación y Mejora Continua</a></li>
-            <li><span class="mx-2">/</span></li>
-            <li><a href="{{ route('innovacion-mejora-continua.initiatives.index') }}" class="hover:text-blue-600">Iniciativas</a></li>
-            <li><span class="mx-2">/</span></li>
-            <li class="text-gray-800 font-medium">Nueva Iniciativa</li>
-        </ol>
-    </nav>
+    <div class="max-w-5xl mx-auto px-4 py-8 text-slate-100">
+        <nav class="mb-6 text-xs uppercase tracking-[0.3em] text-slate-500 flex flex-wrap items-center gap-2">
+            <a href="{{ route('innovacion-mejora-continua.index') }}" class="hover:text-slate-200 transition">Innovación</a>
+            <span class="text-slate-600">/</span>
+            <a href="{{ route('innovacion-mejora-continua.initiatives.index') }}" class="hover:text-slate-200 transition">Iniciativas</a>
+            <span class="text-slate-600">/</span>
+            <span class="text-slate-300">Nueva</span>
+        </nav>
 
-    <!-- Encabezado -->
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Crear Nueva Iniciativa</h1>
-        <p class="text-gray-600">Registra una nueva iniciativa de innovación, implementación de nuevas metodologías o mejora continua</p>
-    </div>
+        <div class="mb-6">
+            <h1 class="text-3xl font-semibold text-white">Crear nueva iniciativa</h1>
+            <p class="text-sm text-slate-400">Registra propuestas o mejoras que impulsen la transformación institucional.</p>
+        </div>
 
-    <!-- Formulario -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <form action="{{ route('innovacion-mejora-continua.initiatives.store') }}" method="POST">
+        <form action="{{ route('innovacion-mejora-continua.initiatives.store') }}" method="POST"
+            class="rounded-3xl border border-slate-800/70 bg-slate-950/70 p-8 shadow-2xl shadow-slate-950/40 backdrop-blur space-y-8">
             @csrf
 
-            <!-- Plan ID -->
-            <div class="mb-6">
-                <label for="plan_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                    ID del Plan <span class="text-red-500">*</span>
-                </label>
-                <input type="text" 
-                       id="plan_id" 
-                       name="plan_id" 
-                       value="{{ old('plan_id') }}"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('plan_id') border-red-500 @enderror"
-                       placeholder="Ej: PLAN-2025-001"
-                       required>
-                @error('plan_id')
-                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Título -->
-            <div class="mb-6">
-                <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Título de la Iniciativa <span class="text-red-500">*</span>
-                </label>
-                <input type="text" 
-                       id="title" 
-                       name="title" 
-                       value="{{ old('title') }}"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('title') border-red-500 @enderror"
-                       placeholder="Ingrese un título descriptivo para la iniciativa"
-                       required>
-                @error('title')
-                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Resumen -->
-            <div class="mb-6">
-                <label for="summary" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Resumen <span class="text-red-500">*</span>
-                </label>
-                <textarea id="summary" 
-                          name="summary" 
-                          rows="4"
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('summary') border-red-500 @enderror"
-                          placeholder="Descripción breve de la iniciativa (máximo 500 caracteres)"
-                          required>{{ old('summary') }}</textarea>
-                @error('summary')
-                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                @enderror
-                <p class="mt-1 text-xs text-gray-500">Describe brevemente el propósito y alcance de la iniciativa</p>
-            </div>
-
-            <!-- Descripción Completa -->
-            <div class="mb-6">
-                <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Descripción Completa
-                </label>
-                <textarea id="description" 
-                          name="description" 
-                          rows="6"
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('description') border-red-500 @enderror"
-                          placeholder="Detalla los objetivos, metodología, recursos necesarios y resultados esperados">{{ old('description') }}</textarea>
-                @error('description')
-                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Grid de 2 columnas -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <!-- Usuario Responsable -->
+            <div class="grid gap-6 md:grid-cols-2">
+                <div class="md:col-span-2">
+                    <label for="plan_id" class="text-sm font-semibold text-slate-300">ID del plan <span class="text-rose-400">*</span></label>
+                    <input type="text" id="plan_id" name="plan_id" value="{{ old('plan_id') }}" required
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('plan_id') border-rose-500/70 @enderror" placeholder="Ej: PLAN-2025-001" />
+                    @error('plan_id')
+                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div class="md:col-span-2">
+                    <label for="title" class="text-sm font-semibold text-slate-300">Título de la iniciativa <span class="text-rose-400">*</span></label>
+                    <input type="text" id="title" name="title" value="{{ old('title') }}" required
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('title') border-rose-500/70 @enderror" placeholder="Ingrese un título descriptivo" />
+                    @error('title')
+                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div class="md:col-span-2">
+                    <label for="summary" class="text-sm font-semibold text-slate-300">Resumen <span class="text-rose-400">*</span></label>
+                    <textarea id="summary" name="summary" rows="4" required
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('summary') border-rose-500/70 @enderror" placeholder="Descripción breve de la iniciativa (máximo 500 caracteres)">{{ old('summary') }}</textarea>
+                    @error('summary')
+                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-2 text-xs text-slate-500">Describe brevemente el propósito y alcance de la iniciativa.</p>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="description" class="text-sm font-semibold text-slate-300">Descripción completa</label>
+                    <textarea id="description" name="description" rows="6"
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('description') border-rose-500/70 @enderror" placeholder="Detalla objetivos, metodología, recursos y resultados esperados">{{ old('description') }}</textarea>
+                    @error('description')
+                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
+                    @enderror
+                </div>
                 <div>
-                    <label for="responsible_user_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Usuario Responsable
-                    </label>
-                    <select id="responsible_user_id" 
-                            name="responsible_user_id"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('responsible_user_id') border-red-500 @enderror">
+                    <label for="responsible_user_id" class="text-sm font-semibold text-slate-300">Usuario responsable</label>
+                    <select id="responsible_user_id" name="responsible_user_id"
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 @error('responsible_user_id') border-rose-500/70 @enderror">
                         <option value="">Seleccionar usuario</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}" {{ old('responsible_user_id') == $user->id ? 'selected' : '' }}>
-                                {{ $user->name }}
-                            </option>
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}" @selected(old('responsible_user_id') == $user->id)>{{ $user->name }}</option>
                         @endforeach
                     </select>
                     @error('responsible_user_id')
-                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
                     @enderror
                 </div>
-
-                <!-- Equipo Responsable -->
                 <div>
-                    <label for="responsible_team_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Equipo Responsable
-                    </label>
-                    <select id="responsible_team_id" 
-                            name="responsible_team_id"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('responsible_team_id') border-red-500 @enderror">
+                    <label for="responsible_team_id" class="text-sm font-semibold text-slate-300">Equipo responsable</label>
+                    <select id="responsible_team_id" name="responsible_team_id"
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 @error('responsible_team_id') border-rose-500/70 @enderror">
                         <option value="">Seleccionar equipo</option>
-                        @foreach($teams as $team)
-                            <option value="{{ $team->id }}" {{ old('responsible_team_id') == $team->id ? 'selected' : '' }}>
-                                {{ $team->name }}
-                            </option>
+                        @foreach ($teams as $team)
+                            <option value="{{ $team->id }}" @selected(old('responsible_team_id') == $team->id)>{{ $team->name }}</option>
                         @endforeach
                     </select>
                     @error('responsible_team_id')
-                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
                     @enderror
                 </div>
-            </div>
-
-            <!-- Grid de 2 columnas para fechas y estado -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <!-- Fecha de Inicio -->
                 <div>
-                    <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Fecha de Inicio
-                    </label>
-                    <input type="date" 
-                           id="start_date" 
-                           name="start_date" 
-                           value="{{ old('start_date') }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('start_date') border-red-500 @enderror">
+                    <label for="start_date" class="text-sm font-semibold text-slate-300">Fecha de inicio</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ old('start_date') }}"
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('start_date') border-rose-500/70 @enderror" />
                     @error('start_date')
-                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
                     @enderror
                 </div>
-
-                <!-- Fecha de Fin -->
                 <div>
-                    <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Fecha de Fin
-                    </label>
-                    <input type="date" 
-                           id="end_date" 
-                           name="end_date" 
-                           value="{{ old('end_date') }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('end_date') border-red-500 @enderror">
+                    <label for="end_date" class="text-sm font-semibold text-slate-300">Fecha de fin</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ old('end_date') }}"
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('end_date') border-rose-500/70 @enderror" />
                     @error('end_date')
-                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
                     @enderror
+                </div>
+                <div>
+                    <label for="status" class="text-sm font-semibold text-slate-300">Estado <span class="text-rose-400">*</span></label>
+                    <select id="status" name="status" required
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-500/40 @error('status') border-rose-500/70 @enderror">
+                        @foreach (['propuesta', 'evaluada', 'aprobada', 'implementada', 'cerrada'] as $state)
+                            <option value="{{ $state }}" @selected(old('status') == $state)>{{ ucfirst($state) }}</option>
+                        @endforeach
+                    </select>
+                    @error('status')
+                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-2 text-xs text-slate-500">Workflow sugerido: propuesta → evaluada → aprobada → implementada → cerrada.</p>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="estimated_impact" class="text-sm font-semibold text-slate-300">Impacto estimado</label>
+                    <input type="text" id="estimated_impact" name="estimated_impact" value="{{ old('estimated_impact') }}"
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 @error('estimated_impact') border-rose-500/70 @enderror" placeholder="Ej: Reducción del 20% en tiempos de proceso" />
+                    @error('estimated_impact')
+                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-2 text-xs text-slate-500">Describe el impacto esperado de implementar esta iniciativa.</p>
                 </div>
             </div>
 
-            <!-- Estado -->
-            <div class="mb-6">
-                <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Estado <span class="text-red-500">*</span>
-                </label>
-                <select id="status" 
-                        name="status"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('status') border-red-500 @enderror"
-                        required>
-                    <option value="propuesta" {{ old('status') == 'propuesta' ? 'selected' : '' }}>Propuesta</option>
-                    <option value="evaluada" {{ old('status') == 'evaluada' ? 'selected' : '' }}>Evaluada</option>
-                    <option value="aprobada" {{ old('status') == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
-                    <option value="implementada" {{ old('status') == 'implementada' ? 'selected' : '' }}>Implementada</option>
-                    <option value="cerrada" {{ old('status') == 'cerrada' ? 'selected' : '' }}>Cerrada</option>
-                </select>
-                @error('status')
-                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                @enderror
-                <p class="mt-1 text-xs text-gray-500">Workflow: propuesta → evaluada → aprobada → implementada → cerrada</p>
-            </div>
-
-            <!-- Impacto Estimado -->
-            <div class="mb-6">
-                <label for="estimated_impact" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Impacto Estimado
-                </label>
-                <input type="text" 
-                       id="estimated_impact" 
-                       name="estimated_impact" 
-                       value="{{ old('estimated_impact') }}"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('estimated_impact') border-red-500 @enderror"
-                       placeholder="Ej: Reducción del 20% en tiempos de proceso, mejora en satisfacción del cliente">
-                @error('estimated_impact')
-                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                @enderror
-                <p class="mt-1 text-xs text-gray-500">Describe el impacto esperado de implementar esta iniciativa</p>
-            </div>
-
-            <!-- Botones -->
-            <div class="flex justify-end gap-4 pt-4 border-t border-gray-200">
-                <a href="{{ route('innovacion-mejora-continua.initiatives.index') }}" 
-                   class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition duration-200">
-                    Cancelar
-                </a>
-                <button type="submit" 
-                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-200 flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            <div class="flex flex-col gap-3 sm:flex-row sm:justify-end pt-6 border-t border-slate-800/60">
+                <a href="{{ route('innovacion-mejora-continua.initiatives.index') }}"
+                    class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-700/70 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-slate-100">Cancelar</a>
+                <button type="submit"
+                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/40 transition hover:-translate-y-0.5">
+                    <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    Crear Iniciativa
+                    Crear iniciativa
                 </button>
             </div>
         </form>
     </div>
-</div>
 @endsection

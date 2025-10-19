@@ -3,57 +3,64 @@
 @section('title', 'Gestión de Alianzas y Convenios')
 
 @section('content')
-    <div class="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold mb-6">Gestión de Alianzas y Convenios</h1>
-
-        {{-- Botones de acción --}}
-        <div class="flex justify-end mb-4 space-x-2">
-            <a href="{{ route('partners.create') }}"
-                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Nuevo Socio</a>
-            <a href="{{ route('agreements.create') }}"
-                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Nuevo Convenio</a>
+    <div class="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8 text-slate-100">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+            <div>
+                <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Relaciones estratégicas</p>
+                <h1 class="text-3xl font-semibold">Gestión de Alianzas y Convenios</h1>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <a href="{{ route('partners.create') }}"
+                    class="inline-flex items-center gap-2 bg-emerald-500/90 text-white px-4 py-2 rounded-xl font-semibold shadow-lg shadow-emerald-500/30 hover:bg-emerald-400 transition">
+                    Nuevo Socio
+                </a>
+                <a href="{{ route('agreements.create') }}"
+                    class="inline-flex items-center gap-2 bg-sky-500/90 text-white px-4 py-2 rounded-xl font-semibold shadow-lg shadow-sky-500/30 hover:bg-sky-400 transition">
+                    Nuevo Convenio
+                </a>
+            </div>
         </div>
 
         {{-- Tabla de Socios --}}
-        <div class="bg-white shadow-md rounded-lg mb-8 overflow-hidden">
-            <div class="p-4 font-semibold text-lg border-b">Socios Registrados</div>
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-100">
+        <div class="bg-slate-950/60 border border-slate-800/70 shadow-xl shadow-slate-900/50 rounded-2xl mb-10 overflow-hidden">
+            <div class="p-6 font-semibold text-lg border-b border-slate-800/70 text-slate-200">Socios Registrados</div>
+            <table class="min-w-full divide-y divide-slate-800/70 text-sm">
+                <thead class="bg-slate-900/70 text-slate-400 uppercase tracking-wider text-xs">
                     <tr>
-                        <th class="px-6 py-3 text-left">Nombre</th>
-                        <th class="px-6 py-3 text-left">Tipo</th>
-                        <th class="px-6 py-3 text-left">Contacto</th>
-                        <th class="px-6 py-3 text-left">Representante</th>
-                        <th class="px-6 py-3 text-left">Acciones</th>
+                        <th class="px-6 py-3 text-left font-semibold">Nombre</th>
+                        <th class="px-6 py-3 text-left font-semibold">Tipo</th>
+                        <th class="px-6 py-3 text-left font-semibold">Contacto</th>
+                        <th class="px-6 py-3 text-left font-semibold">Representante</th>
+                        <th class="px-6 py-3 text-left font-semibold">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-transparent divide-y divide-slate-800/70 text-slate-300">
                     @forelse($partners as $partner)
-                        <tr>
-                            <td class="px-6 py-4">{{ $partner->name }}</td>
-                            <td class="px-6 py-4">{{ $partner->type }}</td>
-                            <td class="px-6 py-4">
+                        <tr class="hover:bg-slate-900/60 transition">
+                            <td class="px-6 py-4 text-slate-100">{{ $partner->name }}</td>
+                            <td class="px-6 py-4 text-slate-300">{{ $partner->type }}</td>
+                            <td class="px-6 py-4 text-slate-300">
                                 @if(is_array($partner->contact))
                                     {{ $partner->contact['email'] ?? '' }}
                                 @else
                                     {{ $partner->contact }}
                                 @endif
                             </td>
-                            <td class="px-6 py-4">{{ $partner->legal_representative }}</td>
-                            <td class="px-6 py-4 space-x-1">
+                            <td class="px-6 py-4 text-slate-300">{{ $partner->legal_representative }}</td>
+                            <td class="px-6 py-4 flex flex-wrap gap-2">
                                 <a href="{{ route('partners.edit', $partner->id) }}"
-                                    class="bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500">Editar</a>
+                                    class="inline-flex items-center px-3 py-1.5 rounded-lg bg-amber-400/90 text-slate-900 font-semibold hover:bg-amber-300 transition">Editar</a>
                                 <form action="{{ route('partners.destroy', $partner->id) }}" method="POST" class="inline">
                                     @csrf @method('DELETE')
                                     <button type="submit"
-                                        class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                                        class="inline-flex items-center px-3 py-1.5 rounded-lg bg-rose-600/90 text-white font-semibold hover:bg-rose-500 transition"
                                         onclick="return confirm('¿Deseas eliminar este socio?')">Eliminar</button>
                                 </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-zinc-500">No hay socios registrados.</td>
+                            <td colspan="5" class="px-6 py-6 text-center text-slate-500">No hay socios registrados.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -61,55 +68,53 @@
         </div>
 
         {{-- Tabla de Convenios --}}
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
-            <div class="p-4 font-semibold text-lg border-b">Convenios Registrados</div>
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-100">
+        <div class="bg-slate-950/60 border border-slate-800/70 shadow-xl shadow-slate-900/50 rounded-2xl overflow-hidden">
+            <div class="p-6 font-semibold text-lg border-b border-slate-800/70 text-slate-200">Convenios Registrados</div>
+            <table class="min-w-full divide-y divide-slate-800/70 text-sm">
+                <thead class="bg-slate-900/70 text-slate-400 uppercase tracking-wider text-xs">
                     <tr>
-                        <th class="px-6 py-3 text-left">Socio</th>
-                        <th class="px-6 py-3 text-left">Convenio</th>
-                        <th class="px-6 py-3 text-left">Inicio</th>
-                        <th class="px-6 py-3 text-left">Fin</th>
-                        <th class="px-6 py-3 text-left">Estado</th>
-                        <th class="px-6 py-3 text-left">Firma Electrónica</th>
-                        <th class="px-6 py-3 text-left">Acciones</th>
+                        <th class="px-6 py-3 text-left font-semibold">Socio</th>
+                        <th class="px-6 py-3 text-left font-semibold">Convenio</th>
+                        <th class="px-6 py-3 text-left font-semibold">Inicio</th>
+                        <th class="px-6 py-3 text-left font-semibold">Fin</th>
+                        <th class="px-6 py-3 text-left font-semibold">Estado</th>
+                        <th class="px-6 py-3 text-left font-semibold">Firma Electrónica</th>
+                        <th class="px-6 py-3 text-left font-semibold">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-transparent divide-y divide-slate-800/70 text-slate-300">
                     @forelse($agreements as $agreement)
-                        <tr>
-                            <td class="px-6 py-4">{{ $agreement->partner->name ?? '-' }}</td>
-                            <td class="px-6 py-4">{{ $agreement->title }}</td>
-                            <td class="px-6 py-4">{{ $agreement->start_date->format('d/m/Y') }}</td>
-                            <td class="px-6 py-4">{{ $agreement->end_date->format('d/m/Y') }}</td>
+                        <tr class="hover:bg-slate-900/60 transition">
+                            <td class="px-6 py-4 text-slate-100">{{ $agreement->partner->name ?? '-' }}</td>
+                            <td class="px-6 py-4 text-slate-300">{{ $agreement->title }}</td>
+                            <td class="px-6 py-4 text-slate-300">{{ $agreement->start_date->format('d/m/Y') }}</td>
+                            <td class="px-6 py-4 text-slate-300">{{ $agreement->end_date->format('d/m/Y') }}</td>
                             <td class="px-6 py-4">
-                                <span class="px-2 inline-flex text-xs font-semibold rounded-full 
-                                    @if($agreement->status === 'Activo') bg-green-100 text-green-800
-                                    @elseif($agreement->status === 'Pendiente') bg-yellow-100 text-yellow-800
-                                    @else bg-gray-100 text-gray-800 @endif">
+                                <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full border
+                                    @if($agreement->status === 'Activo') bg-emerald-500/15 text-emerald-300 border-emerald-400/30
+                                    @elseif($agreement->status === 'Pendiente') bg-amber-500/15 text-amber-300 border-amber-400/30
+                                    @else bg-slate-500/20 text-slate-200 border-slate-400/30 @endif">
                                     {{ $agreement->status }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4">{{ $agreement->electronic_signature ? 'Sí' : 'No' }}</td>
-                            <td class="px-6 py-4 flex gap-2">
+                            <td class="px-6 py-4 text-slate-300">{{ $agreement->electronic_signature ? 'Sí' : 'No' }}</td>
+                            <td class="px-6 py-4 flex flex-wrap gap-2">
                                 <a href="{{ route('agreements.edit', $agreement->id) }}"
-                                    class="bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500">Editar</a>
-                                    <form action="{{ route('agreements.destroy', $agreement->id) }}" method="POST"
-          onsubmit="return confirm('¿Seguro que quieres eliminar este convenio?');">
-        @csrf
-        @method('DELETE')
-        <button type="submit" 
-                class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
-            Eliminar
-        </button>
-    </form>
-
-                                    
+                                    class="inline-flex items-center px-3 py-1.5 rounded-lg bg-amber-400/90 text-slate-900 font-semibold hover:bg-amber-300 transition">Editar</a>
+                                <form action="{{ route('agreements.destroy', $agreement->id) }}" method="POST"
+                                    onsubmit="return confirm('¿Seguro que quieres eliminar este convenio?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="inline-flex items-center px-3 py-1.5 rounded-lg bg-rose-600/90 text-white font-semibold hover:bg-rose-500 transition">
+                                        Eliminar
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-zinc-500">No hay convenios registrados.</td>
+                            <td colspan="7" class="px-6 py-6 text-center text-slate-500">No hay convenios registrados.</td>
                         </tr>
                     @endforelse
                 </tbody>

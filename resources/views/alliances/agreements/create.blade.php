@@ -1,61 +1,73 @@
 @extends('layouts.app')
-
+@section('title', 'Nuevo convenio')
 @section('content')
-<div class="p-6 bg-gray-100 min-h-screen">
-    <h2 class="text-xl font-bold mb-4">Nuevo Convenio</h2>
-
-    <form action="{{ route('agreements.store') }}" method="POST" class="space-y-4">
-        @csrf
-
-        <div>
-            <label class="block mb-1">Socio</label>
-            <select name="partner_id" class="border rounded w-full p-2" required>
-                <option value="" disabled selected>Selecciona un socio</option>
-                @foreach($partners as $partner)
-                    <option value="{{ $partner->id }}">
-                        {{ $partner->name }} ({{ $partner->type }})
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <div>
-            <label class="block mb-1">Título del convenio</label>
-            <input type="text" name="title" value="{{ old('title') }}" class="border rounded w-full p-2" required>
-        </div>
-
-        <div class="flex gap-4">
+    <div class="max-w-5xl mx-auto px-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 text-slate-100">
             <div>
-                <label class="block mb-1">Fecha Inicio</label>
-                <input type="date" name="start_date" value="{{ old('start_date') }}" class="border rounded p-2" required>
+                <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Relaciones estratégicas</p>
+                <h1 class="text-3xl font-semibold">Nuevo convenio</h1>
+                <p class="text-sm text-slate-400">Formaliza los acuerdos con tus socios clave.</p>
             </div>
-            <div>
-                <label class="block mb-1">Fecha Fin</label>
-                <input type="date" name="end_date" value="{{ old('end_date') }}" class="border rounded p-2" required>
+            <a href="{{ route('alliances.index') }}"
+                class="inline-flex items-center gap-2 rounded-2xl border border-slate-700/60 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-300 hover:text-slate-100 hover:border-slate-500 transition">← Volver</a>
+        </div>
+
+        <form action="{{ route('agreements.store') }}" method="POST"
+            class="rounded-3xl border border-slate-800/70 bg-slate-950/70 p-8 shadow-2xl shadow-slate-950/40 backdrop-blur text-slate-100 space-y-8">
+            @csrf
+            <div class="grid gap-6 md:grid-cols-2">
+                <div class="md:col-span-2">
+                    <label class="text-sm font-semibold text-slate-300">Socio</label>
+                    <select name="partner_id" class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40" required>
+                        <option value="" disabled @selected(!old('partner_id'))>Selecciona un socio</option>
+                        @foreach ($partners as $partner)
+                            <option value="{{ $partner->id }}" @selected(old('partner_id') == $partner->id)>
+                                {{ $partner->name }} ({{ $partner->type }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="text-sm font-semibold text-slate-300">Título del convenio</label>
+                    <input type="text" name="title" value="{{ old('title') }}" required
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40" />
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-slate-300">Fecha inicio</label>
+                    <input type="date" name="start_date" value="{{ old('start_date') }}" required
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40" />
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-slate-300">Fecha fin</label>
+                    <input type="date" name="end_date" value="{{ old('end_date') }}" required
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40" />
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-slate-300">Estado</label>
+                    <input type="text" name="status" value="{{ old('status') }}" required
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40" />
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-slate-300">Fecha de renovación</label>
+                    <input type="date" name="renewal_date" value="{{ old('renewal_date') }}"
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40" />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-300">
+                        <input type="checkbox" name="electronic_signature" value="1"
+                            class="size-4 rounded border-slate-700 bg-slate-900 text-sky-400 focus:ring-0"
+                            {{ old('electronic_signature') ? 'checked' : '' }}>
+                        Firma electrónica
+                    </label>
+                </div>
             </div>
-        </div>
 
-        <div>
-            <label class="block mb-1">Estado</label>
-            <input type="text" name="status" value="{{ old('status') }}" class="border rounded w-full p-2" required>
-        </div>
-
-        <div>
-            <label class="block mb-1">Fecha de renovación</label>
-            <input type="date" name="renewal_date" value="{{ old('renewal_date') }}" class="border rounded w-full p-2">
-        </div>
-
-        <div class="flex items-center gap-2">
-            <input type="checkbox" name="electronic_signature" value="1" {{ old('electronic_signature') ? 'checked' : '' }}>
-            <label>Firma Electrónica</label>
-        </div>
-
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Crear
-        </button>
-        <a href="{{ route('alliances.index') }}" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
-            Cancelar
-        </a>
-    </form>
-</div>
+            <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <a href="{{ route('alliances.index') }}"
+                    class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-700/70 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-slate-100">Cancelar</a>
+                <button type="submit"
+                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/40 transition hover:-translate-y-0.5">Crear convenio</button>
+            </div>
+        </form>
+    </div>
 @endsection
