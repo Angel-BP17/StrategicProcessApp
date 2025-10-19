@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Planning;
 
+use App\Http\Requests\CreateKpiMeasurementRequest;
 use App\Http\Requests\Planning\Kpis\CreateKpiRequest;
 use App\Http\Requests\Planning\Kpis\UpdateKpiRequest;
 use App\Models\Planning\Kpi;
+use App\Models\Planning\KpiMeasurement;
 use App\Models\Planning\StrategicObjective;
 use App\Models\Planning\StrategicPlan;
 use Illuminate\Http\Request;
@@ -74,7 +76,7 @@ class KpiController extends Controller
         return redirect()->route('planning.objectives.show', [$plan->id, $objective->id])
             ->with('ok', 'KPI eliminado');
     }
-    public function addMeasurement(KpiMeasurementRequest $request, StrategicPlan $plan, StrategicObjective $objective, Kpi $kpi)
+    public function storeMeasurement(CreateKpiMeasurementRequest $request, StrategicPlan $plan, StrategicObjective $objective, Kpi $kpi)
     {
         KpiMeasurement::create($request->validated() + [
             'recorded_by_user_id' => $request->user()->id,
