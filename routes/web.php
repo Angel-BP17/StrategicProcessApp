@@ -115,3 +115,40 @@ Route::middleware(['auth'])->group(function () {
     // CRUD de Convenios
     Route::resource('agreements', AgreementController::class);
 });
+
+use App\Http\Controllers\InnovacionMejoraContinua\InnovacionMejoraController;
+use App\Http\Controllers\InnovacionMejoraContinua\InitiativeController;
+use App\Http\Controllers\InnovacionMejoraContinua\InitiativeEvaluationController;
+
+Route::middleware(['auth', 'role:any,admin,planner'])->prefix('innovacion-mejora-continua')->name('innovacion-mejora-continua.')->group(function () {
+
+    // Home del módulo de Innovación y Mejora Continua
+    Route::get('/', [InnovacionMejoraController::class, 'index'])->name('index');
+
+    // Iniciativas (Gestión de iniciativas)
+    Route::prefix('initiatives')->name('initiatives.')->group(function () {
+        Route::get('/', [InitiativeController::class, 'index'])->name('index');           // listado de iniciativas
+        Route::get('/create', [InitiativeController::class, 'create'])->name('create');   // formulario crear
+        Route::post('/', [InitiativeController::class, 'store'])->name('store');          // guardar
+        Route::get('/{initiative}', [InitiativeController::class, 'show'])->name('show'); // ver detalle
+        Route::get('/{initiative}/edit', [InitiativeController::class, 'edit'])->name('edit'); // formulario editar
+        Route::put('/{initiative}', [InitiativeController::class, 'update'])->name('update');  // actualizar
+        Route::delete('/{initiative}', [InitiativeController::class, 'destroy'])->name('destroy'); // eliminar
+
+        // Evaluaciones de iniciativas (por iniciativa)
+        Route::prefix('{initiative}/evaluations')->name('evaluations.')->group(function () {
+            Route::get('/', [InitiativeEvaluationController::class, 'index'])->name('index');        // listado
+            Route::get('/create', [InitiativeEvaluationController::class, 'create'])->name('create'); // formulario
+            Route::post('/', [InitiativeEvaluationController::class, 'store'])->name('store');       // guardar
+            Route::get('/{evaluation}', [InitiativeEvaluationController::class, 'show'])->name('show'); // detalle
+            Route::get('/{evaluation}/edit', [InitiativeEvaluationController::class, 'edit'])->name('edit'); // editar
+            Route::put('/{evaluation}', [InitiativeEvaluationController::class, 'update'])->name('update'); // actualizar
+            Route::delete('/{evaluation}', [InitiativeEvaluationController::class, 'destroy'])->name('destroy'); // eliminar
+        });
+    });
+
+    // Dashboards del módulo (opcional)
+    Route::prefix('dashboards')->name('dashboards.')->group(function () {
+        Route::get('/', [InnovacionMejoraController::class, 'dashboard'])->name('index');
+    });
+});
