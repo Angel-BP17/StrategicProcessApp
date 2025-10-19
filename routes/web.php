@@ -11,6 +11,16 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 
+
+use App\Http\Controllers\Quality\AuditController;
+use App\Http\Controllers\Quality\QualityDashboardController;
+use App\Http\Controllers\Quality\FindingController;
+use App\Http\Controllers\Quality\CorrectiveActionController;
+use App\Http\Controllers\Quality\AccreditationController;
+use App\Http\Controllers\Quality\SurveyController;
+use App\Http\Controllers\Quality\SurveyQuestionController;
+use App\Http\Controllers\Quality\EvaluationCriterionController;
+
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
@@ -91,6 +101,79 @@ Route::middleware(['auth', 'role:any,admin,planner'])->prefix('planning')->name(
         Route::get('/{dashboard}', [DashboardController::class, 'show'])->name('show');
     });
 });
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| MÓDULO: GESTIÓN DE CALIDAD
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->prefix('quality')->name('quality.')->group(function () {
+
+    // Dashboard Principal de Calidad
+    Route::get('/', [QualityDashboardController::class, 'index'])->name('index');
+
+    // Sub-módulo: Auditorías
+    Route::get('/audits', [AuditController::class, 'index'])->name('audits.index');
+    Route::get('/audits/create', [AuditController::class, 'create'])->name('audits.create'); 
+    Route::post('/audits', [AuditController::class, 'store'])->name('audits.store'); 
+    Route::get('/audits/{audit}', [AuditController::class, 'show'])->name('audits.show'); 
+
+    // --- HALLAZGOS (Findings) ---
+    // Ruta para guardar un nuevo hallazgo para una auditoría específica
+    Route::post('/audits/{audit}/findings', [FindingController::class, 'store'])->name('audits.findings.store');
+    // --- ACCIONES CORRECTIVAS (Corrective Actions) ---
+    // Ruta para guardar una nueva acción correctiva para un hallazgo
+    Route::post('/findings/{finding}/corrective-actions', [CorrectiveActionController::class, 'store'])->name('findings.corrective-actions.store');
+
+    // --- SUB-MÓDULO: ACREDITACIONES ---
+    Route::get('/accreditations', [AccreditationController::class, 'index'])->name('accreditations.index');
+    Route::get('/accreditations/create', [AccreditationController::class, 'create'])->name('accreditations.create');
+    Route::post('/accreditations', [AccreditationController::class, 'store'])->name('accreditations.store');
+    Route::get('/accreditations/{accreditation}/edit', [AccreditationController::class, 'edit'])->name('accreditations.edit');
+    Route::put('/accreditations/{accreditation}', [AccreditationController::class, 'update'])->name('accreditations.update');
+    Route::delete('/accreditations/{accreditation}', [AccreditationController::class, 'destroy'])->name('accreditations.destroy');
+
+    // --- SUB-MÓDULO: ENCUESTAS ---
+    Route::get('/surveys', [SurveyController::class, 'index'])->name('surveys.index');
+    Route::get('/surveys/create', [SurveyController::class, 'create'])->name('surveys.create');
+    Route::post('/surveys', [SurveyController::class, 'store'])->name('surveys.store');
+    // La ruta 'design' ahora usa el modelo Survey automáticamente
+    Route::get('/surveys/{survey}/design', [SurveyController::class, 'design'])->name('surveys.design');
+    // Ruta para GUARDAR una nueva pregunta para una encuesta específica
+    Route::post('/surveys/{survey}/questions', [SurveyQuestionController::class, 'store'])->name('surveys.questions.store');
+    // Ruta para ELIMINAR una pregunta específica
+    Route::delete('/surveys/{survey}/questions/{question}', [SurveyQuestionController::class, 'destroy'])->name('surveys.questions.destroy');
+    // Ruta para MOSTRAR el formulario de edición de pregunta
+    Route::get('/surveys/{survey}/questions/{question}/edit', [SurveyQuestionController::class, 'edit'])->name('surveys.questions.edit'); 
+    // Ruta para ACTUALIZAR una pregunta existente
+    Route::put('/surveys/{survey}/questions/{question}', [SurveyQuestionController::class, 'update'])->name('surveys.questions.update'); 
+    // Ruta para ELIMINAR una encuesta completa
+    Route::delete('/surveys/{survey}', [SurveyController::class, 'destroy'])->name('surveys.destroy');
+    Route::get('/surveys/{survey}/edit', [SurveyController::class, 'edit'])->name('surveys.edit'); 
+    // Ruta para ACTUALIZAR la encuesta
+    Route::put('/surveys/{survey}', [SurveyController::class, 'update'])->name('surveys.update');
+    // Ruta para MOSTRAR la interfaz de asignación de una encuesta
+    Route::get('/surveys/{survey}/assign', [SurveyController::class, 'showAssignForm'])->name('surveys.assign.show');
+    Route::post('/surveys/{survey}/assign', [SurveyController::class, 'storeAssignments'])->name('surveys.assign.store');
+
+    // --- SUB-MÓDULO: CRITERIOS DE EVALUACIÓN ---
+    Route::get('/evaluation-criteria', [EvaluationCriterionController::class, 'index'])->name('evaluation-criteria.index');
+    Route::get('/evaluation-criteria/create', [EvaluationCriterionController::class, 'create'])->name('evaluation-criteria.create');
+    Route::post('/evaluation-criteria', [EvaluationCriterionController::class, 'store'])->name('evaluation-criteria.store');
+    Route::get('/evaluation-criteria/{criterion}/edit', [EvaluationCriterionController::class, 'edit'])->name('evaluation-criteria.edit');
+    Route::put('/evaluation-criteria/{criterion}', [EvaluationCriterionController::class, 'update'])->name('evaluation-criteria.update');
+    Route::delete('/evaluation-criteria/{criterion}', [EvaluationCriterionController::class, 'destroy'])->name('evaluation-criteria.destroy');
+    // Ruta para ELIMINAR un criterio
+    Route::delete('/evaluation-criteria/{criterion}', [EvaluationCriterionController::class, 'destroy'])->name('evaluation-criteria.destroy');
+
+});
+
+
+
+
 
 Route::get('/debug/roles', function () {
     $u = auth()->user();

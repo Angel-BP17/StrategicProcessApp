@@ -4,7 +4,7 @@
         ['label' => 'Alianzas y convenios', 'href' => url('/alliances'), 'match' => 'alliances*'],
         ['label' => 'Documentación y evidencias', 'href' => url('/documents'), 'match' => 'documents*'],
         ['label' => 'Innovación y mejora continua', 'href' => url('/innovation'), 'match' => 'innovation*'],
-        ['label' => 'Calidad educativa', 'href' => url('/quality'), 'match' => 'quality*'],
+        ['label' => 'Calidad educativa', 'href' => route('quality.index'), 'match' => 'quality*'],
         [
             'label' => 'Colaboración y comunicación digital',
             'href' => url('/collaboration'),
