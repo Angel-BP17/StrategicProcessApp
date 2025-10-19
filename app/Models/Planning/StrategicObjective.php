@@ -21,7 +21,7 @@ class StrategicObjective extends Model
     }
     public function user()
     {
-        return $this->belongsTo(User::class, 'reponsible_user_id');
+        return $this->belongsTo(User::class, 'responsible_user_id');
     }
     public function kpis()
     {
