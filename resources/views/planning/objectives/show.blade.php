@@ -36,11 +36,14 @@
             <div class="grid md:grid-cols-2 gap-4">
                 @foreach ($objective->kpis as $kpi)
                     @php
+                        // Normaliza datos para el componente (evita TypeError de array_values/Collection)
                         $measures = $kpi->measurements->sortBy('measured_at');
                         $labels = $measures
                             ->pluck('measured_at')
-                            ->map(fn($d) => \Illuminate\Support\Str::substr($d, 0, 10));
-                        $values = $measures->pluck('value');
+                            ->map(fn($d) => \Illuminate\Support\Str::substr($d, 0, 10))
+                            ->values()
+                            ->all();
+                        $values = $measures->pluck('value')->values()->all();
                     @endphp
 
                     <div class="rounded-2xl bg-white shadow p-5">

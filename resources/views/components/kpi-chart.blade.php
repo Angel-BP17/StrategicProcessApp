@@ -1,8 +1,9 @@
 @props([
     'canvasId' => 'kpiChart',
-    'labels' => [], // array|Collection de etiquetas (fechas, etc.)
-    'values' => [], // array|Collection de valores
+    'labels' => [], // array|Collection
+    'values' => [], // array|Collection
     'title' => 'Serie',
+    'type' => 'line',
 ])
 
 @php
@@ -17,8 +18,10 @@
 
 <script>
     (() => {
-        const ctx = document.getElementById(@json($canvasId));
-        if (!ctx) return;
+        const el = document.getElementById(@json($canvasId));
+        if (!el) return;
+
+        const ctx = el.getContext('2d');
 
         const data = {
             labels: @json($lbls),
@@ -31,9 +34,8 @@
             }]
         };
 
-        // Si usas Chart.js v4
-        const chart = new Chart(ctx, {
-            type: 'line',
+        new Chart(ctx, {
+            type: @json($type),
             data,
             options: {
                 responsive: true,

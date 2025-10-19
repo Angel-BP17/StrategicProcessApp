@@ -83,6 +83,7 @@ Route::middleware(['auth', 'role:any,admin,planner'])->prefix('planning')->name(
         // Mediciones de KPIs (opcional, si quieres subrutas)
         Route::get('/{kpi}/measurements', [KpiController::class, 'measurements'])->name('measurements.index');
         Route::post('/{kpi}/measurements', [KpiController::class, 'storeMeasurement'])->name('measurements.store');
+        Route::delete('/{kpi}/measurements', [KpiController::class, 'deleteMeasurement'])->name('measurements.destroy');
     });
 
     // Dashboards del módulo

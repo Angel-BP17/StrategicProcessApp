@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('title', 'Planificación institucional')
 @section('content')
     <div class="container mx-auto p-4">
         @include('planning._nav')

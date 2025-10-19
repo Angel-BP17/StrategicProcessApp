@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Panel')</title>
     @viteReactRefresh
-    @vite(['resources/css/app.css', 'resources/js/app.jsx'])
+    @vite(['resources/css/app.css', 'resources/js/app.jsx', 'resources/js/charts.js'])
 </head>
 
 <body class="bg-zinc-50 text-zinc-900">
@@ -35,6 +35,13 @@
                 <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
                     <h1 class="text-base font-medium">@yield('title', 'Panel')</h1>
                     <div class="ml-auto text-sm text-zinc-600">Hola, {{ Auth::user()->name }}</div>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit"
+                            class="px-4 py-2 text-sm font-semibold text-white bg-[#201A2F] border border-[#848282]/30 rounded-lg hover:border-[#26BBFF] transition-all duration-200">
+                            Cerrar Sesión
+                        </button>
+                    </form>
                 </div>
             </header>
 
