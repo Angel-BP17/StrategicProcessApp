@@ -5,11 +5,11 @@
 
     {{-- Si NO hay plan, botón para crear --}}
     @if (!$plan)
-        <div class="rounded-2xl bg-white shadow p-8 text-center">
-            <p class="text-zinc-600 mb-4">Aún no existe un plan estratégico.</p>
+        <div class="rounded-2xl bg-zinc-500/20 backdrop-blur shadow p-8 text-center">
+            <p class="text-zinc-200 mb-4">Aún no existe un plan estratégico.</p>
             @can('plan.manage')
                 <a href="{{ route('planning.plans.create') }}"
-                    class="inline-flex items-center px-4 py-2 rounded-xl bg-zinc-900 text-white text-sm">
+                    class="inline-flex items-center px-4 py-2 rounded-xl bg-gray-950 text-white text-sm">
                     Crear plan
                 </a>
             @endcan

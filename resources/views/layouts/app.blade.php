@@ -30,18 +30,26 @@
         @include('partials.sidebar')
 
         {{-- Contenido --}}
-        <main class="flex-1">
-            <header class="sticky top-0 z-40 bg-white/70 backdrop-blur border-b">
-                <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
-                    <h1 class="text-base font-medium">@yield('title', 'Panel')</h1>
-                    <div class="ml-auto text-sm text-zinc-600">Hola, {{ Auth::user()->name }}</div>
-                </div>
-            </header>
+<main class="flex-1 min-h-screen
+  bg-gray-950
+  text-zinc-100
+">
+  <header class="sticky top-0 z-40
+    bg-zinc-500/20
+  ">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+      <h1 class="text-base font-medium text-zinc-400">@yield('title', 'Panel')</h1>
+      <div class="ml-auto text-sm text-zinc-300">Hola, {{ Auth::user()->name }}</div>
+    </div>
+  </header>
 
-            <section class="max-w-7xl mx-auto px-4 py-6">
-                @yield('content')
-            </section>
-        </main>
+  <section class="max-w-7xl mx-auto px-4 py-6">
+    @yield('content')
+  </section>
+</main>
+
+
+
     </div>
 
     @if (session('ok'))

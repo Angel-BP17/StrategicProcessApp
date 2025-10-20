@@ -13,20 +13,23 @@
     ];
 @endphp
 
-<aside class="w-64 shrink-0 border-r bg-white/90 backdrop-blur">
-    <div class="px-4 py-4 border-b">
-        <a href="{{ route('dashboard') }}" class="text-lg font-semibold">Instituto</a>
-        <div class="text-xs text-zinc-500">Panel</div>
-    </div>
+<aside class="bg-gray-950 w-64 shrink-0 border-r border-zinc-500  text-zinc-300">
+  <div class="px-4 py-4 border-b border-zinc-700 ">
+    <a href="{{ route('dashboard') }}" class="text-lg font-semibold text-sky-400">Instituto</a>
+    <div class="text-xs text-zinc-500">Panel</div>
+  </div>
 
-    <nav class="p-2 space-y-1">
-        @foreach ($items as $it)
-            @php $active = request()->is($it['match']); @endphp
-            <a href="{{ $it['href'] }}"
-                class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm
-                {{ $active ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:bg-zinc-100' }}">
-                <span>{{ $it['label'] }}</span>
-            </a>
-        @endforeach
-    </nav>
+  <nav class="p-2 space-y-1 ">
+    @foreach ($items as $it)
+      @php $active = request()->is($it['match']); @endphp
+      <a href="{{ $it['href'] }}"
+         class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm
+           {{ $active
+             ? 'bg-zinc-700 text-white'
+             : 'text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors duration-200' }}">
+        <span>{{ $it['label'] }}</span>
+      </a>
+    @endforeach
+  </nav>
 </aside>
+
