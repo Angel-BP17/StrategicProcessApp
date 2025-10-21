@@ -20,7 +20,8 @@
                     </form>
                 @else
                     <a href="{{ route('login') }}" class="text-sm text-slate-300 hover:text-sky-300 transition">Login</a>
-                    <a href="{{ route('register') }}" class="ml-4 text-sm text-slate-300 hover:text-sky-300 transition">Register</a>
+                    <a href="{{ route('register') }}"
+                        class="ml-4 text-sm text-slate-300 hover:text-sky-300 transition">Register</a>
                 @endauth
             </div>
         @endif
@@ -34,6 +35,22 @@
             <header class="sticky top-0 z-40 bg-slate-950/85 backdrop-blur border-b border-slate-800/60">
                 <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3 text-sm">
                     <h1 class="text-base font-semibold text-slate-100">@yield('title', 'Panel')</h1>
+                    @php $notis = auth()->user()->unreadNotifications()->latest()->take(10)->get(); @endphp
+                    <div class="relative">
+                        <button><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                width="24px" fill="#FFFF55">
+                                <path
+                                    d="M160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h80v80H160Zm320-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z" />
+                            </svg> {{ $notis->count() }}</button>
+                        <div class="absolute bg-white shadow rounded p-2">
+                            @foreach ($notis as $n)
+                                <div class="text-sm py-1">
+                                    {{ $n->data['type'] === 'mention' ? 'Te mencionaron' : 'Nueva tarea' }} —
+                                    {{ $n->created_at->diffForHumans() }}
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                     <div class="ml-auto text-xs sm:text-sm text-slate-300">Hola, {{ Auth::user()->name }}</div>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
@@ -52,10 +69,13 @@
     </div>
 
     @if (session('ok'))
-        <div class="fixed bottom-4 right-4 bg-emerald-500/90 text-white px-4 py-2 rounded-lg shadow-lg shadow-emerald-500/40">{{ session('ok') }}</div>
+        <div
+            class="fixed bottom-4 right-4 bg-emerald-500/90 text-white px-4 py-2 rounded-lg shadow-lg shadow-emerald-500/40">
+            {{ session('ok') }}</div>
     @endif
     @if (session('error'))
-        <div class="fixed bottom-4 right-4 bg-rose-600/90 text-white px-4 py-2 rounded-lg shadow-lg shadow-rose-500/40">{{ session('error') }}</div>
+        <div class="fixed bottom-4 right-4 bg-rose-600/90 text-white px-4 py-2 rounded-lg shadow-lg shadow-rose-500/40">
+            {{ session('error') }}</div>
     @endif
     @stack('chartjs')
     @stack('scripts')

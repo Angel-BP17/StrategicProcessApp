@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\Collaboration\ChannelController;
+use App\Http\Controllers\Collaboration\CollaborationController;
+use App\Http\Controllers\Collaboration\MessageController;
+use App\Http\Controllers\Collaboration\SearchController;
+use App\Http\Controllers\Collaboration\TaskController;
+use App\Http\Controllers\Collaboration\TeamController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Planning\KpiController;
 use App\Http\Controllers\Planning\PlanningController;
@@ -50,10 +56,6 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard Route (ejemplo)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    Route::get('/collaboration', function () {
-        return view('collaboration');
-    })->name('collaboration');
 });
 
 Route::middleware(['auth', 'role:any,admin,planner'])->prefix('planning')->name('planning.')->group(function () {
@@ -121,9 +123,9 @@ Route::middleware(['auth'])->prefix('quality')->name('quality.')->group(function
 
     // Sub-módulo: Auditorías
     Route::get('/audits', [AuditController::class, 'index'])->name('audits.index');
-    Route::get('/audits/create', [AuditController::class, 'create'])->name('audits.create'); 
-    Route::post('/audits', [AuditController::class, 'store'])->name('audits.store'); 
-    Route::get('/audits/{audit}', [AuditController::class, 'show'])->name('audits.show'); 
+    Route::get('/audits/create', [AuditController::class, 'create'])->name('audits.create');
+    Route::post('/audits', [AuditController::class, 'store'])->name('audits.store');
+    Route::get('/audits/{audit}', [AuditController::class, 'show'])->name('audits.show');
 
     // --- HALLAZGOS (Findings) ---
     // Ruta para guardar un nuevo hallazgo para una auditoría específica
@@ -151,12 +153,12 @@ Route::middleware(['auth'])->prefix('quality')->name('quality.')->group(function
     // Ruta para ELIMINAR una pregunta específica
     Route::delete('/surveys/{survey}/questions/{question}', [SurveyQuestionController::class, 'destroy'])->name('surveys.questions.destroy');
     // Ruta para MOSTRAR el formulario de edición de pregunta
-    Route::get('/surveys/{survey}/questions/{question}/edit', [SurveyQuestionController::class, 'edit'])->name('surveys.questions.edit'); 
+    Route::get('/surveys/{survey}/questions/{question}/edit', [SurveyQuestionController::class, 'edit'])->name('surveys.questions.edit');
     // Ruta para ACTUALIZAR una pregunta existente
-    Route::put('/surveys/{survey}/questions/{question}', [SurveyQuestionController::class, 'update'])->name('surveys.questions.update'); 
+    Route::put('/surveys/{survey}/questions/{question}', [SurveyQuestionController::class, 'update'])->name('surveys.questions.update');
     // Ruta para ELIMINAR una encuesta completa
     Route::delete('/surveys/{survey}', [SurveyController::class, 'destroy'])->name('surveys.destroy');
-    Route::get('/surveys/{survey}/edit', [SurveyController::class, 'edit'])->name('surveys.edit'); 
+    Route::get('/surveys/{survey}/edit', [SurveyController::class, 'edit'])->name('surveys.edit');
     // Ruta para ACTUALIZAR la encuesta
     Route::put('/surveys/{survey}', [SurveyController::class, 'update'])->name('surveys.update');
     // Ruta para MOSTRAR la interfaz de asignación de una encuesta
@@ -234,4 +236,41 @@ Route::middleware(['auth', 'role:any,admin,planner'])->prefix('innovacion-mejora
     Route::prefix('dashboards')->name('dashboards.')->group(function () {
         Route::get('/', [InnovacionMejoraController::class, 'dashboard'])->name('index');
     });
+});
+
+/*
+|--------------------------------------------------------------------------
+| MÓDULO: COLABORACIÓN Y COMUNICACIÓN DIGITAL
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+    Route::get('/collaboration', [CollaborationController::class, 'index'])->name('collab.index');
+
+    // Equipos
+    Route::post('/collaboration/teams', [TeamController::class, 'store'])->name('collab.teams.store');
+    Route::post('/collaboration/teams/{team}/join', [TeamController::class, 'join'])->name('collab.teams.join');
+    Route::post('/collaboration/teams/{team}/leave', [TeamController::class, 'leave'])->name('collab.teams.leave');
+
+    // Canales
+    Route::post('/collaboration/teams/{team}/channels', [ChannelController::class, 'store'])->name('collab.channels.store');
+    Route::post('/collaboration/channels/{channel}/join', [ChannelController::class, 'join'])->name('collab.channels.join');
+    Route::post('/collaboration/channels/{channel}/leave', [ChannelController::class, 'leave'])->name('collab.channels.leave');
+    // Moderación (bloquear/desbloquear)
+    Route::post('/collaboration/channels/{channel}/ban/{user}', [ChannelController::class, 'ban'])->name('collab.channels.ban');
+    Route::post('/collaboration/channels/{channel}/unban/{user}', [ChannelController::class, 'unban'])->name('collab.channels.unban');
+
+    // Mensajes (con adjuntos)
+    Route::post('/collaboration/channels/{channel}/messages', [MessageController::class, 'store'])->name('collab.messages.store');
+    Route::delete('/collaboration/messages/{message}', [MessageController::class, 'destroy'])->name('collab.messages.destroy');
+    Route::post('/collaboration/messages/{message}/pin', [MessageController::class, 'pin'])->name('collab.messages.pin');
+    Route::post('/collaboration/messages/{message}/report', [MessageController::class, 'report'])->name('collab.messages.report');
+
+    // Tareas
+    Route::post('/collaboration/channels/{channel}/tasks', [TaskController::class, 'store'])->name('collab.tasks.store');
+    Route::patch('/collaboration/tasks/{task}/toggle', [TaskController::class, 'toggle'])->name('collab.tasks.toggle');
+    Route::delete('/collaboration/tasks/{task}', [TaskController::class, 'destroy'])->name('collab.tasks.destroy');
+
+    // Búsqueda
+    Route::get('/collaboration/search', [SearchController::class, 'index'])->name('collab.search');
 });

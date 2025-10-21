@@ -1,0 +1,279 @@
+{{-- resources/views/collaboration.blade.php --}}
+@extends('layouts.app')
+
+@section('title', 'Colaboración y Comunicación Digital')
+
+@section('content')
+    @php
+        // Protecciones: evita errores cuando aún no hay canal o datos
+        /** @var \App\Models\Channel|null $channel */
+        $channelId = $channel->id ?? null;
+        $channelName = $channel->name ?? '—';
+        $channelMeta =
+            optional($channel)->topic ??
+            (optional($channel)->description ?? 'Selecciona o crea un canal para empezar a colaborar.');
+
+        // Mensajes y tareas (si existen)
+        $messages = $channel?->messages ?? collect();
+        $tasks = $channel?->tasks ?? collect();
+
+        // Archivos compartidos: últimas 6 versiones vinculadas a mensajes del canal (si existen)
+        $files = collect();
+        if ($messages->count() > 0) {
+            $files = \App\Models\DocumentVersion::query()
+                ->where('linked_type', 'message')
+                ->whereIn('linked_id', $messages->pluck('id'))
+                ->orderByDesc('uploaded_at')
+                ->limit(6)
+                ->get();
+        }
+    @endphp
+
+    <div class="space-y-8 text-slate-100">
+
+        {{-- Encabezado --}}
+        <header class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-semibold text-white">Colaboración y Comunicación Digital</h1>
+                <p class="text-slate-400 mt-2 text-sm max-w-2xl">
+                    {{ $channelMeta }}
+                </p>
+            </div>
+
+            @if ($channelId)
+                <a href="#nuevo-mensaje"
+                    class="inline-flex items-center gap-2 bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 text-white px-4 py-2 rounded-xl font-semibold shadow-lg shadow-sky-500/40 hover:shadow-indigo-500/40 transition-transform hover:-translate-y-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Nuevo Mensaje
+                </a>
+            @endif
+        </header>
+
+        {{-- Sección: Mensajería / Anuncios (canal actual) --}}
+        <section class="bg-slate-950/60 border border-slate-800/70 rounded-2xl shadow-xl shadow-slate-900/50 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-white"># {{ $channelName }}</h2>
+
+                @if ($channelId)
+                    <form method="GET" action="{{ route('collab.search') }}" class="flex items-center gap-2">
+                        <input type="hidden" name="channel_id" value="{{ $channelId }}">
+                        <input name="q" placeholder="Buscar en el canal…"
+                            class="bg-slate-950/60 border border-slate-800/60 rounded px-3 py-1.5 text-sm outline-none focus:border-sky-500/60">
+                        <button class="text-sm text-sky-300 hover:text-sky-200 transition font-medium">Ver todos</button>
+                    </form>
+                @endif
+            </div>
+
+            {{-- Lista de mensajes del canal --}}
+            <div id="chat-log" class="space-y-4">
+                @forelse ($messages as $m)
+                    <div
+                        class="border border-slate-800/70 rounded-xl p-4 bg-slate-950/40 hover:border-sky-500/40 hover:shadow-sky-500/20 transition">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-medium text-white">
+                                {{ $m->user->name ?? 'Usuario' }}
+                                <span class="text-xs text-slate-500 font-normal">—
+                                    {{ $m->created_at?->diffForHumans() }}</span>
+                                @if ($m->pinned)
+                                    <span class="ml-1 text-[10px] px-1 bg-yellow-300/20 text-yellow-200 rounded">PIN</span>
+                                @endif
+                            </h3>
+                            {{-- Acciones básicas (autor o moderación se maneja en controlador) --}}
+                            <div class="flex items-center gap-3 text-xs">
+                                <form method="POST" action="{{ route('collab.messages.pin', $m->id) }}">
+                                    @csrf
+                                    <button class="text-amber-300 hover:underline">Fijar</button>
+                                </form>
+                                <form method="POST" action="{{ route('collab.messages.destroy', $m->id) }}"
+                                    onsubmit="return confirm('¿Eliminar mensaje?')">
+                                    @csrf @method('DELETE')
+                                    <button class="text-rose-300 hover:underline">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-slate-300 mt-1 whitespace-pre-wrap">{{ $m->content }}</p>
+
+                        {{-- Respuestas (thread) --}}
+                        @if ($m->replies?->count())
+                            <div class="mt-3 space-y-2 border-l border-slate-800/60 pl-3">
+                                @foreach ($m->replies as $r)
+                                    <div class="text-sm">
+                                        <span class="text-slate-300 font-medium">{{ $r->user->name ?? 'Usuario' }}</span>
+                                        <span class="text-slate-500 text-xs">—
+                                            {{ $r->created_at?->diffForHumans() }}</span>
+                                        <div class="text-slate-300">{{ $r->content }}</div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @empty
+                    <div class="text-sm text-slate-400">Todavía no hay mensajes en este canal.</div>
+                @endforelse
+            </div>
+
+            {{-- Composer de mensaje --}}
+            @if ($channelId)
+                <form id="nuevo-mensaje" class="mt-6 border-t border-slate-800/70 pt-4" method="POST"
+                    action="{{ route('collab.messages.store', $channelId) }}" enctype="multipart/form-data">
+                    @csrf
+                    <label class="block text-sm text-slate-300 mb-1">Escribe un mensaje</label>
+                    <textarea name="content" rows="3"
+                        class="w-full bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 text-sm outline-none focus:border-sky-500/60"
+                        placeholder="Usa @correo para mencionar a alguien…"></textarea>
+                    <div class="mt-3 flex items-center justify-between">
+                        <input type="file" name="files[]" multiple
+                            class="text-xs text-slate-300 file:mr-3 file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-slate-800/80 file:text-slate-200 hover:file:bg-slate-700/80">
+                        <button
+                            class="inline-flex items-center gap-2 bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 text-white px-4 py-2 rounded-xl font-semibold shadow-lg shadow-sky-500/40 hover:shadow-indigo-500/40 transition-transform hover:-translate-y-0.5">
+                            Enviar
+                        </button>
+                    </div>
+                </form>
+            @endif
+        </section>
+
+        {{-- Sección: Documentos compartidos (archivos adjuntos del canal) --}}
+        <section class="bg-slate-950/60 border border-slate-800/70 rounded-2xl shadow-xl shadow-slate-900/50 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-white">Documentos compartidos</h2>
+                @if ($channelId)
+                    <a href="#nuevo-mensaje" class="text-sm text-sky-300 hover:text-sky-200 transition font-medium">Subir
+                        documento</a>
+                @endif
+            </div>
+
+            @if ($files->isEmpty())
+                <p class="text-sm text-slate-400">Aún no se han compartido archivos en este canal.</p>
+            @else
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    @foreach ($files as $f)
+                        <div
+                            class="border border-slate-800/70 rounded-xl p-4 bg-slate-950/40 hover:border-sky-500/40 hover:shadow-sky-500/20 transition">
+                            <h3 class="font-medium text-white flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-sky-300" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9" />
+                                    <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                </svg>
+                                {{ $f->file_name }}
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1">
+                                Tamaño: {{ number_format(($f->file_size ?? 0) / 1024, 0) }} KB ·
+                                {{ \Illuminate\Support\Str::upper($f->mime_type ?? '') }}
+                            </p>
+                            <div class="mt-2">
+                                @php
+                                    // Si guardas en 'public', el path puede servirse con Storage::url
+                                    $url = \Illuminate\Support\Facades\Storage::disk('public')->url($f->storage_path);
+                                @endphp
+                                <a href="{{ $url }}" target="_blank"
+                                    class="text-sm text-sky-300 hover:text-sky-200 hover:underline">Ver / Descargar</a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </section>
+
+        {{-- Sección: "Calendario colaborativo" como próximas tareas --}}
+        <section class="bg-slate-950/60 border border-slate-800/70 rounded-2xl shadow-xl shadow-slate-900/50 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-white">Calendario colaborativo</h2>
+
+                @if ($channelId)
+                    <form method="POST" action="{{ route('collab.tasks.store', $channelId) }}"
+                        class="flex items-center gap-2">
+                        @csrf
+                        <input name="title" placeholder="Nueva tarea…"
+                            class="bg-slate-950/60 border border-slate-800/60 rounded px-3 py-1.5 text-sm outline-none focus:border-emerald-500/60">
+                        <input name="due_date" type="date"
+                            class="bg-slate-950/60 border border-slate-800/60 rounded px-3 py-1.5 text-sm outline-none focus:border-emerald-500/60">
+                        <button
+                            class="text-sm text-emerald-300 hover:text-emerald-200 transition font-medium">Agregar</button>
+                    </form>
+                @endif
+            </div>
+
+            @if ($tasks->isEmpty())
+                <p class="text-sm text-slate-400">No hay tareas en este canal.</p>
+            @else
+                <div class="grid md:grid-cols-3 gap-4">
+                    @foreach ($tasks as $t)
+                        <div
+                            class="border border-slate-800/70 rounded-xl p-4 bg-slate-950/40 hover:border-emerald-500/40 hover:shadow-emerald-500/20 transition">
+                            <h3 class="font-medium text-white flex items-center justify-between">
+                                <span
+                                    class="{{ $t->status === 'done' ? 'line-through text-slate-400' : '' }}">{{ $t->title }}</span>
+                                <form method="POST" action="{{ route('collab.tasks.toggle', $t->id) }}" class="inline">
+                                    @csrf @method('PATCH')
+                                    <button
+                                        class="text-xs {{ $t->status === 'done' ? 'text-emerald-300' : 'text-slate-300' }} hover:underline">
+                                        {{ $t->status === 'done' ? 'Reabrir' : 'Completar' }}
+                                    </button>
+                                </form>
+                            </h3>
+                            <p class="text-sm text-slate-400 mt-1">
+                                @if ($t->due_date)
+                                    Vence: {{ $t->due_date->format('Y-m-d') }}
+                                @else
+                                    Sin fecha
+                                @endif
+                            </p>
+                            <div class="mt-2 flex items-center justify-between">
+                                <span class="text-xs text-slate-500">Estado: {{ $t->status }}</span>
+                                <form method="POST" action="{{ route('collab.tasks.destroy', $t->id) }}"
+                                    onsubmit="return confirm('¿Eliminar tarea?')" class="inline">
+                                    @csrf @method('DELETE')
+                                    <button class="text-xs text-rose-300 hover:underline">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </section>
+    </div>
+
+    {{-- Tiempo real (Echo + Reverb). Agrega window.userId en tu layout si quieres escuchar notificaciones privadas. --}}
+    @if ($channelId)
+        <script>
+            (() => {
+                if (!window.Echo) return;
+
+                const container = document.getElementById('chat-log');
+
+                window.Echo.join(`channel.{{ $channelId }}`)
+                    .listen('.message.sent', (e) => {
+                        const card = document.createElement('div');
+                        card.className =
+                            "border border-slate-800/70 rounded-xl p-4 bg-slate-950/40 hover:border-sky-500/40 hover:shadow-sky-500/20 transition";
+                        card.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <h3 class="font-medium text-white">
+                        ${e.user.name}
+                        <span class="text-xs text-slate-500 font-normal">— ahora</span>
+                    </h3>
+                </div>
+                <p class="text-sm text-slate-300 mt-1 whitespace-pre-wrap">${e.content}</p>
+            `;
+                        container.appendChild(card);
+                        container.scrollTop = container.scrollHeight;
+                    });
+
+                // Notificaciones (menciones, tareas asignadas) si se expone window.userId en el layout
+                if (window.userId) {
+                    window.Echo.private(`user.${window.userId}`)
+                        .notification((n) => {
+                            // Puedes mostrar un toast; por ahora solo log.
+                            console.log('Notificación', n);
+                        });
+                }
+            })();
+        </script>
+    @endif
+@endsection

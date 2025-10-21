@@ -3,7 +3,11 @@
         ['label' => 'Planificación institucional', 'href' => route('planning.plans.index'), 'match' => 'planning*'],
         ['label' => 'Alianzas y convenios', 'href' => route('alliances.index'), 'match' => 'alliances*'],
         ['label' => 'Documentación y evidencias', 'href' => url('/documents'), 'match' => 'documents*'],
-        ['label' => 'Innovación y mejora continua', 'href' => url('/innovacion-mejora-continua'), 'match' => 'innovation*'],
+        [
+            'label' => 'Innovación y mejora continua',
+            'href' => url('/innovacion-mejora-continua'),
+            'match' => 'innovation*',
+        ],
         ['label' => 'Calidad educativa', 'href' => route('quality.index'), 'match' => 'quality*'],
         [
             'label' => 'Colaboración y comunicación digital',
@@ -32,4 +36,3 @@
         @endforeach
     </nav>
 </aside>
-
