@@ -74,7 +74,7 @@ class EvaluationCriterionController extends Controller
     {
         // Si la FK en option_criteria tiene ON DELETE CASCADE, las opciones se borran solas.
         // Si no, bórralas manualmente primero: $criterion->options()->delete();
-
+        $criterion->options()->delete();
         $criterion->delete(); // Elimina el criterio
 
         return redirect()->route('quality.evaluation-criteria.index')
