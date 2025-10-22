@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Channel extends Model
 {
-    protected $fillable = ['team_id', 'name', 'channel_type', 'description', 'topic', 'members', 'created_by_user_id'];
+    protected $fillable = ['team_id', 'name', 'related_plan_id', 'channel_type', 'description', 'topic', 'members', 'created_by_user_id'];
     protected $casts = ['members' => 'array'];
 
     public function team()
@@ -43,7 +43,9 @@ class Channel extends Model
     {
         $this->members = collect($this->members ?? [])->map(function ($x) use ($userId, $role) {
             if ((int) $x['user_id'] === $userId) {
-                $x['role'] = $role; }return $x; })->values()->all();
+                $x['role'] = $role;
+            }return $x;
+        })->values()->all();
         $this->save();
     }
     public function removeMember(int $userId)

@@ -2,6 +2,8 @@
 
 namespace App\Observers;
 
+use App\Models\Collaboration\Message;
+use App\Models\User;
 use App\Notifications\MentionedInMessage;
 
 class MessageObserver

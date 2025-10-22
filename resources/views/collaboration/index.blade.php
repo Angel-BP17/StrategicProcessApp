@@ -5,7 +5,6 @@
 
 @section('content')
     @php
-        // Protecciones: evita errores cuando aún no hay canal o datos
         /** @var \App\Models\Channel|null $channel */
         $channelId = $channel->id ?? null;
         $channelName = $channel->name ?? '—';
@@ -13,11 +12,9 @@
             optional($channel)->topic ??
             (optional($channel)->description ?? 'Selecciona o crea un canal para empezar a colaborar.');
 
-        // Mensajes y tareas (si existen)
         $messages = $channel?->messages ?? collect();
         $tasks = $channel?->tasks ?? collect();
 
-        // Archivos compartidos: últimas 6 versiones vinculadas a mensajes del canal (si existen)
         $files = collect();
         if ($messages->count() > 0) {
             $files = \App\Models\DocumentVersion::query()
@@ -40,6 +37,19 @@
                 </p>
             </div>
 
+            @php
+                $raw = auth()->user()->role ?? (auth()->user()->roles ?? []);
+                $roles = is_array($raw) ? $raw : [$raw];
+                $isAdmin = in_array('admin', $roles, true);
+            @endphp
+
+            @if ($isAdmin)
+                <a href="{{ route('collab.channels.create') }}"
+                    class="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:-translate-y-0.5 transition">
+                    Nuevo canal
+                </a>
+            @endif
+
             @if ($channelId)
                 <a href="#nuevo-mensaje"
                     class="inline-flex items-center gap-2 bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 text-white px-4 py-2 rounded-xl font-semibold shadow-lg shadow-sky-500/40 hover:shadow-indigo-500/40 transition-transform hover:-translate-y-0.5">
@@ -52,11 +62,10 @@
             @endif
         </header>
 
-        {{-- Sección: Mensajería / Anuncios (canal actual) --}}
+        {{-- Mensajería / Anuncios --}}
         <section class="bg-slate-950/60 border border-slate-800/70 rounded-2xl shadow-xl shadow-slate-900/50 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-white"># {{ $channelName }}</h2>
-
                 @if ($channelId)
                     <form method="GET" action="{{ route('collab.search') }}" class="flex items-center gap-2">
                         <input type="hidden" name="channel_id" value="{{ $channelId }}">
@@ -67,7 +76,6 @@
                 @endif
             </div>
 
-            {{-- Lista de mensajes del canal --}}
             <div id="chat-log" class="space-y-4">
                 @forelse ($messages as $m)
                     <div
@@ -81,11 +89,9 @@
                                     <span class="ml-1 text-[10px] px-1 bg-yellow-300/20 text-yellow-200 rounded">PIN</span>
                                 @endif
                             </h3>
-                            {{-- Acciones básicas (autor o moderación se maneja en controlador) --}}
                             <div class="flex items-center gap-3 text-xs">
                                 <form method="POST" action="{{ route('collab.messages.pin', $m->id) }}">
-                                    @csrf
-                                    <button class="text-amber-300 hover:underline">Fijar</button>
+                                    @csrf <button class="text-amber-300 hover:underline">Fijar</button>
                                 </form>
                                 <form method="POST" action="{{ route('collab.messages.destroy', $m->id) }}"
                                     onsubmit="return confirm('¿Eliminar mensaje?')">
@@ -94,10 +100,8 @@
                                 </form>
                             </div>
                         </div>
-
                         <p class="text-sm text-slate-300 mt-1 whitespace-pre-wrap">{{ $m->content }}</p>
 
-                        {{-- Respuestas (thread) --}}
                         @if ($m->replies?->count())
                             <div class="mt-3 space-y-2 border-l border-slate-800/60 pl-3">
                                 @foreach ($m->replies as $r)
@@ -116,7 +120,6 @@
                 @endforelse
             </div>
 
-            {{-- Composer de mensaje --}}
             @if ($channelId)
                 <form id="nuevo-mensaje" class="mt-6 border-t border-slate-800/70 pt-4" method="POST"
                     action="{{ route('collab.messages.store', $channelId) }}" enctype="multipart/form-data">
@@ -137,7 +140,7 @@
             @endif
         </section>
 
-        {{-- Sección: Documentos compartidos (archivos adjuntos del canal) --}}
+        {{-- Documentos compartidos --}}
         <section class="bg-slate-950/60 border border-slate-800/70 rounded-2xl shadow-xl shadow-slate-900/50 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-white">Documentos compartidos</h2>
@@ -152,6 +155,7 @@
             @else
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     @foreach ($files as $f)
+                        @php $url = \Illuminate\Support\Facades\Storage::disk('public')->url($f->storage_path); @endphp
                         <div
                             class="border border-slate-800/70 rounded-xl p-4 bg-slate-950/40 hover:border-sky-500/40 hover:shadow-sky-500/20 transition">
                             <h3 class="font-medium text-white flex items-center gap-2">
@@ -167,10 +171,6 @@
                                 {{ \Illuminate\Support\Str::upper($f->mime_type ?? '') }}
                             </p>
                             <div class="mt-2">
-                                @php
-                                    // Si guardas en 'public', el path puede servirse con Storage::url
-                                    $url = \Illuminate\Support\Facades\Storage::disk('public')->url($f->storage_path);
-                                @endphp
                                 <a href="{{ $url }}" target="_blank"
                                     class="text-sm text-sky-300 hover:text-sky-200 hover:underline">Ver / Descargar</a>
                             </div>
@@ -180,11 +180,10 @@
             @endif
         </section>
 
-        {{-- Sección: "Calendario colaborativo" como próximas tareas --}}
+        {{-- Calendario colaborativo = próximas tareas --}}
         <section class="bg-slate-950/60 border border-slate-800/70 rounded-2xl shadow-xl shadow-slate-900/50 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-white">Calendario colaborativo</h2>
-
                 @if ($channelId)
                     <form method="POST" action="{{ route('collab.tasks.store', $channelId) }}"
                         class="flex items-center gap-2">
@@ -239,12 +238,10 @@
         </section>
     </div>
 
-    {{-- Tiempo real (Echo + Reverb). Agrega window.userId en tu layout si quieres escuchar notificaciones privadas. --}}
     @if ($channelId)
         <script>
             (() => {
                 if (!window.Echo) return;
-
                 const container = document.getElementById('chat-log');
 
                 window.Echo.join(`channel.{{ $channelId }}`)
@@ -259,19 +256,14 @@
                         <span class="text-xs text-slate-500 font-normal">— ahora</span>
                     </h3>
                 </div>
-                <p class="text-sm text-slate-300 mt-1 whitespace-pre-wrap">${e.content}</p>
-            `;
+                <p class="text-sm text-slate-300 mt-1 whitespace-pre-wrap">${e.content}</p>`;
                         container.appendChild(card);
                         container.scrollTop = container.scrollHeight;
                     });
 
-                // Notificaciones (menciones, tareas asignadas) si se expone window.userId en el layout
                 if (window.userId) {
                     window.Echo.private(`user.${window.userId}`)
-                        .notification((n) => {
-                            // Puedes mostrar un toast; por ahora solo log.
-                            console.log('Notificación', n);
-                        });
+                        .notification((n) => console.log('Notificación', n));
                 }
             })();
         </script>

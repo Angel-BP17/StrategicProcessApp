@@ -21,6 +21,8 @@ class CollaborationController extends Controller
         // Canal activo
         $channel = null;
 
+        $allTeams = Team::orderBy('name')->get();
+
         if ($r->filled('channel')) {
             $channel = Channel::with(['messages.user', 'tasks.assignments'])
                 ->findOrFail((int) $r->query('channel'));
@@ -37,6 +39,6 @@ class CollaborationController extends Controller
             }
         }
 
-        return view('collaboration.index', compact('teams', 'channel'));
+        return view('collaboration.index', compact('teams', 'channel', 'allTeams'));
     }
 }

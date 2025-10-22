@@ -77,10 +77,15 @@
         <div class="fixed bottom-4 right-4 bg-rose-600/90 text-white px-4 py-2 rounded-lg shadow-lg shadow-rose-500/40">
             {{ session('error') }}</div>
     @endif
+    @if (auth()->check())
+        <script>
+            window.userId = {{ auth()->id() }};
+        </script>
+    @endif
     @stack('chartjs')
     @stack('scripts')
 
-    
+
 </body>
 
 </html>

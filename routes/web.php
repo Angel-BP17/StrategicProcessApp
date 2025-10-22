@@ -253,7 +253,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/collaboration/teams/{team}/leave', [TeamController::class, 'leave'])->name('collab.teams.leave');
 
     // Canales
-    Route::post('/collaboration/teams/{team}/channels', [ChannelController::class, 'store'])->name('collab.channels.store');
+    Route::get('/collaboration/channels/create', [ChannelController::class, 'create'])->name('collab.channels.create');
+    Route::post('/collaboration/channels', [ChannelController::class, 'store'])->name('collab.channels.store');
     Route::post('/collaboration/channels/{channel}/join', [ChannelController::class, 'join'])->name('collab.channels.join');
     Route::post('/collaboration/channels/{channel}/leave', [ChannelController::class, 'leave'])->name('collab.channels.leave');
     // Moderación (bloquear/desbloquear)
