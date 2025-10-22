@@ -79,6 +79,8 @@
     @endif
     @stack('chartjs')
     @stack('scripts')
+
+    
 </body>
 
 </html>

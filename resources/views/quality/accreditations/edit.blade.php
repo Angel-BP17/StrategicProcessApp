@@ -1,71 +1,79 @@
 @extends('layouts.app')
 
-@section('header')
-<h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-    {{ __('Editar Acreditación') }}
-</h2>
-@endsection
+@section('title', 'Editar Acreditación')
+
+{{-- @section('header') ... @endsection --}} {{-- Quitamos el header si el layout lo maneja --}}
 
 @section('content')
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-dark-purple shadow-xl sm:rounded-lg p-6 lg:p-8">
+    {{-- Contenedor principal --}}
+    <div class="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8 text-slate-100">
 
-            <h1 class="text-2xl font-medium text-white mb-6">
-                Editando: {{ $accreditation->entity }}
-            </h1>
+        {{-- Cabecera --}}
+        <div class="mb-8">
+             <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Gestión de Calidad / Acreditaciones</p>
+             <h1 class="text-3xl font-semibold">Editando: {{ Str::limit($accreditation->entity, 40) }}</h1> {{-- Usamos el nombre en el título --}}
+         </div>
 
-            {{-- CAMBIO 1: La acción apunta a 'update' y pasamos el ID --}}
-            <form action="{{ route('quality.accreditations.update', $accreditation) }}" method="POST">
+        {{-- "Caja" del Formulario --}}
+        <div class="bg-slate-950/60 border border-slate-800/70 shadow-xl shadow-slate-900/50 rounded-2xl mb-10 overflow-hidden">
+            {{-- Cabecera de la Caja --}}
+            <div class="p-6 font-semibold text-lg border-b border-slate-800/70 text-slate-200">Datos de la Acreditación</div>
+
+            {{-- Formulario --}}
+            <form action="{{ route('quality.accreditations.update', $accreditation) }}" method="POST" class="p-6">
                 @csrf
-                @method('PUT') {{-- CAMBIO 2: Le decimos a Laravel que esto es un PUT --}}
+                @method('PUT') {{-- Método PUT para actualizar --}}
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
 
-                    {{-- CAMBIO 3: 'value' se rellena con los datos existentes --}}
+                    {{-- Campo: Entidad (Pre-llenado) --}}
                     <div class="md:col-span-2">
-                        <label for="entity" class="block text-sm font-medium text-gray-300">Entidad Acreditadora</label>
+                        <label for="entity" class="block text-sm font-semibold text-slate-300 mb-1">Entidad Acreditadora</label>
                         <input type="text" name="entity" id="entity" value="{{ old('entity', $accreditation->entity) }}" required
-                               class="mt-1 block w-full bg-night border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                        @error('entity') <p class="mt-2 text-sm text-red-500">{{ $message }}</p> @enderror
+                               class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                        @error('entity') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
 
+                    {{-- Campo: Resultado (Pre-llenado) --}}
                     <div class="md:col-span-2">
-                        <label for="result" class="block text-sm font-medium text-gray-300">Resultado</label>
+                        <label for="result" class="block text-sm font-semibold text-slate-300 mb-1">Resultado</label>
                         <input type="text" name="result" id="result" value="{{ old('result', $accreditation->result) }}" required
-                               class="mt-1 block w-full bg-night border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                        @error('result') <p class="mt-2 text-sm text-red-500">{{ $message }}</p> @enderror
+                               class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                        @error('result') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
 
+                    {{-- Campo: Fecha de Acreditación (Pre-llenado) --}}
                     <div>
-                        <label for="accreditation_date" class="block text-sm font-medium text-gray-300">Fecha de Obtención</label>
+                        <label for="accreditation_date" class="block text-sm font-semibold text-slate-300 mb-1">Fecha de Obtención</label>
                         <input type="date" name="accreditation_date" id="accreditation_date" value="{{ old('accreditation_date', $accreditation->accreditation_date) }}" required
-                               class="mt-1 block w-full bg-night border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                        @error('accreditation_date') <p class="mt-2 text-sm text-red-500">{{ $message }}</p> @enderror
+                               class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                        @error('accreditation_date') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
 
+                    {{-- Campo: Fecha de Expiración (Pre-llenado) --}}
                     <div>
-                        <label for="expiration_date" class="block text-sm font-medium text-gray-300">Fecha de Expiración (Opcional)</label>
+                        <label for="expiration_date" class="block text-sm font-semibold text-slate-300 mb-1">Fecha de Expiración (Opcional)</label>
                         <input type="date" name="expiration_date" id="expiration_date" value="{{ old('expiration_date', $accreditation->expiration_date) }}"
-                               class="mt-1 block w-full bg-night border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                        @error('expiration_date') <p class="mt-2 text-sm text-red-500">{{ $message }}</p> @enderror
+                               class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                        @error('expiration_date') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
 
                 </div>
 
-                <div class="mt-6 flex justify-end gap-4">
-                    <a href="{{ route('quality.accreditations.index') }}" 
-                       class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500">
+                {{-- Botones de Acción --}}
+                <div class="mt-6 flex justify-end gap-3">
+                    <a href="{{ route('quality.accreditations.index') }}"
+                       class="inline-flex items-center px-4 py-2 bg-slate-600/90 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-slate-500/90 transition">
                         Cancelar
                     </a>
-                    <button type="submit" 
-                            class="inline-flex items-center px-4 py-2 bg-primary border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-opacity-75">
+                    {{-- Cambiamos texto del botón --}}
+                    <button type="submit"
+                            class="inline-flex items-center px-4 py-2 bg-sky-500/90 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-sky-400/90 transition shadow-md shadow-sky-500/30">
                         Actualizar Acreditación
                     </button>
                 </div>
             </form>
 
-        </div>
-    </div>
-</div>
+        </div> {{-- Fin "Caja" del Formulario --}}
+    </div> {{-- Fin contenedor principal --}}
 @endsection

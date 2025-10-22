@@ -1,301 +1,313 @@
 @extends('layouts.app')
 
-@section('header')
-<h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-    {{-- Mostramos el nombre del área en el título --}}
-    Detalle de Auditoría: {{ $audit->area }}
-</h2>
-@endsection
+@section('title', 'Detalle de Auditoría')
+
+{{-- @section('header') --}} {{-- Quitamos el header default si el layout lo maneja --}}
+{{-- ... --}}
+{{-- @endsection --}}
 
 @section('content')
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-dark-purple shadow-xl sm:rounded-lg p-6 lg:p-8">
+    {{-- Contenedor principal --}}
+    <div class="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8 text-slate-100">
 
-            {{-- Botón para volver al listado --}}
-            <div class="mb-6">
-                <a href="{{ route('quality.audits.index') }}" 
-                   class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500">
-                    &larr; Volver al Listado
-                </a>
-            </div>
+        {{-- Cabecera Simplificada para Detalle --}}
+        <div class="mb-8">
+             <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Gestión de Calidad / Auditorías</p>
+             {{-- Usamos el área como título principal --}}
+             <h1 class="text-3xl font-semibold">Auditoría: {{ $audit->area }}</h1>
+         </div>
+
+        {{-- Botón Volver (estilo adaptado) --}}
+        <div class="mb-6">
+            <a href="{{ route('quality.audits.index') }}"
+               class="inline-flex items-center px-4 py-2 bg-slate-600/90 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-slate-500/90 transition">
+                &larr; Volver al Listado
+            </a>
+        </div>
+
+        {{-- "Caja" Principal para todo el contenido --}}
+        <div class="bg-slate-950/60 border border-slate-800/70 shadow-xl shadow-slate-900/50 rounded-2xl mb-10 overflow-hidden">
 
             {{-- SECCIÓN 1: DETALLES PRINCIPALES --}}
-            <h2 class="text-2xl font-medium text-white mb-4">Información General</h2>
-            
-            {{-- Grid con la info --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-300">
-                
-                {{-- Columna 1 --}}
-                <div>
-                    <strong class="block text-gray-100">Área Auditada:</strong>
-                    <span>{{ $audit->area }}</span>
-                </div>
-                <div>
-                    <strong class="block text-gray-100">Tipo:</strong>
-                    <span>{{ $audit->type == 'internal' ? 'Interna' : 'Externa' }}</span>
-                </div>
-                <div>
-                    <strong class="block text-gray-100">Estado:</strong>
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-800 text-green-100">
-                        {{ $audit->state }}
-                    </span>
-                </div>
-
-                {{-- Columna 2 --}}
-                <div>
-                    <strong class="block text-gray-100">Fecha de Inicio:</strong>
-                    <span>{{ \Carbon\Carbon::parse($audit->start_date)->format('d/m/Y') }}</span>
-                </div>
-                <div>
-                    <strong class="block text-gray-100">Fecha de Fin:</strong>
-                    <span>{{ \Carbon\Carbon::parse($audit->end_date)->format('d/m/Y') }}</span>
-                </div>
-                <div>
-                    <strong class="block text-gray-100">Responsable:</strong>
-                    {{-- Usamos la relación 'responsible' que cargamos en el controlador --}}
-                    <span>{{ $audit->responsible->full_name ?? 'No asignado' }}</span>
-                </div>
-
-                {{-- Columna 3 (ancho completo) --}}
-                <div class="md:col-span-3">
-                    <strong class="block text-gray-100">Objetivo:</strong>
-                    <p class="font-light">{{ $audit->objective }}</p>
-                </div>
-                <div class="md:col-span-3">
-                    <strong class="block text-gray-100">Alcance:</strong>
-                    <p class="font-light">{{ $audit->range }}</p>
+            {{-- Cabecera de la Sección --}}
+            <div class="p-6 font-semibold text-lg border-b border-slate-800/70 text-slate-200">Información General</div>
+            {{-- Contenido de la Sección --}}
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 text-sm text-slate-300">
+                    <div>
+                        <strong class="block text-xs uppercase text-slate-400 mb-1">Área Auditada:</strong>
+                        <span class="text-slate-100">{{ $audit->area }}</span>
+                    </div>
+                    <div>
+                        <strong class="block text-xs uppercase text-slate-400 mb-1">Tipo:</strong>
+                        <span class="text-slate-100">{{ $audit->type == 'internal' ? 'Interna' : 'Externa' }}</span>
+                    </div>
+                    <div>
+                        <strong class="block text-xs uppercase text-slate-400 mb-1">Estado:</strong>
+                        {{-- Badge adaptado --}}
+                        <span @class([
+                            'px-3 py-1 inline-flex text-xs font-semibold rounded-full border',
+                            'bg-sky-500/15 text-sky-300 border-sky-400/30' => $audit->state == 'planned',
+                            'bg-amber-500/15 text-amber-300 border-amber-400/30' => $audit->state == 'in_progress',
+                            'bg-emerald-500/15 text-emerald-300 border-emerald-400/30' => $audit->state == 'completed',
+                            'bg-rose-500/15 text-rose-300 border-rose-400/30' => $audit->state == 'cancelled',
+                            'bg-slate-500/20 text-slate-200 border-slate-400/30' => !in_array($audit->state, ['planned', 'in_progress', 'completed', 'cancelled']),
+                        ])>
+                            {{ ucfirst($audit->state) }}
+                        </span>
+                    </div>
+                    <div>
+                        <strong class="block text-xs uppercase text-slate-400 mb-1">Fecha de Inicio:</strong>
+                        <span class="text-slate-100">{{ \Carbon\Carbon::parse($audit->start_date)->format('d/m/Y') }}</span>
+                    </div>
+                    <div>
+                        <strong class="block text-xs uppercase text-slate-400 mb-1">Fecha de Fin:</strong>
+                        <span class="text-slate-100">{{ \Carbon\Carbon::parse($audit->end_date)->format('d/m/Y') }}</span>
+                    </div>
+                    <div>
+                        <strong class="block text-xs uppercase text-slate-400 mb-1">Responsable:</strong>
+                        <span class="text-slate-100">{{ $audit->responsible->full_name ?? 'No asignado' }}</span>
+                    </div>
+                    <div class="md:col-span-3">
+                        <strong class="block text-xs uppercase text-slate-400 mb-1">Objetivo:</strong>
+                        <p class="text-slate-100">{{ $audit->objective }}</p>
+                    </div>
+                    <div class="md:col-span-3">
+                        <strong class="block text-xs uppercase text-slate-400 mb-1">Alcance:</strong>
+                        <p class="text-slate-100">{{ $audit->range }}</p>
+                    </div>
                 </div>
             </div>
-
-            {{-- Divisor --}}
-            <hr class="border-gray-700 my-8">
 
             {{-- SECCIÓN 2: HALLAZGOS (Findings) --}}
-            <h2 class="text-2xl font-medium text-white mb-4">Hallazgos</h2>
+            {{-- Cabecera de la Sección --}}
+            <div class="p-6 font-semibold text-lg border-y border-slate-800/70 text-slate-200">Hallazgos</div>
+            {{-- Contenido de la Sección --}}
+            <div class="p-6 space-y-6"> {{-- Añadimos space-y para separar formulario y tabla --}}
 
-            {{-- Formulario para crear un nuevo hallazgo --}}
-            <form action="{{ route('quality.audits.findings.store', $audit) }}" method="POST" class="bg-night p-6 rounded-lg mb-6">
-                @csrf
-                <h3 class="text-lg font-medium text-white mb-4">Registrar Nuevo Hallazgo</h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {{-- Campo: Descripción --}}
-                    <div class="md:col-span-2">
-                        <label for="description" class="block text-sm font-medium text-gray-300">Descripción del Hallazgo</label>
-                        <textarea name="description" id="description" rows="3" required
-                                class="mt-1 block w-full bg-dark-purple border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">{{ old('description') }}</textarea>
-                        @error('description') <p class="mt-2 text-sm text-red-500">{{ $message }}</p> @enderror
+                {{-- Formulario para crear hallazgo (dentro de una caja más oscura) --}}
+                <form action="{{ route('quality.audits.findings.store', $audit) }}" method="POST" class="bg-slate-900/70 p-6 rounded-xl border border-slate-800/70">
+                    @csrf
+                    <h3 class="text-lg font-semibold text-slate-100 mb-4">Registrar Nuevo Hallazgo</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="md:col-span-2">
+                            <label for="description" class="block text-sm font-semibold text-slate-300 mb-1">Descripción del Hallazgo</label>
+                            <textarea name="description" id="description" rows="3" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">{{ old('description') }}</textarea>
+                            @error('description') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="classification" class="block text-sm font-semibold text-slate-300 mb-1">Clasificación</label>
+                            <input type="text" name="classification" id="classification" value="{{ old('classification') }}" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                            @error('classification') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="severity" class="block text-sm font-semibold text-slate-300 mb-1">Severidad</label>
+                            <select name="severity" id="severity" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                                <option value="low" {{ old('severity') == 'low' ? 'selected' : '' }}>Baja</option>
+                                <option value="medium" {{ old('severity', 'medium') == 'medium' ? 'selected' : '' }}>Media</option>
+                                <option value="high" {{ old('severity') == 'high' ? 'selected' : '' }}>Alta</option>
+                            </select>
+                            @error('severity') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="discovery_date" class="block text-sm font-semibold text-slate-300 mb-1">Fecha de Descubrimiento</label>
+                            <input type="date" name="discovery_date" id="discovery_date" value="{{ old('discovery_date', date('Y-m-d')) }}" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                            @error('discovery_date') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="evidence" class="block text-sm font-semibold text-slate-300 mb-1">Evidencia (Opcional)</label>
+                            <input type="text" name="evidence" id="evidence" value="{{ old('evidence') }}" class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm" placeholder="Ej: Documento X, foto, etc.">
+                        </div>
+                        <div class="md:col-span-2 text-right mt-2"> {{-- Botón Guardar Hallazgo --}}
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-sky-500/90 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-sky-400/90 transition shadow-md shadow-sky-500/30">
+                                Guardar Hallazgo
+                            </button>
+                        </div>
                     </div>
+                </form>
 
-                    {{-- Campo: Clasificación --}}
-                    <div>
-                        <label for="classification" class="block text-sm font-medium text-gray-300">Clasificación</label>
-                        <input type="text" name="classification" id="classification" value="{{ old('classification') }}" required
-                            class="mt-1 block w-full bg-dark-purple border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                        @error('classification') <p class="mt-2 text-sm text-red-500">{{ $message }}</p> @enderror
-                    </div>
-
-                    {{-- Campo: Severidad --}}
-                    <div>
-                        <label for="severity" class="block text-sm font-medium text-gray-300">Severidad</label>
-                        <select name="severity" id="severity" required
-                                class="mt-1 block w-full bg-dark-purple border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                            <option value="low" {{ old('severity') == 'low' ? 'selected' : '' }}>Baja</option>
-                            <option value="medium" {{ old('severity') == 'medium' ? 'selected' : '' }}>Media</option>
-                            <option value="high" {{ old('severity') == 'high' ? 'selected' : '' }}>Alta</option>
-                        </select>
-                        @error('severity') <p class="mt-2 text-sm text-red-500">{{ $message }}</p> @enderror
-                    </div>
-
-                    {{-- Campo: Fecha de Descubrimiento --}}
-                    <div>
-                        <label for="discovery_date" class="block text-sm font-medium text-gray-300">Fecha de Descubrimiento</label>
-                        <input type="date" name="discovery_date" id="discovery_date" value="{{ old('discovery_date', date('Y-m-d')) }}" required
-                            class="mt-1 block w-full bg-dark-purple border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                        @error('discovery_date') <p class="mt-2 text-sm text-red-500">{{ $message }}</p> @enderror
-                    </div>
-
-                    {{-- Campo: Evidencia (Opcional) --}}
-                    <div>
-                        <label for="evidence" class="block text-sm font-medium text-gray-300">Evidencia (Opcional)</label>
-                        <input type="text" name="evidence" id="evidence" value="{{ old('evidence') }}"
-                            class="mt-1 block w-full bg-dark-purple border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-                            placeholder="Ej: Documento X, foto, etc.">
+                {{-- Tabla de Hallazgos Registrados --}}
+                <div class="mt-6"> {{-- Separación --}}
+                    <h3 class="text-lg font-semibold text-slate-100 mb-4">Hallazgos Registrados</h3>
+                    <div class="overflow-x-auto border border-slate-800/70 rounded-lg">
+                        <table class="min-w-full divide-y divide-slate-800/70 text-sm">
+                            <thead class="bg-slate-900/70 text-slate-400 uppercase tracking-wider text-xs">
+                                <tr>
+                                    <th class="px-6 py-3 text-left font-semibold">Descripción</th>
+                                    <th class="px-6 py-3 text-left font-semibold">Severidad</th>
+                                    <th class="px-6 py-3 text-left font-semibold">Fecha Desc.</th>
+                                    <th class="px-6 py-3 text-left font-semibold">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-transparent divide-y divide-slate-800/70 text-slate-300">
+                                @forelse ($audit->findings as $finding)
+                                    <tr class="hover:bg-slate-900/60 transition">
+                                        <td class="px-6 py-4 text-slate-100 whitespace-normal">{{ $finding->description }}</td>
+                                        <td class="px-6 py-4">
+                                            {{-- Badge severidad adaptado --}}
+                                            <span @class([
+                                                'px-3 py-1 inline-flex text-xs font-semibold rounded-full border',
+                                                'bg-rose-500/15 text-rose-300 border-rose-400/30' => $finding->severity == 'high',
+                                                'bg-amber-500/15 text-amber-300 border-amber-400/30' => $finding->severity == 'medium',
+                                                'bg-sky-500/15 text-sky-300 border-sky-400/30' => $finding->severity == 'low',
+                                            ])>
+                                                {{ ucfirst($finding->severity) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">{{ \Carbon\Carbon::parse($finding->discovery_date)->format('d/m/Y') }}</td>
+                                        <td class="px-6 py-4">
+                                            {{-- Botón (aún no funcional) para Acciones Correctivas --}}
+                                            <a href="#correctiveActionsSection" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-400/90 text-slate-900 font-semibold hover:bg-emerald-300 transition text-xs">
+                                                Ver/Añadir Acciones
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-6 text-center text-slate-500">Aún no se han registrado hallazgos.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="mt-4 text-right">
-                    <button type="submit" 
-                            class="inline-flex items-center px-4 py-2 bg-primary border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-opacity-75">
-                        Guardar Hallazgo
-                    </button>
-                </div>
-            </form>
-
-            {{-- Tabla de Hallazgos Registrados --}}
-            <h3 class="text-lg font-medium text-white mb-4">Hallazgos Registrados</h3>
-            <div class="overflow-x-auto bg-night rounded-lg">
-                <table class="min-w-full divide-y divide-gray-700">
-                    <thead class="bg-smoky-black">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Descripción</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Severidad</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fecha</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-dark-purple divide-y divide-gray-700">
-                        {{-- 
-                        Aquí usamos la relación 'findings' que cargamos en el AuditController 
-                        ($audit->load('findings'))
-                        --}}
-                        @forelse ($audit->findings as $finding)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-normal text-sm text-gray-200">{{ $finding->description }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        {{ $finding->severity == 'high' ? 'bg-red-800 text-red-100' : ($finding->severity == 'medium' ? 'bg-yellow-800 text-yellow-100' : 'bg-blue-800 text-blue-100') }}">
-                                        {{ $finding->severity }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ \Carbon\Carbon::parse($finding->discovery_date)->format('d/m/Y') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="#" class="text-primary hover:text-opacity-75">Acciones</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                                    Aún no se han registrado hallazgos.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+            </div> {{-- Fin P-6 Hallazgos --}}
 
             {{-- SECCIÓN 3: ACCIONES CORRECTIVAS --}}
-            <h2 class="text-2xl font-medium text-white mt-8 mb-4">Acciones Correctivas</h2>
-            <div class="overflow-x-auto bg-night rounded-lg">
-                <table class="min-w-full divide-y divide-gray-700">
-                    <thead class="bg-smoky-black">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Hallazgo</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Acción Requerida</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Responsable</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fecha Límite</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-dark-purple divide-y divide-gray-700">
+            {{-- Cabecera de la Sección --}}
+            <div id="correctiveActionsSection" class="p-6 font-semibold text-lg border-y border-slate-800/70 text-slate-200">Acciones Correctivas</div>
+             {{-- Contenido de la Sección --}}
+            <div class="p-6 space-y-6">
 
-                        @forelse ($audit->findings as $finding)
-                            @forelse ($finding->correctiveActions as $action)
-                                <tr>
-                                    @if ($loop->first)
-                                    <td class="px-6 py-4 align-top text-sm text-gray-400 italic" rowspan="{{ $loop->count }}">
-                                        {{ Str::limit($finding->description, 50) }}
-                                    </td>
-                                    @endif
-
-                                    <td class="px-6 py-4 text-sm text-gray-200">{{ $action->description }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-200">{{ $action->responsible->full_name ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-200">{{ \Carbon\Carbon::parse($action->due_date)->format('d/m/Y') }}</td>
-                                    <td class="px-6 py-4 text-sm">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-800 text-yellow-100">
-                                            {{ $action->status }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td class="px-6 py-4 text-sm text-gray-400 italic">{{ Str::limit($finding->description, 50) }}</td>
-                                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                                        No hay acciones correctivas para este hallazgo.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        @empty
+                 {{-- Tabla de Acciones Correctivas --}}
+                 <div class="overflow-x-auto border border-slate-800/70 rounded-lg">
+                    <table class="min-w-full divide-y divide-slate-800/70 text-sm">
+                        <thead class="bg-slate-900/70 text-slate-400 uppercase tracking-wider text-xs">
                             <tr>
-                                <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                                    Aún no se han registrado hallazgos (y por lo tanto, no hay acciones).
-                                </td>
+                                <th class="px-6 py-3 text-left font-semibold">Hallazgo Asoc.</th>
+                                <th class="px-6 py-3 text-left font-semibold">Acción Requerida</th>
+                                <th class="px-6 py-3 text-left font-semibold">Responsable</th>
+                                <th class="px-6 py-3 text-left font-semibold">Fecha Límite</th>
+                                <th class="px-6 py-3 text-left font-semibold">Estado</th>
+                                {{-- <th class="px-6 py-3 text-left font-semibold">Acciones</th> --}}
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody class="bg-transparent divide-y divide-slate-800/70 text-slate-300">
+                            @php $hasActions = false; @endphp
+                            @forelse ($audit->findings as $finding)
+                                @forelse ($finding->correctiveActions as $action)
+                                    @php $hasActions = true; @endphp
+                                    <tr class="hover:bg-slate-900/60 transition">
+                                        {{-- Mostramos el hallazgo solo en la primera acción de ese hallazgo --}}
+                                        @if ($loop->first)
+                                        <td class="px-6 py-4 align-top text-slate-400 italic" rowspan="{{ $loop->count }}">
+                                            {{ Str::limit($finding->description, 40) }}
+                                        </td>
+                                        @endif
+                                        <td class="px-6 py-4 text-slate-100 whitespace-normal">{{ $action->description }}</td>
+                                        <td class="px-6 py-4 text-slate-100">{{ $action->responsible->full_name ?? 'N/A' }}</td>
+                                        <td class="px-6 py-4">{{ $action->due_date ? \Carbon\Carbon::parse($action->due_date)->format('d/m/Y') : '-' }}</td>
+                                        <td class="px-6 py-4">
+                                            {{-- Badge estado acción --}}
+                                            <span @class([
+                                                'px-3 py-1 inline-flex text-xs font-semibold rounded-full border',
+                                                'bg-amber-500/15 text-amber-300 border-amber-400/30' => $action->status == 'pending',
+                                                'bg-blue-500/15 text-blue-300 border-blue-400/30' => $action->status == 'in_progress',
+                                                'bg-emerald-500/15 text-emerald-300 border-emerald-400/30' => $action->status == 'completed',
+                                                'bg-rose-500/15 text-rose-300 border-rose-400/30' => $action->status == 'cancelled',
+                                                'bg-slate-500/20 text-slate-200 border-slate-400/30' => !in_array($action->status, ['pending', 'in_progress', 'completed', 'cancelled']),
+                                            ])>
+                                                {{ ucfirst($action->status) }}
+                                            </span>
+                                        </td>
+                                        {{-- <td class="px-6 py-4 flex flex-wrap gap-2"> --}}
+                                            {{-- Botones Editar/Eliminar Acción --}}
+                                        {{-- </td> --}}
+                                    </tr>
+                                @empty
+                                    {{-- No hacemos nada si un hallazgo no tiene acciones --}}
+                                @endforelse
+                            @empty
+                                {{-- No hacemos nada si no hay hallazgos --}}
+                            @endforelse
 
-            {{-- Formulario para añadir una nueva acción correctiva --}}
-            @if ($audit->findings->isNotEmpty())
-            <form action="" method="POST" id="correctiveActionForm" class="bg-night p-6 rounded-lg mt-6">
-                @csrf
-                <h3 class="text-lg font-medium text-white mb-4">Registrar Nueva Acción Correctiva</h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-                    <div>
-                        <label for="finding_id" class="block text-sm font-medium text-gray-300">Asignar al Hallazgo:</label>
-                        <select name="finding_id" id="finding_id" required
-                                class="mt-1 block w-full bg-dark-purple border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                            @foreach ($audit->findings as $finding)
-                                <option value="{{ $finding->id }}">{{ Str::limit($finding->description, 70) }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label for="description" class="block text-sm font-medium text-gray-300">Descripción de la Acción</label>
-                        <input type="text" name="description" id="description" required
-                            class="mt-1 block w-full bg-dark-purple border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                    </div>
-
-                    <div>
-                        <label for="user_id" class="block text-sm font-medium text-gray-300">Responsable</label>
-                        <select name="user_id" id="user_id" required
-                                class="mt-1 block w-full bg-dark-purple border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                            <option value="">Seleccione un usuario...</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->full_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="due_date" class="block text-sm font-medium text-gray-300">Fecha Límite</label>
-                        <input type="date" name="due_date" id="due_date" value="{{ date('Y-m-d', strtotime('+1 week')) }}" required
-                            class="mt-1 block w-full bg-dark-purple border-gray-700 text-white rounded-md shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
-                    </div>
+                            {{-- Fila si no hay ninguna acción en absoluto --}}
+                            @if (!$hasActions)
+                                <tr>
+                                    <td colspan="5" class="px-6 py-6 text-center text-slate-500">
+                                        No hay acciones correctivas registradas para ningún hallazgo.
+                                    </td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
                 </div>
 
-                <div class="mt-4 text-right">
-                    <button type="submit" 
-                            class="inline-flex items-center px-4 py-2 bg-primary border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-opacity-75">
-                        Guardar Acción
-                    </button>
-                </div>
-            </form>
+                {{-- Formulario para añadir acción correctiva (solo si hay hallazgos) --}}
+                @if ($audit->findings->isNotEmpty())
+                <form action="" method="POST" id="correctiveActionForm" class="bg-slate-900/70 p-6 rounded-xl border border-slate-800/70 mt-6">
+                    @csrf
+                    <h3 class="text-lg font-semibold text-slate-100 mb-4">Registrar Nueva Acción Correctiva</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                        <div>
+                            <label for="finding_id" class="block text-sm font-semibold text-slate-300 mb-1">Asignar al Hallazgo:</label>
+                            <select name="finding_id" id="finding_id" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                                @foreach ($audit->findings as $finding)
+                                    <option value="{{ $finding->id }}">{{ Str::limit($finding->description, 70) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="action_description" class="block text-sm font-semibold text-slate-300 mb-1">Descripción de la Acción</label> {{-- Cambiado ID/Name --}}
+                            <input type="text" name="description" id="action_description" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                            @error('description') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="user_id" class="block text-sm font-semibold text-slate-300 mb-1">Responsable</label>
+                            <select name="user_id" id="user_id" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                                <option value="">Seleccione...</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->full_name }}</option>
+                                @endforeach
+                            </select>
+                            @error('user_id') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="due_date" class="block text-sm font-semibold text-slate-300 mb-1">Fecha Límite</label>
+                            <input type="date" name="due_date" id="due_date" value="{{ date('Y-m-d', strtotime('+1 week')) }}" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                             @error('due_date') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div class="md:col-span-3 text-right mt-2"> {{-- Botón Guardar Acción --}}
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-sky-500/90 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-sky-400/90 transition shadow-md shadow-sky-500/30">
+                                Guardar Acción
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                @endif {{-- Fin @if ($audit->findings->isNotEmpty()) --}}
 
-            {{-- Script para cambiar la URL del formulario dinámicamente --}}
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    const form = document.getElementById('correctiveActionForm');
-                    const findingSelect = document.getElementById('finding_id');
+            </div> {{-- Fin P-6 Acciones --}}
 
-                    function updateFormAction() {
-                        const selectedFindingId = findingSelect.value;
-                        const baseUrl = "{{ route('quality.findings.corrective-actions.store', ['finding' => ':id']) }}";
-                        form.action = baseUrl.replace(':id', selectedFindingId);
-                    }
+        </div> {{-- Fin "Caja" Principal --}}
+    </div> {{-- Fin contenedor principal --}}
 
-                    updateFormAction();
-                    findingSelect.addEventListener('change', updateFormAction);
-                });
-            </script>
-            @endif
-            
-        </div>
-    </div>
-</div>
+    {{-- Script para cambiar la URL del formulario de Acción Correctiva (sin cambios) --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('correctiveActionForm');
+            const findingSelect = document.getElementById('finding_id');
+
+            // Solo ejecuta si el formulario existe (por si no hay hallazgos)
+            if (form && findingSelect) {
+                function updateFormAction() {
+                    const selectedFindingId = findingSelect.value;
+                    const baseUrl = "{{ route('quality.findings.corrective-actions.store', ['finding' => ':id']) }}";
+                    form.action = baseUrl.replace(':id', selectedFindingId);
+                }
+                updateFormAction();
+                findingSelect.addEventListener('change', updateFormAction);
+            }
+        });
+    </script>
 @endsection
