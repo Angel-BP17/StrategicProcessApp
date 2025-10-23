@@ -31,6 +31,6 @@ class SearchController extends Controller
                 })->orderByDesc('uploaded_at')->limit(100)->get();
         }
 
-        return view('collab.search-results', compact('messages', 'files', 'q', 'channelId'));
+        return view('collaboration.search', compact('messages', 'files', 'q', 'channelId'));
     }
 }
