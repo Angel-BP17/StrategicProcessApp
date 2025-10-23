@@ -21,7 +21,43 @@
             
         </div>
 
-        
+        {{-- Sección de KPIs/Indicadores (AHORA CON DATOS DINÁMICOS) --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+
+            {{-- KPI 1: Auditorías en Progreso --}}
+            <div class="bg-slate-900/70 border border-slate-800/70 rounded-xl p-5">
+                <div class="text-sm uppercase text-slate-400">Auditorías en Progreso</div>
+                <div class="text-4xl font-semibold text-sky-400 mt-2">
+                    {{ $kpi_audits_in_progress }}
+                </div>
+            </div>
+
+            {{-- KPI 2: Encuestas Activas --}}
+            <div class="bg-slate-900/70 border border-slate-800/70 rounded-xl p-5">
+                <div class="text-sm uppercase text-slate-400">Encuestas Activas</div>
+                <div class="text-4xl font-semibold text-emerald-400 mt-2">
+                    {{ $kpi_surveys_active }}
+                </div>
+            </div>
+
+            {{-- KPI 3: Acreditaciones por Vencer (Próx. 6 meses) --}}
+            <div class="bg-slate-900/70 border border-slate-800/70 rounded-xl p-5">
+                <div class="text-sm uppercase text-slate-400">Acreditaciones por Vencer</div>
+                <div class="text-4xl font-semibold text-amber-400 mt-2">
+                    {{ $kpi_accreditations_expiring }}
+                </div>
+            </div>
+
+            {{-- KPI 4: Criterios Activos --}}
+            <div class="bg-slate-900/70 border border-slate-800/70 rounded-xl p-5">
+                <div class="text-sm uppercase text-slate-400">Criterios Activos</div>
+                <div class="text-4xl font-semibold text-rose-400 mt-2">
+                    {{ $kpi_criteria_active }}
+                </div>
+            </div>
+
+        </div>
+
 
         {{-- "Caja" Principal para las Tarjetas de Módulos --}}
         <div class="bg-slate-950/60 border border-slate-800/70 shadow-xl shadow-slate-900/50 rounded-2xl mb-10 overflow-hidden">
@@ -93,21 +129,9 @@
 
             </div>
         </div> 
-        {{-- Sección de KPIs/Indicadores (Opcional, pero visualmente atractivo) --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="bg-slate-900/70 border border-slate-800/70 rounded-xl p-4 text-center">
-                <div class="text-3xl font-semibold text-sky-400">3</div>
-                <div class="text-sm text-slate-400 mt-1">Auditorías en Progreso</div>
-            </div>
-             <div class="bg-slate-900/70 border border-slate-800/70 rounded-xl p-4 text-center">
-                <div class="text-3xl font-semibold text-emerald-400">85%</div>
-                <div class="text-sm text-slate-400 mt-1">Satisfacción (Últ. Encuesta)</div>
-            </div>
-             <div class="bg-slate-900/70 border border-slate-800/70 rounded-xl p-4 text-center">
-                <div class="text-3xl font-semibold text-amber-400">2</div>
-                <div class="text-sm text-slate-400 mt-1">Acreditaciones Próximas</div>
-            </div>
-        </div> 
+        {{-- ... (Cabecera Principal con el título) ... --}}
+
+        
 
     </div> 
 @endsection
