@@ -37,18 +37,26 @@
                     <h1 class="text-base font-semibold text-slate-100">@yield('title', 'Panel')</h1>
                     @php $notis = auth()->user()->unreadNotifications()->latest()->take(10)->get(); @endphp
                     <div class="relative">
-                        <button><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                        <button id="notification-toggle" type="button"
+                            class="inline-flex items-center gap-1 text-slate-100 hover:text-yellow-200 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                 width="24px" fill="#FFFF55">
                                 <path
                                     d="M160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h80v80H160Zm320-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z" />
-                            </svg> {{ $notis->count() }}</button>
-                        <div class="absolute bg-white shadow rounded p-2">
-                            @foreach ($notis as $n)
+                            </svg>
+                            <span id="notification-count" class="font-semibold">{{ $notis->count() }}</span>
+                        </button>
+                        <div id="notification-list"
+                            class="absolute right-0 mt-2 w-64 bg-white text-slate-900 shadow rounded p-3 space-y-1">
+                            @forelse ($notis as $n)
                                 <div class="text-sm py-1">
                                     {{ $n->data['type'] === 'mention' ? 'Te mencionaron' : 'Nueva tarea' }} —
                                     {{ $n->created_at->diffForHumans() }}
                                 </div>
-                            @endforeach
+                            @empty
+                                <div class="text-sm py-2 text-slate-500" data-empty="true">No tienes notificaciones.
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                     <div class="ml-auto text-xs sm:text-sm text-slate-300">Hola, {{ Auth::user()->name }}</div>
@@ -80,6 +88,52 @@
     @if (auth()->check())
         <script>
             window.userId = {{ auth()->id() }};
+        </script>
+        <script>
+            (() => {
+                if (!window.Echo || !window.userId) {
+                    return;
+                }
+
+                const countEl = document.getElementById('notification-count');
+                const listEl = document.getElementById('notification-list');
+                if (!countEl || !listEl) {
+                    return;
+                }
+
+                const maxItems = 10;
+                const labels = {
+                    mention: 'Te mencionaron',
+                    task_assigned: 'Nueva tarea',
+                };
+
+                window.Echo.private(`user.${window.userId}`)
+                    .notification((notification) => {
+                        const currentCount = parseInt(countEl.textContent || '0', 10) || 0;
+                        countEl.textContent = currentCount + 1;
+
+                        const item = document.createElement('div');
+                        item.className = 'text-sm py-1';
+                        const label = labels[notification.type] || 'Nueva notificación';
+                        const time = new Intl.DateTimeFormat('es-ES', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        }).format(new Date());
+                        item.textContent = `${label} — ${time}`;
+
+                        const emptyState = listEl.querySelector('[data-empty]');
+                        if (emptyState) {
+                            emptyState.remove();
+                        }
+
+                        listEl.prepend(item);
+
+                        const items = Array.from(listEl.children).filter((el) => !el.hasAttribute('data-empty'));
+                        if (items.length > maxItems) {
+                            items.slice(maxItems).forEach((el) => el.remove());
+                        }
+                    });
+            })();
         </script>
     @endif
     @stack('chartjs')

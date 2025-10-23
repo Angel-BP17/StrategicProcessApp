@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Collaboration\Message;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -81,5 +82,9 @@ class User extends Authenticatable
         // Asume que tu modelo Graduate está en App\Models\Graduate
         // y que la FK en la tabla 'graduates' es 'user_id'
         return $this->hasOne(Graduate::class, 'user_id');
+    }
+
+    public function messages(){
+        return $this->hasMany(Message::class,'user_id');
     }
 }

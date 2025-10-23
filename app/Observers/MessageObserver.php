@@ -14,7 +14,7 @@ class MessageObserver
         $emails = $matches[1] ?? [];
         if (!$emails)
             return;
-        $users = User::whereIn('email', $emails)->get();
+        $users = User::whereIn('first_name', $emails)->get();
         foreach ($users as $u) {
             $u->notify(new MentionedInMessage($m));
         }

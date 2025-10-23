@@ -38,7 +38,7 @@ class MessageController extends Controller
                 $path = $f->store('collab', 'public');
                 $doc = Document::create([
                     'title' => $f->getClientOriginalName(),
-                    'category' => 'collaboration',
+                    'category' => 'administrative',
                     'entity_type' => 'message',
                     'entity_id' => $msg->id,
                     'version' => 1,

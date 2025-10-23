@@ -51,14 +51,29 @@
             <form method="POST" action="{{ route('register') }}" class="space-y-5">
                 @csrf
 
-                <!-- Name Field -->
+                <!-- Firstame Field -->
                 <div>
-                    <label for="name" class="block text-sm font-semibold text-white mb-2">
-                        Nombre Completo
+                    <label for="first_name" class="block text-sm font-semibold text-white mb-2">
+                        Nombre
                     </label>
-                    <input type="text" name="name" id="name" value="{{ old('name') }}" required autofocus
+                    <input type="text" name="first_name" id="first_name" value="{{ old('first_name') }}" required
+                        autofocus
                         class="w-full px-4 py-3 bg-[#111115] border border-[#848282]/30 rounded-lg text-white placeholder-[#848282] focus:outline-none focus:border-[#26BBFF] focus:ring-2 focus:ring-[#26BBFF]/20 transition-all duration-200 @error('name') border-red-500 @enderror"
-                        placeholder="Juan Pérez">
+                        placeholder="Juan">
+                    @error('name')
+                        <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Laststname Field -->
+                <div>
+                    <label for="last_name" class="block text-sm font-semibold text-white mb-2">
+                        Apellido
+                    </label>
+                    <input type="text" name="last_name" id="last_name" value="{{ old('last_name') }}" required
+                        autofocus
+                        class="w-full px-4 py-3 bg-[#111115] border border-[#848282]/30 rounded-lg text-white placeholder-[#848282] focus:outline-none focus:border-[#26BBFF] focus:ring-2 focus:ring-[#26BBFF]/20 transition-all duration-200 @error('name') border-red-500 @enderror"
+                        placeholder="Pérez">
                     @error('name')
                         <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
                     @enderror

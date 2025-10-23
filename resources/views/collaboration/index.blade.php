@@ -5,7 +5,7 @@
 
 @section('content')
     @php
-        /** @var \App\Models\Channel|null $channel */
+        /** @var \App\Models\Collaboration\Channel|null $channel */
         $channelId = $channel->id ?? null;
         $channelName = $channel->name ?? '—';
         $channelMeta =
@@ -17,13 +17,24 @@
 
         $files = collect();
         if ($messages->count() > 0) {
-            $files = \App\Models\DocumentVersion::query()
+            $files = \App\Models\Documentation\DocumentVersion::query()
                 ->where('linked_type', 'message')
                 ->whereIn('linked_id', $messages->pluck('id'))
                 ->orderByDesc('uploaded_at')
                 ->limit(6)
                 ->get();
         }
+
+        $userId = auth()->id();
+        $allChannels = \App\Models\Collaboration\Channel::with('team')->orderBy('name')->get();
+
+        $ownedChannels = $allChannels
+            ->filter(fn($c) => (int) ($c->created_by_user_id ?? 0) === (int) $userId)
+            ->values();
+
+        $memberChannels = $allChannels
+            ->filter(fn($c) => $c->isMember((int) $userId) && (int) ($c->created_by_user_id ?? 0) !== (int) $userId)
+            ->values();
     @endphp
 
     <div class="space-y-8 text-slate-100">
@@ -61,6 +72,53 @@
                 </a>
             @endif
         </header>
+        {{-- Canales del usuario --}}
+        <section class="grid gap-6 md:grid-cols-2">
+            <div class="bg-slate-950/60 border border-slate-800/70 rounded-2xl shadow-xl shadow-slate-900/50 p-6">
+                <h2 class="text-lg font-semibold text-white">Canales creados por mí</h2>
+                @if ($ownedChannels->isEmpty())
+                    <p class="text-sm text-slate-400 mt-2">Aún no has creado canales.</p>
+                @else
+                    <ul class="mt-4 space-y-2">
+                        @foreach ($ownedChannels as $c)
+                            <li>
+                                <a href="{{ route('collab.index', ['channel' => $c->id]) }}"
+                                    class="flex flex-col gap-1 rounded-xl border border-slate-800/60 bg-slate-950/40 px-4 py-3 transition hover:border-emerald-500/40 hover:shadow-emerald-500/20">
+                                    <span class="text-sm font-semibold text-white"># {{ $c->name }}</span>
+                                    <span
+                                        class="text-xs text-slate-400">{{ $c->team->name ?? 'Sin equipo asignado' }}</span>
+                                    <span
+                                        class="text-xs text-slate-500">{{ collect(optional($c->team)->members ?? [])->count() }}
+                                        integrantes</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+            <div class="bg-slate-950/60 border border-slate-800/70 rounded-2xl shadow-xl shadow-slate-900/50 p-6">
+                <h2 class="text-lg font-semibold text-white">Canales donde participo</h2>
+                @if ($memberChannels->isEmpty())
+                    <p class="text-sm text-slate-400 mt-2">Todavía no te has unido a ningún canal.</p>
+                @else
+                    <ul class="mt-4 space-y-2">
+                        @foreach ($memberChannels as $c)
+                            <li>
+                                <a href="{{ route('collab.index', ['channel' => $c->id]) }}"
+                                    class="flex flex-col gap-1 rounded-xl border border-slate-800/60 bg-slate-950/40 px-4 py-3 transition hover:border-sky-500/40 hover:shadow-sky-500/20">
+                                    <span class="text-sm font-semibold text-white"># {{ $c->name }}</span>
+                                    <span
+                                        class="text-xs text-slate-400">{{ $c->team->name ?? 'Sin equipo asignado' }}</span>
+                                    <span
+                                        class="text-xs text-slate-500">{{ collect(optional($c->team)->members ?? [])->count() }}
+                                        integrantes</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+        </section>
 
         {{-- Mensajería / Anuncios --}}
         <section class="bg-slate-950/60 border border-slate-800/70 rounded-2xl shadow-xl shadow-slate-900/50 p-6">
@@ -239,33 +297,31 @@
     </div>
 
     @if ($channelId)
-        <script>
-            (() => {
-                if (!window.Echo) return;
-                const container = document.getElementById('chat-log');
+        @push('scripts')
+            <script>
+                (() => {
+                    if (!window.Echo) return;
+                    const container = document.getElementById('chat-log');
+                    if (!container) return;
 
-                window.Echo.join(`channel.{{ $channelId }}`)
-                    .listen('.message.sent', (e) => {
-                        const card = document.createElement('div');
-                        card.className =
-                            "border border-slate-800/70 rounded-xl p-4 bg-slate-950/40 hover:border-sky-500/40 hover:shadow-sky-500/20 transition";
-                        card.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <h3 class="font-medium text-white">
-                        ${e.user.name}
-                        <span class="text-xs text-slate-500 font-normal">— ahora</span>
-                    </h3>
-                </div>
-                <p class="text-sm text-slate-300 mt-1 whitespace-pre-wrap">${e.content}</p>`;
-                        container.appendChild(card);
-                        container.scrollTop = container.scrollHeight;
-                    });
-
-                if (window.userId) {
-                    window.Echo.private(`user.${window.userId}`)
-                        .notification((n) => console.log('Notificación', n));
-                }
-            })();
-        </script>
+                    window.Echo.join(`channel.{{ $channelId }}`)
+                        .listen('.message.sent', (e) => {
+                            const card = document.createElement('div');
+                            card.className =
+                                "border border-slate-800/70 rounded-xl p-4 bg-slate-950/40 hover:border-sky-500/40 hover:shadow-sky-500/20 transition";
+                            card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-medium text-white">
+                            ${e.user.name}
+                            <span class="text-xs text-slate-500 font-normal">— ahora</span>
+                        </h3>
+                    </div>
+                    <p class="text-sm text-slate-300 mt-1 whitespace-pre-wrap">${e.content}</p>`;
+                            container.appendChild(card);
+                            container.scrollTop = container.scrollHeight;
+                        });
+                })();
+            </script>
+        @endpush
     @endif
 @endsection
