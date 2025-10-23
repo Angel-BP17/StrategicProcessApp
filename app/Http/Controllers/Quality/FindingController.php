@@ -28,7 +28,7 @@ class FindingController extends Controller
         Finding::create($validatedData);
 
         // 4. Redirigimos de vuelta a la página de detalle de la auditoría
-        return redirect()->route('quality.audits.show', $audit)->with('success', 'Hallazgo registrado con éxito.');
+        return redirect()->route('quality.audits.show', $audit)->with('success', 'Hallazgo registrado con éxito.')->withFragment('findingsSection');
     }
 
    
@@ -46,7 +46,7 @@ class FindingController extends Controller
 
         // Redirigir de vuelta a la página de detalle de la auditoría original
         return redirect()->route('quality.audits.show', $auditId)
-                        ->with('success', 'Hallazgo eliminado con éxito.');
+                        ->with('success', 'Hallazgo eliminado con éxito.')->withFragment('findingsSection');
     }
 
 

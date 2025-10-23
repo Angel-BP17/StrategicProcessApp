@@ -29,7 +29,7 @@ class CorrectiveActionController extends Controller
 
         // 4. Redirigimos de vuelta a la página de detalle de la auditoría
         return redirect()->route('quality.audits.show', $finding->audit_id)
-                         ->with('success', 'Acción correctiva registrada con éxito.');
+                         ->with('success', 'Acción correctiva registrada con éxito.')->withFragment('correctiveActionsSection');
     }
 
     
@@ -43,7 +43,7 @@ class CorrectiveActionController extends Controller
 
         // Redirigimos de vuelta a la página de detalle de la auditoría original
         return redirect()->route('quality.audits.show', $auditId)
-                        ->with('success', 'Acción correctiva eliminada con éxito.');
+                        ->with('success', 'Acción correctiva eliminada con éxito.')->withFragment('correctiveActionsSection');
     }
 
 

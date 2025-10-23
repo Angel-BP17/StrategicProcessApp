@@ -78,7 +78,7 @@
 
             {{-- SECCIÓN 2: HALLAZGOS (Findings) --}}
             {{-- Cabecera de la Sección --}}
-            <div class="p-6 font-semibold text-lg border-y border-slate-800/70 text-slate-200">Hallazgos</div>
+            <div id="findingsSection" class="p-6 font-semibold text-lg border-y border-slate-800/70 text-slate-200">Hallazgos</div>
             {{-- Contenido de la Sección --}}
             <div class="p-6 space-y-6"> {{-- Añadimos space-y para separar formulario y tabla --}}
 
