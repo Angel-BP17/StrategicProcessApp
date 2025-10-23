@@ -64,10 +64,24 @@
                             </td>
                             <td class="px-6 py-4">{{ \Carbon\Carbon::parse($audit->start_date)->format('d/m/Y') }}</td>
                             {{-- Acciones (estilo compañero) --}}
-                            <td class="px-6 py-4 flex flex-wrap gap-2">
-                                <a href="{{ route('quality.audits.show', $audit) }}"
-                                   class="inline-flex items-center px-3 py-1.5 rounded-lg bg-sky-400/90 text-slate-900 font-semibold hover:bg-sky-300 transition">Ver</a>
-                                {{-- Aquí irían Editar/Eliminar si los tuvieras para Auditorías --}}
+                            <td class="px-6 py-4">
+                                {{-- Usamos flex y space-x para alinear --}}
+                                <div class="flex items-center space-x-4">
+                                    <a href="{{ route('quality.audits.show', $audit) }}"
+                                    class="inline-flex items-center px-3 py-1.5 rounded-lg bg-sky-400/90 text-slate-900 font-semibold hover:bg-sky-300 transition text-xs">Ver</a>
+                                    <a href="{{ route('quality.audits.edit', $audit) }}"
+                                    class="inline-flex items-center px-3 py-1.5 rounded-lg bg-amber-400/90 text-slate-900 font-semibold hover:bg-amber-300 transition text-xs">Editar</a>
+                                    {{-- Formulario Eliminar (NUEVO, usa SweetAlert) --}}
+                                    <form action="{{ route('quality.audits.destroy', $audit) }}" method="POST" class="m-0 p-0"> 
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                class="inline-flex items-center px-3 py-1.5 rounded-lg bg-rose-600/90 text-white font-semibold hover:bg-rose-500 transition text-xs"
+                                                onclick="return confirm('¿Estás seguro de que deseas eliminar esta acreditación?');">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

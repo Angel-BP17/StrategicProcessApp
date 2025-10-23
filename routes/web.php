@@ -126,14 +126,19 @@ Route::middleware(['auth'])->prefix('quality')->name('quality.')->group(function
     Route::get('/audits/create', [AuditController::class, 'create'])->name('audits.create');
     Route::post('/audits', [AuditController::class, 'store'])->name('audits.store');
     Route::get('/audits/{audit}', [AuditController::class, 'show'])->name('audits.show');
-
+    Route::delete('/audits/{audit}', [AuditController::class, 'destroy'])->name('audits.destroy');
+    Route::put('/audits/{audit}', [AuditController::class, 'update'])->name('audits.update');
+    Route::get('/audits/{audit}/edit', [AuditController::class, 'edit'])->name('audits.edit');
     // --- HALLAZGOS (Findings) ---
-    // Ruta para guardar un nuevo hallazgo para una auditoría específica
     Route::post('/audits/{audit}/findings', [FindingController::class, 'store'])->name('audits.findings.store');
+    Route::delete('/findings/{finding}', [FindingController::class, 'destroy'])->name('findings.destroy');
+    Route::get('/findings/{finding}/edit', [FindingController::class, 'edit'])->name('findings.edit');
+    Route::put('/findings/{finding}', [FindingController::class, 'update'])->name('findings.update');
     // --- ACCIONES CORRECTIVAS (Corrective Actions) ---
-    // Ruta para guardar una nueva acción correctiva para un hallazgo
     Route::post('/findings/{finding}/corrective-actions', [CorrectiveActionController::class, 'store'])->name('findings.corrective-actions.store');
-
+    Route::delete('/corrective-actions/{action}', [CorrectiveActionController::class, 'destroy'])->name('corrective-actions.destroy');
+    Route::get('/corrective-actions/{action}/edit', [CorrectiveActionController::class, 'edit'])->name('corrective-actions.edit');
+    Route::put('/corrective-actions/{action}', [CorrectiveActionController::class, 'update'])->name('corrective-actions.update');
     // --- SUB-MÓDULO: ACREDITACIONES ---
     Route::get('/accreditations', [AccreditationController::class, 'index'])->name('accreditations.index');
     Route::get('/accreditations/create', [AccreditationController::class, 'create'])->name('accreditations.create');
@@ -148,20 +153,13 @@ Route::middleware(['auth'])->prefix('quality')->name('quality.')->group(function
     Route::post('/surveys', [SurveyController::class, 'store'])->name('surveys.store');
     // La ruta 'design' ahora usa el modelo Survey automáticamente
     Route::get('/surveys/{survey}/design', [SurveyController::class, 'design'])->name('surveys.design');
-    // Ruta para GUARDAR una nueva pregunta para una encuesta específica
     Route::post('/surveys/{survey}/questions', [SurveyQuestionController::class, 'store'])->name('surveys.questions.store');
-    // Ruta para ELIMINAR una pregunta específica
     Route::delete('/surveys/{survey}/questions/{question}', [SurveyQuestionController::class, 'destroy'])->name('surveys.questions.destroy');
-    // Ruta para MOSTRAR el formulario de edición de pregunta
     Route::get('/surveys/{survey}/questions/{question}/edit', [SurveyQuestionController::class, 'edit'])->name('surveys.questions.edit');
-    // Ruta para ACTUALIZAR una pregunta existente
     Route::put('/surveys/{survey}/questions/{question}', [SurveyQuestionController::class, 'update'])->name('surveys.questions.update');
-    // Ruta para ELIMINAR una encuesta completa
     Route::delete('/surveys/{survey}', [SurveyController::class, 'destroy'])->name('surveys.destroy');
     Route::get('/surveys/{survey}/edit', [SurveyController::class, 'edit'])->name('surveys.edit');
-    // Ruta para ACTUALIZAR la encuesta
     Route::put('/surveys/{survey}', [SurveyController::class, 'update'])->name('surveys.update');
-    // Ruta para MOSTRAR la interfaz de asignación de una encuesta
     Route::get('/surveys/{survey}/assign', [SurveyController::class, 'showAssignForm'])->name('surveys.assign.show');
     Route::post('/surveys/{survey}/assign', [SurveyController::class, 'storeAssignments'])->name('surveys.assign.store');
 
@@ -172,7 +170,6 @@ Route::middleware(['auth'])->prefix('quality')->name('quality.')->group(function
     Route::get('/evaluation-criteria/{criterion}/edit', [EvaluationCriterionController::class, 'edit'])->name('evaluation-criteria.edit');
     Route::put('/evaluation-criteria/{criterion}', [EvaluationCriterionController::class, 'update'])->name('evaluation-criteria.update');
     Route::delete('/evaluation-criteria/{criterion}', [EvaluationCriterionController::class, 'destroy'])->name('evaluation-criteria.destroy');
-    // Ruta para ELIMINAR un criterio
     Route::delete('/evaluation-criteria/{criterion}', [EvaluationCriterionController::class, 'destroy'])->name('evaluation-criteria.destroy');
 
 });

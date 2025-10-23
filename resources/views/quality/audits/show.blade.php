@@ -2,9 +2,6 @@
 
 @section('title', 'Detalle de Auditoría')
 
-{{-- @section('header') --}} {{-- Quitamos el header default si el layout lo maneja --}}
-{{-- ... --}}
-{{-- @endsection --}}
 
 @section('content')
     {{-- Contenedor principal --}}
@@ -136,7 +133,7 @@
                                     <th class="px-6 py-3 text-left font-semibold">Descripción</th>
                                     <th class="px-6 py-3 text-left font-semibold">Severidad</th>
                                     <th class="px-6 py-3 text-left font-semibold">Fecha Desc.</th>
-                                    <th class="px-6 py-3 text-left font-semibold">Acciones</th>
+                                    <th class="px-6 py-3 text-left font-semibold">Acciones</th> {{-- Título de columna ajustado --}}
                                 </tr>
                             </thead>
                             <tbody class="bg-transparent divide-y divide-slate-800/70 text-slate-300">
@@ -154,13 +151,35 @@
                                                 {{ ucfirst($finding->severity) }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4">{{ \Carbon\Carbon::parse($finding->discovery_date)->format('d/m/Y') }}</td>
-                                        <td class="px-6 py-4">
-                                            {{-- Botón (aún no funcional) para Acciones Correctivas --}}
-                                            <a href="#correctiveActionsSection" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-400/90 text-slate-900 font-semibold hover:bg-emerald-300 transition text-xs">
-                                                Ver/Añadir Acciones
-                                            </a>
+                                        <td class="px-6 py-4">{{ $finding->discovery_date ? \Carbon\Carbon::parse($finding->discovery_date)->format('d/m/Y') : '-' }}</td> {{-- Añadido check por si es nulo --}}
+                                        
+                                        {{-- === CELDA DE ACCIONES MODIFICADA === --}}
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            {{-- Aumentamos el espacio a space-x-5 --}}
+                                            <div class="flex items-center space-x-4 text-xs">
+                                                {{-- Botón Editar Hallazgo --}}
+                                                <a href="#correctiveActionsSection"
+                                                class="inline-flex items-center px-2 py-1 rounded bg-emerald-400/90 text-slate-900 font-semibold hover:bg-emerald-300 transition"
+                                                title="Ver/Añadir Acciones Correctivas">Acciones</a>
+                                                
+                                                <a href="{{ route('quality.findings.edit', $finding) }}"
+                                                class="inline-flex items-center px-2 py-1 rounded bg-amber-400/90 text-slate-900 font-semibold hover:bg-amber-300 transition"
+                                                title="Editar Hallazgo (Pendiente)">Editar</a>
+
+                                                {{-- Formulario Eliminar Hallazgo --}}
+                                                {{-- Quitamos el onclick para usar SweetAlert --}}
+                                                <form action="{{ route('quality.findings.destroy', $finding) }}" method="POST" class="m-0 p-0 delete-confirm-form"> {{-- Clase para JS --}}
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                            class="inline-flex items-center px-2 py-1 rounded bg-rose-600/90 text-white font-semibold hover:bg-rose-500 transition">
+                                                        Eliminar
+                                                    </button>
+                                                </form>
+                                                
+                                            </div>
                                         </td>
+                                        {{-- === FIN CELDA DE ACCIONES === --}}
                                     </tr>
                                 @empty
                                     <tr>
@@ -180,7 +199,57 @@
              {{-- Contenido de la Sección --}}
             <div class="p-6 space-y-6">
 
-                 {{-- Tabla de Acciones Correctivas --}}
+                 
+
+                {{-- Formulario para añadir acción correctiva (solo si hay hallazgos) --}}
+                @if ($audit->findings->isNotEmpty())
+                <form action="" method="POST" id="correctiveActionForm" class="bg-slate-900/70 p-6 rounded-xl border border-slate-800/70 mt-6">
+                    @csrf
+                    <h3 class="text-lg font-semibold text-slate-100 mb-4">Registrar Nueva Acción Correctiva</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                        <div>
+                            <label for="finding_id" class="block text-sm font-semibold text-slate-300 mb-1">Asignar al Hallazgo:</label>
+                            <select name="finding_id" id="finding_id" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                                @foreach ($audit->findings as $finding)
+                                    <option value="{{ $finding->id }}">{{ Str::limit($finding->description, 70) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="action_description" class="block text-sm font-semibold text-slate-300 mb-1">Descripción de la Acción</label>
+                            <input type="text" name="description" id="action_description" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                            @error('description') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="user_id" class="block text-sm font-semibold text-slate-300 mb-1">Responsable</label>
+                            <select name="user_id" id="user_id" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                                <option value="">Seleccione...</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->full_name }}</option>
+                                @endforeach
+                            </select>
+                            @error('user_id') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="due_date" class="block text-sm font-semibold text-slate-300 mb-1">Fecha Límite</label>
+                            <input type="date" name="due_date" id="due_date" value="{{ date('Y-m-d', strtotime('+1 week')) }}" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
+                             @error('due_date') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div class="md:col-span-3 text-right mt-2"> {{-- Botón Guardar Acción --}}
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-sky-500/90 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-sky-400/90 transition shadow-md shadow-sky-500/30">
+                                Guardar Acción
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                @endif {{-- Fin @if ($audit->findings->isNotEmpty()) --}}
+                
+                {{-- poner aqui tabla --}}
+            
+
+
+
+                {{-- Tabla de Acciones Correctivas --}}
                  <div class="overflow-x-auto border border-slate-800/70 rounded-lg">
                     <table class="min-w-full divide-y divide-slate-800/70 text-sm">
                         <thead class="bg-slate-900/70 text-slate-400 uppercase tracking-wider text-xs">
@@ -190,6 +259,7 @@
                                 <th class="px-6 py-3 text-left font-semibold">Responsable</th>
                                 <th class="px-6 py-3 text-left font-semibold">Fecha Límite</th>
                                 <th class="px-6 py-3 text-left font-semibold">Estado</th>
+                                <th class="px-6 py-3 text-left font-semibold">Acciones</th>
                                 {{-- <th class="px-6 py-3 text-left font-semibold">Acciones</th> --}}
                             </tr>
                         </thead>
@@ -221,9 +291,27 @@
                                                 {{ ucfirst($action->status) }}
                                             </span>
                                         </td>
-                                        {{-- <td class="px-6 py-4 flex flex-wrap gap-2"> --}}
-                                            {{-- Botones Editar/Eliminar Acción --}}
-                                        {{-- </td> --}}
+                                        {{-- === NUEVA CELDA TD PARA ACCIONES === --}}
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center space-x-3 text-xs">
+                                                {{-- Usará la ruta 'corrective-actions.edit' --}}
+                                                <a href="{{ route('quality.corrective-actions.edit', $action) }}"
+                                                class="inline-flex items-center px-2 py-1 rounded bg-amber-400/90 text-slate-900 font-semibold hover:bg-amber-300 transition"
+                                                title="Editar Acción (Pendiente)">Editar</a>
+
+                                                {{-- Formulario Eliminar Acción --}}
+                                                <form action="{{ route('quality.corrective-actions.destroy', $action) }}" method="POST" class="m-0 p-0">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                            class="inline-flex items-center px-2 py-1 rounded bg-rose-600/90 text-white font-semibold hover:bg-rose-500 transition"
+                                                            onclick="return confirm('¿Estás seguro de que deseas eliminar esta acreditación?');">
+                                                        Eliminar
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                        {{-- === FIN NUEVA CELDA TD === --}}
                                     </tr>
                                 @empty
                                     {{-- No hacemos nada si un hallazgo no tiene acciones --}}
@@ -243,54 +331,9 @@
                         </tbody>
                     </table>
                 </div>
-
-                {{-- Formulario para añadir acción correctiva (solo si hay hallazgos) --}}
-                @if ($audit->findings->isNotEmpty())
-                <form action="" method="POST" id="correctiveActionForm" class="bg-slate-900/70 p-6 rounded-xl border border-slate-800/70 mt-6">
-                    @csrf
-                    <h3 class="text-lg font-semibold text-slate-100 mb-4">Registrar Nueva Acción Correctiva</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
-                        <div>
-                            <label for="finding_id" class="block text-sm font-semibold text-slate-300 mb-1">Asignar al Hallazgo:</label>
-                            <select name="finding_id" id="finding_id" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
-                                @foreach ($audit->findings as $finding)
-                                    <option value="{{ $finding->id }}">{{ Str::limit($finding->description, 70) }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="action_description" class="block text-sm font-semibold text-slate-300 mb-1">Descripción de la Acción</label> {{-- Cambiado ID/Name --}}
-                            <input type="text" name="description" id="action_description" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
-                            @error('description') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="user_id" class="block text-sm font-semibold text-slate-300 mb-1">Responsable</label>
-                            <select name="user_id" id="user_id" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
-                                <option value="">Seleccione...</option>
-                                @foreach ($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->full_name }}</option>
-                                @endforeach
-                            </select>
-                            @error('user_id') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="due_date" class="block text-sm font-semibold text-slate-300 mb-1">Fecha Límite</label>
-                            <input type="date" name="due_date" id="due_date" value="{{ date('Y-m-d', strtotime('+1 week')) }}" required class="block w-full bg-slate-800/60 border border-slate-700 text-slate-100 rounded-lg shadow-sm py-2 px-3 focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 text-sm">
-                             @error('due_date') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
-                        </div>
-                        <div class="md:col-span-3 text-right mt-2"> {{-- Botón Guardar Acción --}}
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-sky-500/90 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-sky-400/90 transition shadow-md shadow-sky-500/30">
-                                Guardar Acción
-                            </button>
-                        </div>
-                    </div>
-                </form>
-                @endif {{-- Fin @if ($audit->findings->isNotEmpty()) --}}
-
-            </div> {{-- Fin P-6 Acciones --}}
-
-        </div> {{-- Fin "Caja" Principal --}}
-    </div> {{-- Fin contenedor principal --}}
+            </div> 
+        </div> 
+    </div> 
 
     {{-- Script para cambiar la URL del formulario de Acción Correctiva (sin cambios) --}}
     <script>

@@ -82,7 +82,7 @@
                         {{-- Texto y Tipo --}}
                         <div class="flex justify-between items-start">
                              <div>
-                                 <p class="text-slate-100 font-medium">{{ $question->order ?? $loop->iteration }}. {{ $question->question_text }}</p>
+                                 <p class="text-slate-100 font-medium">{{ $loop->iteration }}. {{ $question->question_text }}</p>
                                  <small class="text-slate-400 italic">Tipo: {{ $question->question_type }}</small>
                              </div>
                              {{-- Botones Editar/Eliminar --}}

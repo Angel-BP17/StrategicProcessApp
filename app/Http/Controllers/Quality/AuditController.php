@@ -69,6 +69,68 @@ class AuditController extends Controller
     }
 
 
+    /**
+     * Elimina la auditoría especificada de la base de datos.
+     */
+    public function destroy(Audit $audit)
+    {
+        // IMPORTANTE: Considerar las relaciones
+        // Si las FKs en 'findings', 'audit_reports', 'document_audits'
+        // tienen ON DELETE CASCADE, se borrarán automáticamente.
+        // Si NO, necesitas borrarlas manualmente ANTES de borrar la auditoría:
+        $audit->findings()->each(function ($finding) {
+             $finding->correctiveActions()->delete(); // Borrar acciones
+         });
+        $audit->findings()->delete(); // Borrar hallazgos
+        //$audit->reports()->delete(); // (Si tienes relación 'reports')
+        //$audit->documents()->delete(); // (Si tienes relación 'documents')
+
+        // Elimina el registro principal de la auditoría
+        $audit->delete();
+
+        // Redirige de vuelta al listado con un mensaje
+        return redirect()->route('quality.audits.index')
+                        ->with('success', 'Auditoría eliminada con éxito.');
+    }
+
+    /**
+     * Muestra el formulario para editar una auditoría existente.
+     */
+    public function edit(Audit $audit)
+    {
+        // Pasamos la auditoría a editar a la vista 'edit'
+        return view('quality.audits.edit', [
+            'audit' => $audit
+        ]);
+    }
+
+    /**
+     * Actualiza la auditoría especificada en la base de datos.
+     */
+    public function update(Request $request, Audit $audit)
+    {
+        // 1. Validación (similar a 'store', ajusta según necesidad)
+        $validatedData = $request->validate([
+            'area' => 'required|string|max:255',
+            'type' => 'required|in:internal,external',
+            'objective' => 'required|string|max:255',
+            'range' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'state' => 'required|in:planned,in_progress,completed,cancelled', // Añadimos estado
+             // 'user_id' usualmente no se cambia en edit, pero podrías añadirlo si es necesario
+             // 'summary_results' se podría añadir aquí o manejarlo por separado
+        ]);
+
+        // 2. Actualizamos el registro de auditoría
+        $audit->update($validatedData);
+
+        // 3. Redirigimos de vuelta (puede ser al listado o al detalle)
+        return redirect()->route('quality.audits.index') // O 'quality.audits.show', $audit
+                         ->with('success', 'Auditoría actualizada con éxito.');
+    }
+
+
 
   
 }
