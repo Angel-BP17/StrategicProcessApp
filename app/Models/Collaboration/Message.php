@@ -2,6 +2,7 @@
 
 namespace App\Models\Collaboration;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model

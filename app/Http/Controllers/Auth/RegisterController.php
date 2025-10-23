@@ -31,19 +31,16 @@ class RegisterController extends Controller
      */
     public function register(RegisterRequest $request)
     {
-        // Separar nombre completo en partes
-        $parts = explode(' ', trim($request->name));
-        $firstName = $parts[0] ?? '';
-        $lastName = count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : '';
 
         // Crear usuario en base a la estructura de la tabla
-        $user = User::create([
-            'first_name' => $firstName,
-            'last_name'  => $lastName,
-            'full_name'  => $request->name,
+        User::create([
+            'first_name' => $request->first_name,
+            'last_name'  => $request->last_name,
+            'full_name'  => $request->first_name ." ". $request->last_name,
             'dni'        => 'TEMP-' . rand(10000, 99999), // valor temporal
             'email'      => $request->email,
             'password'   => Hash::make($request->password),
+            'roles' => json_encode(["collaborator"]),
         ]);
 
         return redirect()->route('welcome')->with('success', '¡Registro exitoso!');
