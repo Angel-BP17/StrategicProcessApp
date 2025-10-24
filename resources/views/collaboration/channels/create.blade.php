@@ -110,7 +110,7 @@
                                                 class="w-full bg-slate-950/60 border border-slate-800/60 rounded p-2">
                                                 @foreach ($users as $u)
                                                     <option value="{{ $u->id }}" @selected((int) ($m['user_id'] ?? 0) === (int) $u->id)>
-                                                        {{ $u->name ?? $u->email }} — {{ $u->email }}
+                                                        {{ $u->full_name }} — {{ $u->email }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -215,7 +215,8 @@
             <td class="px-3 py-2">
                 <select class="w-full bg-slate-950/60 border border-slate-800/60 rounded p-2 member-user">
                     @foreach ($users as $u)
-                        <option value="{{ $u->id }}">{{ $u->name ?? $u->email }} — {{ $u->email }}</option>
+                        <option value="{{ $u->id }}">{{ $u->full_name }} — {{ $u->email }}
+                        </option>
                     @endforeach
                 </select>
             </td>

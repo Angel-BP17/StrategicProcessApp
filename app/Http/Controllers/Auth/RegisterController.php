@@ -40,7 +40,7 @@ class RegisterController extends Controller
             'dni'        => 'TEMP-' . rand(10000, 99999), // valor temporal
             'email'      => $request->email,
             'password'   => Hash::make($request->password),
-            'roles' => json_encode(["collaborator"]),
+            'role' => json_encode(["planner"]),
         ]);
 
         return redirect()->route('welcome')->with('success', '¡Registro exitoso!');

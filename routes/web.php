@@ -7,6 +7,7 @@ use App\Http\Controllers\Collaboration\SearchController;
 use App\Http\Controllers\Collaboration\TaskController;
 use App\Http\Controllers\Collaboration\TeamController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Documentation\DocumentController;
 use App\Http\Controllers\Planning\KpiController;
 use App\Http\Controllers\Planning\PlanningController;
 use App\Http\Controllers\Planning\StrategicObjectiveController;
@@ -56,6 +57,43 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard Route (ejemplo)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::prefix('documents')->name('documents.')->group(function () {
+        Route::middleware(['role:any,admin,quality_manager,auditor,consultant'])->group(function () {
+            Route::get('/', [DocumentController::class, 'index'])->name('index');
+            Route::get('/{document}/versions/{version}/download', [DocumentVersionController::class, 'download'])
+                ->whereNumber('document')
+                ->whereNumber('version')
+                ->name('versions.download');
+            Route::get('/{document}', [DocumentController::class, 'show'])
+                ->whereNumber('document')
+                ->name('show');
+        });
+
+        Route::middleware(['role:any,admin,quality_manager'])->group(function () {
+            Route::get('/create', [DocumentController::class, 'create'])->name('create');
+            Route::post('/', [DocumentController::class, 'store'])->name('store');
+            Route::get('/{document}/edit', [DocumentController::class, 'edit'])
+                ->whereNumber('document')
+                ->name('edit');
+            Route::put('/{document}', [DocumentController::class, 'update'])
+                ->whereNumber('document')
+                ->name('update');
+            Route::delete('/{document}', [DocumentController::class, 'destroy'])
+                ->whereNumber('document')
+                ->name('destroy');
+            Route::post('/{document}/versions', [DocumentVersionController::class, 'store'])
+                ->whereNumber('document')
+                ->name('versions.store');
+            Route::post('/{document}/evidences', [EvidenceController::class, 'store'])
+                ->whereNumber('document')
+                ->name('evidences.store');
+            Route::delete('/{document}/evidences/{evidence}', [EvidenceController::class, 'destroy'])
+                ->whereNumber('document')
+                ->whereNumber('evidence')
+                ->name('evidences.destroy');
+        });
+    });
 });
 
 Route::middleware(['auth', 'role:any,admin,planner'])->prefix('planning')->name('planning.')->group(function () {
@@ -272,3 +310,10 @@ Route::middleware('auth')->group(function () {
     // Búsqueda
     Route::get('/collaboration/search', [SearchController::class, 'index'])->name('collab.search');
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| MÓDULO: DOCUMENTACIÓN Y EVIDENCIAS
+|--------------------------------------------------------------------------
+*/

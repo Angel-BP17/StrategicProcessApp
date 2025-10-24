@@ -183,9 +183,9 @@
                     action="{{ route('collab.messages.store', $channelId) }}" enctype="multipart/form-data">
                     @csrf
                     <label class="block text-sm text-slate-300 mb-1">Escribe un mensaje</label>
-                    <textarea name="content" rows="3"
+                    <textarea name="content" rows="3" id="message-input"
                         class="w-full bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 text-sm outline-none focus:border-sky-500/60"
-                        placeholder="Usa @correo para mencionar a alguien…"></textarea>
+                        placeholder="Usa @nombre para mencionar a alguien…"></textarea>
                     <div class="mt-3 flex items-center justify-between">
                         <input type="file" name="files[]" multiple
                             class="text-xs text-slate-300 file:mr-3 file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-slate-800/80 file:text-slate-200 hover:file:bg-slate-700/80">
@@ -300,26 +300,72 @@
         @push('scripts')
             <script>
                 (() => {
-                    if (!window.Echo) return;
-                    const container = document.getElementById('chat-log');
-                    if (!container) return;
+                    // Regex unificada con unicode: @Angel, @Bustamante, @Angel_Bustamante, @Angel-Bustamante, @Angel.Bustamante
+                    const atNameToken = /@([\p{L}]+(?:[._-][\p{L}]+)*)/gu;
+                    const MENTION_LIMIT = 10;
 
-                    window.Echo.join(`channel.{{ $channelId }}`)
-                        .listen('.message.sent', (e) => {
-                            const card = document.createElement('div');
-                            card.className =
-                                "border border-slate-800/70 rounded-xl p-4 bg-slate-950/40 hover:border-sky-500/40 hover:shadow-sky-500/20 transition";
-                            card.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <h3 class="font-medium text-white">
-                            ${e.user.name}
-                            <span class="text-xs text-slate-500 font-normal">— ahora</span>
-                        </h3>
-                    </div>
-                    <p class="text-sm text-slate-300 mt-1 whitespace-pre-wrap">${e.content}</p>`;
-                            container.appendChild(card);
-                            container.scrollTop = container.scrollHeight;
+                    // Selectores (el textarea ahora tiene id="message-input")
+                    const input = document.querySelector('#message-input') ||
+                        document.querySelector('form#nuevo-mensaje textarea[name="content"]');
+                    const counter = document.querySelector('#mention-counter');
+                    const preview = document.querySelector('#message-preview');
+
+                    const escapeHTML = (str) => String(str)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+
+                    function extractMentionTokens(text) {
+                        if (!text) return [];
+                        // ⚠️ IMPORTANTE: resetear lastIndex por la bandera 'g'
+                        atNameToken.lastIndex = 0;
+                        const tokens = [];
+                        let match;
+                        while ((match = atNameToken.exec(text)) !== null) {
+                            tokens.push(match[1]);
+                        }
+                        const norm = tokens.map(t => t.trim().toLowerCase()).filter(Boolean);
+                        return norm.filter((t, i) => norm.indexOf(t) === i); // únicos preservando orden
+                    }
+
+                    function highlightMentions(text) {
+                        if (!text) return '';
+                        // Primero escapamos TODO para evitar XSS
+                        const safe = escapeHTML(text);
+                        // Usamos una NUEVA regex para no compartir estado (o reseteamos lastIndex)
+                        const rx = /@([\p{L}]+(?:[._-][\p{L}]+)*)/gu;
+                        return safe.replace(rx, (_, tok) => {
+                            return `<span class="mention bg-yellow-300/20 text-yellow-200 px-1 rounded">@${tok}</span>`;
                         });
+                    }
+
+                    function updateMentionUI() {
+                        const text = input?.value ?? '';
+                        const tokens = extractMentionTokens(text);
+
+                        console.debug('[mentions] tokens:', tokens);
+
+                        if (tokens.length > MENTION_LIMIT) {
+                            console.warn(`[mentions] Se excede el límite de ${MENTION_LIMIT}; el backend truncará.`);
+                        }
+                        if (counter) {
+                            counter.textContent = `${Math.min(tokens.length, MENTION_LIMIT)} / ${MENTION_LIMIT}`;
+                        }
+                        if (preview) {
+                            preview.innerHTML = highlightMentions(text);
+                        }
+                    }
+
+                    if (input) {
+                        ['input', 'change', 'keyup', 'paste'].forEach(evt => input.addEventListener(evt, updateMentionUI));
+                        updateMentionUI(); // inicial
+                    } else {
+                        console.warn(
+                            '[mentions] No se encontró el textarea de mensaje (#message-input o form#nuevo-mensaje textarea[name="content"]).'
+                        );
+                    }
                 })();
             </script>
         @endpush

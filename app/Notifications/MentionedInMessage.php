@@ -16,7 +16,6 @@ class MentionedInMessage extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    use Queueable;
     public function __construct(public Message $message)
     {
     }

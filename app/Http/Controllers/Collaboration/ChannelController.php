@@ -14,7 +14,7 @@ class ChannelController extends Controller
     public function create(Request $request)
     {
         $user = $request->user();
-        $users = User::orderBy('name')->get(['id', 'name', 'email']);
+        $users = User::orderBy('full_name')->get(['id', 'full_name', 'email']);
 
         // Permite abrir el formulario solo a admins (sin team específico todavía)
         $raw = $user->role ?? $user->roles ?? [];
