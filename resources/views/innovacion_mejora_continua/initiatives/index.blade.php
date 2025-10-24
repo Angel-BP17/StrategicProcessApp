@@ -44,7 +44,7 @@
                     <select name="responsible_user_id"
                         class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-2.5 text-sm text-slate-100 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40">
                         <option value="">Todos los usuarios</option>
-                        @foreach (\App\Models\User::orderBy('name')->get() as $user)
+                        @foreach (\App\Models\User::orderBy('full_name')->get() as $user)
                             <option value="{{ $user->id }}" @selected(request('responsible_user_id') == $user->id)>{{ $user->name }}</option>
                         @endforeach
                     </select>
