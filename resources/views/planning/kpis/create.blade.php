@@ -11,11 +11,21 @@
                 <p class="text-sm text-slate-400">Objetivo: {{ $objective->title }}</p>
             </div>
             <a class="inline-flex items-center gap-2 rounded-2xl border border-slate-700/60 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-slate-100"
-                href="{{ route('planning.objectives.show', [$plan, $objective]) }}">← Volver al objetivo</a>
+                href="{{ route('planning.objectives.show', [
+                    'plan' => $objective->plan_id, // <- tomamos el owner plan del objetivo
+                    'objective' => $objective->id,
+                ]) }}">←
+                Volver al
+                objetivo</a>
         </div>
 
-        <form class="rounded-3xl border border-slate-800/70 bg-slate-950/70 px-6 py-8 shadow-2xl shadow-slate-950/40 backdrop-blur space-y-8"
-            method="POST" action="{{ route('planning.kpis.store', [$plan, $objective]) }}">
+        <form
+            class="rounded-3xl border border-slate-800/70 bg-slate-950/70 px-6 py-8 shadow-2xl shadow-slate-950/40 backdrop-blur space-y-8"
+            method="POST"
+            action="{{ route('planning.kpis.store', [
+                'plan' => $objective->plan_id, // <- tomamos el owner plan del objetivo
+                'objective' => $objective->id,
+            ]) }}">
             @csrf
             <input type="hidden" name="objective_id" value="{{ $objective->id }}">
 
@@ -51,10 +61,14 @@
             </div>
 
             <div class="flex justify-end gap-3">
-                <a href="{{ route('planning.objectives.show', [$plan, $objective]) }}"
+                <a href="{{ route('planning.objectives.show', [
+                    'plan' => $objective->plan_id, // <- tomamos el owner plan del objetivo
+                    'objective' => $objective->id,
+                ]) }}"
                     class="inline-flex items-center gap-2 rounded-2xl border border-slate-700/70 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-slate-100">Cancelar</a>
                 <button type="submit"
-                    class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/40 transition hover:-translate-y-0.5">Guardar KPI</button>
+                    class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/40 transition hover:-translate-y-0.5">Guardar
+                    KPI</button>
             </div>
         </form>
     </div>

@@ -140,7 +140,7 @@
                         class="border border-slate-800/70 rounded-xl p-4 bg-slate-950/40 hover:border-sky-500/40 hover:shadow-sky-500/20 transition">
                         <div class="flex items-center justify-between">
                             <h3 class="font-medium text-white">
-                                {{ $m->user->name ?? 'Usuario' }}
+                                {{ $m->user->full_name ?? 'Usuario' }}
                                 <span class="text-xs text-slate-500 font-normal">—
                                     {{ $m->created_at?->diffForHumans() }}</span>
                                 @if ($m->pinned)

@@ -38,6 +38,7 @@ class StrategicObjectiveController extends Controller
     {
         $objective->load(['plan', 'kpis.measurements' => fn($q) => $q->orderBy('measured_at')]);
 
+        $plan = $objective->plan;
         // Preparamos dataset para Chart.js con el primer KPI (ejemplo)
         $firstKpi = $objective->kpis->first();
         $chart = [
@@ -48,7 +49,7 @@ class StrategicObjectiveController extends Controller
             'kpiName' => $firstKpi?->name ?? 'KPI',
         ];
 
-        return view('planning.objectives.show', compact('objective', 'chart'));
+        return view('planning.objectives.show', compact('objective', 'chart','plan'));
     }
 
     /**
