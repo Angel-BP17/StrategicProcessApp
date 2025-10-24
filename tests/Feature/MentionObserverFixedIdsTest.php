@@ -22,7 +22,7 @@ class MentionObserverFixedIdsTest extends TestCase
             'created_at'=>now(),'updated_at'=>now(),
         ]);
         DB::table('users')->updateOrInsert(['id'=>2],[
-            'first_name'=>'Carlos','last_name'=>'Lopez','email'=>'carlos@example.com','password'=>bcrypt('secret'),
+            'first_name'=>'Carlos','last_name'=>'Lopez','email'=>'carlos@example.com','role' => json_encode(['planner','admin']),'password'=>bcrypt('secret'),
             'created_at'=>now(),'updated_at'=>now(),
         ]);
 

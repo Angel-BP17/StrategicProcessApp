@@ -8,6 +8,8 @@ class InitiativeEvaluation extends Model
 {
     protected $table = 'initiative_evaluations';
 
+    const UPDATED_AT = null;
+
     protected $fillable = [
         'initiative_id',
         'evaluator_user_id',

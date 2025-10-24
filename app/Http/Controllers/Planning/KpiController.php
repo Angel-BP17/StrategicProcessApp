@@ -39,7 +39,7 @@ class KpiController extends Controller
      */
     public function show(StrategicPlan $plan, StrategicObjective $objective, Kpi $kpi)
     {
-        $kpi->load(['measurements' => fn($q) => $q->orderByDesc('measured_at')->limit(20)]);
+        $kpi->load(['measurements' => fn($q) => $q->orderByDesc('measured_at')->limit(20),'measurements.user']);
         return view('planning.kpis.show', compact('plan', 'objective', 'kpi'));
     }
 

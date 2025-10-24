@@ -2,6 +2,8 @@
 
 namespace App\Models\InnovacionMejoraContinua;
 
+use App\Models\Collaboration\Team;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -41,13 +43,13 @@ class Initiative extends Model
     // Relación con el usuario responsable
     public function responsibleUser()
     {
-        return $this->belongsTo(\App\Models\User::class, 'responsible_user_id');
+        return $this->belongsTo(User::class, 'responsible_user_id');
     }
 
     // Relación con el equipo responsable
     public function responsibleTeam()
     {
-        return $this->belongsTo(\App\Models\Team::class, 'responsible_team_id');
+        return $this->belongsTo(Team::class, 'responsible_team_id');
     }
 
     // Scope para filtrar por estado

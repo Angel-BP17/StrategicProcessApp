@@ -8,6 +8,8 @@ use App\Http\Controllers\Collaboration\TaskController;
 use App\Http\Controllers\Collaboration\TeamController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Documentation\DocumentController;
+use App\Http\Controllers\Documentation\DocumentVersionController;
+use App\Http\Controllers\Documentation\EvidenceController;
 use App\Http\Controllers\Planning\KpiController;
 use App\Http\Controllers\Planning\PlanningController;
 use App\Http\Controllers\Planning\StrategicObjectiveController;
@@ -136,7 +138,7 @@ Route::middleware(['auth', 'role:any,admin,planner'])->prefix('planning')->name(
         // Mediciones de KPIs (opcional, si quieres subrutas)
         Route::get('/{kpi}/measurements', [KpiController::class, 'measurements'])->name('measurements.index');
         Route::post('/{kpi}/measurements', [KpiController::class, 'storeMeasurement'])->name('measurements.store');
-        Route::delete('/{kpi}/measurements', [KpiController::class, 'deleteMeasurement'])->name('measurements.destroy');
+        Route::delete('/{kpi}/measurements/{measurement}', [KpiController::class, 'deleteMeasurement'])->name('measurements.destroy');
     });
 
     // Dashboards del módulo

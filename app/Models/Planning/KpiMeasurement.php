@@ -2,10 +2,13 @@
 
 namespace App\Models\Planning;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class KpiMeasurement extends Model
 {
+
+    const UPDATED_AT = null;
     protected $fillable = [
         'kpi_id',
         'measured_at',
