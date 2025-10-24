@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\InnovacionMejoraContinua;
 
 use App\Http\Controllers\Controller;
+use App\Models\Collaboration\Team;
 use App\Models\InnovacionMejoraContinua\Initiative;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,8 +50,8 @@ class InitiativeController extends Controller
     public function create()
     {
         // Obtener usuarios y equipos para los selects
-        $users = \App\Models\User::orderBy('name')->get();
-        $teams = \App\Models\Team::orderBy('name')->get();
+        $users = User::orderBy('full_name')->get();
+        $teams = Team::orderBy('name')->get();
         
         return view('innovacion_mejora_continua.initiatives.create', compact('users', 'teams'));
     }
@@ -102,8 +104,8 @@ class InitiativeController extends Controller
     public function edit(Initiative $initiative)
     {
         // Obtener usuarios y equipos para los selects
-        $users = \App\Models\User::orderBy('name')->get();
-        $teams = \App\Models\Team::orderBy('name')->get();
+        $users = User::orderBy('full_name')->get();
+        $teams = Team::orderBy('name')->get();
         
         return view('innovacion_mejora_continua.initiatives.edit', compact('initiative', 'users', 'teams'));
     }

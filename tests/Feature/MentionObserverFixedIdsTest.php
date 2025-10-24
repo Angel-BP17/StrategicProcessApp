@@ -18,7 +18,7 @@ class MentionObserverFixedIdsTest extends TestCase
 
         // Users fijos
         DB::table('users')->updateOrInsert(['id'=>1],[
-            'first_name'=>'Angel','last_name'=>'Bustamante','email'=>'angel@example.com','password'=>bcrypt('secret'),
+            'first_name'=>'Angel','last_name'=>'Bustamante','email'=>'angel@example.com','role' => json_encode(['planner','admin']),'password'=>bcrypt('secret'),
             'created_at'=>now(),'updated_at'=>now(),
         ]);
         DB::table('users')->updateOrInsert(['id'=>2],[

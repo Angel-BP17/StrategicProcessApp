@@ -18,7 +18,7 @@ class StrategicObjectiveController extends Controller
     public function create(StrategicPlan $plan)
     {
         $this->authorize('objective.manage');
-        $users = User::orderBy('name')->get(['id', 'name']);
+        $users = User::orderBy('full_name')->get(['id', 'full_name']);
         return view('planning.objectives.create', compact('plan', 'users'));
     }
 
@@ -57,7 +57,7 @@ class StrategicObjectiveController extends Controller
     public function edit(StrategicPlan $plan, StrategicObjective $objective)
     {
         $this->authorize('objective.manage');
-        $users = User::orderBy('name')->get(['id', 'name']);
+        $users = User::orderBy('full_name')->get(['id', 'full_name']);
         return view('planning.objectives.edit', compact('plan', 'objective', 'users'));
     }
 

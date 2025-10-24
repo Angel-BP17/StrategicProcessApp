@@ -25,4 +25,9 @@ class DocumentVersion extends Model
     {
         return $this->belongsTo(User::class, 'uploaded_by_user_id');
     }
+
+    public function evidences()
+    {
+        return $this->hasMany(Evidence::class, 'document_version_id');
+    }
 }

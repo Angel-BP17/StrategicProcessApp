@@ -37,29 +37,46 @@
                     <h1 class="text-base font-semibold text-slate-100">@yield('title', 'Panel')</h1>
                     @php $notis = auth()->user()->unreadNotifications()->latest()->take(10)->get(); @endphp
                     <div class="relative">
+                        <!-- Botón toggle -->
                         <button id="notification-toggle" type="button"
-                            class="inline-flex items-center gap-1 text-slate-100 hover:text-yellow-200 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
-                                width="24px" fill="#FFFF55">
-                                <path
+                            class="inline-flex items-center gap-1 text-slate-100 hover:text-yellow-200 transition relative"
+                            aria-haspopup="true" aria-expanded="false" aria-controls="notification-list">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
+                                width="24" aria-hidden="true">
+                                <path fill="#FFFF55"
                                     d="M160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h80v80H160Zm320-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z" />
                             </svg>
-                            <span id="notification-count" class="font-semibold">{{ $notis->count() }}</span>
+                            <span id="notification-count"
+                                class="ml-0.5 inline-flex min-w-5 h-5 items-center justify-center rounded-full bg-yellow-500 text-slate-900 text-[11px] font-bold px-1">
+                                {{ $notis->count() }}
+                            </span>
                         </button>
+
+                        <!-- Panel: oculto por defecto -->
                         <div id="notification-list"
-                            class="absolute right-0 mt-2 w-64 bg-white text-slate-900 shadow rounded p-3 space-y-1">
+                            class="absolute right-0 mt-2 w-72 bg-white text-slate-900 shadow-xl rounded-lg p-3 space-y-1 border border-slate-200 hidden"
+                            role="menu" aria-labelledby="notification-toggle" tabindex="-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-sm font-semibold text-slate-800">Notificaciones</h3>
+                                <button type="button" id="notification-close"
+                                    class="text-xs text-slate-500 hover:text-slate-700"
+                                    aria-label="Cerrar notificaciones">Cerrar</button>
+                            </div>
+
                             @forelse ($notis as $n)
-                                <div class="text-sm py-1">
+                                <div class="text-sm py-1" role="menuitem" tabindex="-1">
                                     {{ $n->data['type'] === 'mention' ? 'Te mencionaron' : 'Nueva tarea' }} —
                                     {{ $n->created_at->diffForHumans() }}
                                 </div>
                             @empty
-                                <div class="text-sm py-2 text-slate-500" data-empty="true">No tienes notificaciones.
+                                <div class="text-sm py-2 text-slate-500" data-empty="true" role="menuitem"
+                                    tabindex="-1">
+                                    No tienes notificaciones.
                                 </div>
                             @endforelse
                         </div>
                     </div>
-                    <div class="ml-auto text-xs sm:text-sm text-slate-300">Hola, {{ Auth::user()->name }}</div>
+                    <div class="ml-auto text-xs sm:text-sm text-slate-300">Hola, {{ Auth::user()->first_name }}</div>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
                         <button type="submit"
@@ -91,48 +108,107 @@
         </script>
         <script>
             (() => {
-                if (!window.Echo || !window.userId) {
-                    return;
-                }
-
-                const countEl = document.getElementById('notification-count');
+                const toggleBtn = document.getElementById('notification-toggle');
                 const listEl = document.getElementById('notification-list');
-                if (!countEl || !listEl) {
-                    return;
-                }
-
+                const countEl = document.getElementById('notification-count');
+                const closeBtn = document.getElementById('notification-close');
                 const maxItems = 10;
                 const labels = {
                     mention: 'Te mencionaron',
-                    task_assigned: 'Nueva tarea',
+                    task_assigned: 'Nueva tarea'
                 };
 
-                window.Echo.private(`user.${window.userId}`)
-                    .notification((notification) => {
-                        const currentCount = parseInt(countEl.textContent || '0', 10) || 0;
-                        countEl.textContent = currentCount + 1;
+                if (!toggleBtn || !listEl || !countEl) return;
 
-                        const item = document.createElement('div');
-                        item.className = 'text-sm py-1';
-                        const label = labels[notification.type] || 'Nueva notificación';
-                        const time = new Intl.DateTimeFormat('es-ES', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                        }).format(new Date());
-                        item.textContent = `${label} — ${time}`;
-
-                        const emptyState = listEl.querySelector('[data-empty]');
-                        if (emptyState) {
-                            emptyState.remove();
-                        }
-
-                        listEl.prepend(item);
-
-                        const items = Array.from(listEl.children).filter((el) => !el.hasAttribute('data-empty'));
-                        if (items.length > maxItems) {
-                            items.slice(maxItems).forEach((el) => el.remove());
-                        }
+                const isOpen = () => !listEl.classList.contains('hidden');
+                const open = () => {
+                    listEl.classList.remove('hidden');
+                    toggleBtn.setAttribute('aria-expanded', 'true');
+                    // focus al primer item
+                    const firstItem = listEl.querySelector('[role="menuitem"]');
+                    if (firstItem) firstItem.focus({
+                        preventScroll: true
                     });
+                };
+                const close = () => {
+                    listEl.classList.add('hidden');
+                    toggleBtn.setAttribute('aria-expanded', 'false');
+                    toggleBtn.focus({
+                        preventScroll: true
+                    });
+                };
+                const toggle = () => (isOpen() ? close() : open());
+
+                // Toggle con click
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggle();
+                });
+                // Botón cerrar
+                if (closeBtn) closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    close();
+                });
+
+                // Cerrar al hacer click fuera
+                document.addEventListener('click', (e) => {
+                    if (!isOpen()) return;
+                    if (!listEl.contains(e.target) && !toggleBtn.contains(e.target)) close();
+                });
+
+                // Tecla Escape
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && isOpen()) {
+                        e.preventDefault();
+                        close();
+                    }
+                });
+
+                // Accesibilidad con teclado en el botón
+                toggleBtn.addEventListener('keydown', (e) => {
+                    if ((e.key === 'Enter' || e.key === ' ') && !isOpen()) {
+                        e.preventDefault();
+                        open();
+                    }
+                    if (e.key === 'ArrowDown' && !isOpen()) {
+                        e.preventDefault();
+                        open();
+                    }
+                });
+
+                // Tiempo real
+                if (window.Echo && window.userId) {
+                    window.Echo.private(`user.${window.userId}`)
+                        .notification((notification) => {
+                            // actualizar contador
+                            const current = parseInt(countEl.textContent || '0', 10) || 0;
+                            countEl.textContent = current + 1;
+
+                            // crear item
+                            const item = document.createElement('div');
+                            item.className = 'text-sm py-1';
+                            item.setAttribute('role', 'menuitem');
+                            item.setAttribute('tabindex', '-1');
+
+                            const label = labels[notification.type] || 'Nueva notificación';
+                            const time = new Intl.DateTimeFormat('es-PE', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            }).format(new Date());
+                            item.textContent = `${label} — ${time}`;
+
+                            // limpiar empty state
+                            const emptyState = listEl.querySelector('[data-empty]');
+                            if (emptyState) emptyState.remove();
+
+                            // insertar arriba
+                            listEl.prepend(item);
+
+                            // truncar
+                            const items = Array.from(listEl.querySelectorAll('[role="menuitem"]'));
+                            if (items.length > maxItems) items.slice(maxItems).forEach(el => el.remove());
+                        });
+                }
             })();
         </script>
     @endif

@@ -5,6 +5,7 @@ namespace App\Models\Documentation;
 use App\Models\Quality\Audit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DocumentAudit extends Model
 {
@@ -22,12 +23,12 @@ class DocumentAudit extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function audit()
+    public function audit(): BelongsTo
     {
         return $this->belongsTo(Audit::class);
     }
 
-    public function documentVersion()
+    public function documentVersion(): BelongsTo
     {
         return $this->belongsTo(DocumentVersion::class);
     }

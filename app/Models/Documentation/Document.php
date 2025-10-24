@@ -4,6 +4,7 @@ namespace App\Models\Documentation;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Schema;
 
 class Document extends Model
 {
@@ -34,6 +35,12 @@ class Document extends Model
     {
         return $this->hasMany(DocumentHistory::class);
     }
+
+    public function evidences()
+    {
+        return $this->hasManyThrough(Evidence::class, DocumentVersion::class);
+    }
+
     public function scopeSearch($query, ?string $term)
     {
         if (blank($term)) {
@@ -46,5 +53,17 @@ class Document extends Model
             $q->where('title', 'like', "%{$term}%")
                 ->orWhere('description', 'like', "%{$term}%");
         });
+    }
+
+    public function syncCurrentVersion(DocumentVersion $version): void
+    {
+        if ($version->document_id !== $this->id) {
+            return;
+        }
+
+        if (Schema::hasColumn($this->getTable(), 'current_version_id')) {
+            $this->forceFill(['current_version_id' => $version->id])->save();
+            $this->setRelation('latestVersion', $version);
+        }
     }
 }

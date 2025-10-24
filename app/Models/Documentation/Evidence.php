@@ -13,6 +13,8 @@ class Evidence extends Model
 {
     use HasFactory;
 
+    protected $table = 'evidences';
+
     protected $fillable = [
         'initiative_id',
         'document_version_id',
@@ -50,5 +52,67 @@ class Evidence extends Model
     public function accreditation()
     {
         return $this->belongsTo(Accreditation::class);
+    }
+
+    public function getTargetTypeLabelAttribute(): ?string
+    {
+        return match (true) {
+            (bool) $this->initiative_id => 'Iniciativa',
+            (bool) $this->audit_id => 'Auditoría',
+            (bool) $this->accreditation_id => 'Acreditación',
+            (bool) $this->kpi_measurement_id => 'Medición KPI',
+            default => null,
+        };
+    }
+
+    public function getTargetNameAttribute(): ?string
+    {
+        if ($this->initiative) {
+            return $this->initiative->title;
+        }
+
+        if ($this->audit) {
+            $range = collect([$this->audit->start_date, $this->audit->end_date])
+                ->filter()
+                ->map(function ($value) {
+                    try {
+                        return Carbon::parse($value)->format('d/m/Y');
+                    } catch (\Throwable $th) {
+                        return $value;
+                    }
+                })
+                ->implode(' - ');
+
+            return trim(($this->audit->area ?: 'Auditoría') . ($range ? " ({$range})" : ''));
+        }
+
+        if ($this->accreditation) {
+            try {
+                $date = $this->accreditation->accreditation_date
+                    ? Carbon::parse($this->accreditation->accreditation_date)->format('d/m/Y')
+                    : null;
+            } catch (\Throwable $th) {
+                $date = $this->accreditation->accreditation_date;
+            }
+
+            return trim(($this->accreditation->entity ?: 'Acreditación') . ($date ? " ({$date})" : ''));
+        }
+
+        if ($this->kpiMeasurement) {
+            $kpiName = $this->kpiMeasurement->kpi->name ?? 'KPI';
+            $measurementDate = $this->kpiMeasurement->measured_at;
+
+            if ($measurementDate) {
+                try {
+                    $measurementDate = Carbon::parse($measurementDate)->format('d/m/Y');
+                } catch (\Throwable $th) {
+                    // mantener valor original
+                }
+            }
+
+            return trim($kpiName . ($measurementDate ? " ({$measurementDate})" : ''));
+        }
+
+        return null;
     }
 }

@@ -226,7 +226,7 @@
                                     <td class="px-4 py-4 text-slate-100 font-semibold">v{{ $version->version_number }}</td>
                                     <td class="px-4 py-4 text-slate-300">{{ $version->file_name }}</td>
                                     <td class="px-4 py-4 text-slate-300">
-                                        {{ $version->file_size ? \Illuminate\Support\Facades\Number::fileSize($version->file_size) : '—' }}
+                                        {{ $version->file_size ? \Illuminate\Support\Number::fileSize($version->file_size) : '—' }}
                                     </td>
                                     <td class="px-4 py-4 text-slate-300">{{ $version->uploader->name ?? '—' }}</td>
                                     <td class="px-4 py-4 text-slate-300">

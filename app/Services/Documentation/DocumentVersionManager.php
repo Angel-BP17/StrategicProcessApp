@@ -50,6 +50,8 @@ class DocumentVersionManager
         $fullPath = Storage::disk($this->disk)->path($path);
         $checksum = is_file($fullPath) ? hash_file('sha256', $fullPath) : null;
 
+        $timestampNow = now();
+
         $version = $document->versions()->create([
             'version_number' => $versionNumber,
             'file_name' => $file->getClientOriginalName(),
@@ -57,12 +59,13 @@ class DocumentVersionManager
             'mime_type' => $file->getClientMimeType(),
             'file_size' => $file->getSize(),
             'uploaded_by_user_id' => $userId,
-            'uploaded_at' => now(),
+            'uploaded_at' => $timestampNow,
             'checksum' => $checksum,
             'notes' => $notes,
+            'created_at' => $timestampNow,
         ]);
 
-        $document->forceFill(['current_version_id' => $version->id])->save();
+        $document->syncCurrentVersion($version);
 
         return $version;
     }

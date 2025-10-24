@@ -11,10 +11,12 @@
                 <p class="text-sm text-slate-400">Plan: {{ $plan->title }}</p>
             </div>
             <a href="{{ route('planning.plans.show', $plan) }}"
-                class="inline-flex items-center gap-2 rounded-2xl border border-slate-700/60 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-300 hover:text-slate-100 hover:border-slate-500 transition">← Volver al plan</a>
+                class="inline-flex items-center gap-2 rounded-2xl border border-slate-700/60 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-300 hover:text-slate-100 hover:border-slate-500 transition">←
+                Volver al plan</a>
         </div>
 
-        <form class="rounded-3xl border border-slate-800/70 bg-slate-950/70 px-6 py-8 shadow-2xl shadow-slate-950/40 backdrop-blur space-y-8"
+        <form
+            class="rounded-3xl border border-slate-800/70 bg-slate-950/70 px-6 py-8 shadow-2xl shadow-slate-950/40 backdrop-blur space-y-8"
             method="POST" action="{{ route('planning.objectives.store', $plan) }}">
             @csrf
             <input type="hidden" name="plan_id" value="{{ $plan->id }}">
@@ -39,13 +41,14 @@
                         class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40">
                         <option value="">— Seleccionar —</option>
                         @foreach ($users as $u)
-                            <option value="{{ $u->id }}" @selected(old('responsible_user_id') == $u->id)>{{ $u->name }}</option>
+                            <option value="{{ $u->id }}" @selected(old('responsible_user_id') == $u->id)>{{ $u->full_name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
                     <label class="text-sm font-semibold text-slate-300">Peso (%)</label>
-                    <input type="number" step="1" min="0" max="100" name="weight" value="{{ old('weight') }}"
+                    <input type="number" step="1" min="0" max="100" name="weight"
+                        value="{{ old('weight') }}"
                         class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40" />
                 </div>
                 <div class="lg:col-span-2">
@@ -59,7 +62,8 @@
                 <a href="{{ route('planning.plans.show', $plan) }}"
                     class="inline-flex items-center gap-2 rounded-2xl border border-slate-700/70 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-slate-100">Cancelar</a>
                 <button type="submit"
-                    class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5">Guardar objetivo</button>
+                    class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5">Guardar
+                    objetivo</button>
             </div>
         </form>
     </div>
