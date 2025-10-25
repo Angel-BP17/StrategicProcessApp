@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\AgreementController;
+use App\Http\Controllers\AllianceController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Collaboration\ChannelController;
 use App\Http\Controllers\Collaboration\CollaborationController;
 use App\Http\Controllers\Collaboration\MessageController;
@@ -10,32 +16,33 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Documentation\DocumentController;
 use App\Http\Controllers\Documentation\DocumentVersionController;
 use App\Http\Controllers\Documentation\EvidenceController;
+use App\Http\Controllers\InnovacionMejoraContinua\InitiativeController;
+use App\Http\Controllers\InnovacionMejoraContinua\InitiativeEvaluationController;
+use App\Http\Controllers\InnovacionMejoraContinua\InnovacionMejoraController;
+use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\Planning\KpiController;
 use App\Http\Controllers\Planning\PlanningController;
 use App\Http\Controllers\Planning\StrategicObjectiveController;
 use App\Http\Controllers\Planning\StrategicPlanController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\AllianceController;
-use App\Http\Controllers\PartnerController;
-use App\Http\Controllers\AgreementController;
-
-
-use App\Http\Controllers\Quality\AuditController;
-use App\Http\Controllers\Quality\QualityDashboardController;
-use App\Http\Controllers\Quality\FindingController;
-use App\Http\Controllers\Quality\CorrectiveActionController;
 use App\Http\Controllers\Quality\AccreditationController;
+use App\Http\Controllers\Quality\AuditController;
+use App\Http\Controllers\Quality\CorrectiveActionController;
+use App\Http\Controllers\Quality\EvaluationCriterionController;
+use App\Http\Controllers\Quality\FindingController;
+use App\Http\Controllers\Quality\QualityDashboardController;
 use App\Http\Controllers\Quality\SurveyController;
 use App\Http\Controllers\Quality\SurveyQuestionController;
-use App\Http\Controllers\Quality\EvaluationCriterionController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
+
+/*
+|--------------------------------------------------------------------------
+| MÓDULO: LOGIN
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware('guest')->group(function () {
     // Login Routes
@@ -54,49 +61,26 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    // Logout Route
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+});
+
+/*
+|--------------------------------------------------------------------------
+| MÓDULO: HOME
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
 
     // Dashboard Route (ejemplo)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    Route::prefix('documents')->name('documents.')->group(function () {
-        Route::middleware(['role:any,admin,quality_manager,auditor,consultant'])->group(function () {
-            Route::get('/', [DocumentController::class, 'index'])->name('index');
-            Route::get('/{document}/versions/{version}/download', [DocumentVersionController::class, 'download'])
-                ->whereNumber('document')
-                ->whereNumber('version')
-                ->name('versions.download');
-            Route::get('/{document}', [DocumentController::class, 'show'])
-                ->whereNumber('document')
-                ->name('show');
-        });
-
-        Route::middleware(['role:any,admin,quality_manager'])->group(function () {
-            Route::get('/create', [DocumentController::class, 'create'])->name('create');
-            Route::post('/', [DocumentController::class, 'store'])->name('store');
-            Route::get('/{document}/edit', [DocumentController::class, 'edit'])
-                ->whereNumber('document')
-                ->name('edit');
-            Route::put('/{document}', [DocumentController::class, 'update'])
-                ->whereNumber('document')
-                ->name('update');
-            Route::delete('/{document}', [DocumentController::class, 'destroy'])
-                ->whereNumber('document')
-                ->name('destroy');
-            Route::post('/{document}/versions', [DocumentVersionController::class, 'store'])
-                ->whereNumber('document')
-                ->name('versions.store');
-            Route::post('/{document}/evidences', [EvidenceController::class, 'store'])
-                ->whereNumber('document')
-                ->name('evidences.store');
-            Route::delete('/{document}/evidences/{evidence}', [EvidenceController::class, 'destroy'])
-                ->whereNumber('document')
-                ->whereNumber('evidence')
-                ->name('evidences.destroy');
-        });
-    });
 });
+
+/*
+|--------------------------------------------------------------------------
+| MÓDULO: PLANIFICACIÓN INSTITUCIONAL
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware(['auth', 'role:any,admin,planner'])->prefix('planning')->name('planning.')->group(function () {
 
@@ -148,14 +132,113 @@ Route::middleware(['auth', 'role:any,admin,planner'])->prefix('planning')->name(
     });
 });
 
+/*
+|--------------------------------------------------------------------------
+| MÓDULO: ALIANZAS Y CONVENIOS
+|--------------------------------------------------------------------------
+*/
 
+Route::middleware(['auth'])->group(function () {
+    // Vista general
+    Route::get('/alliances', [AllianceController::class, 'index'])->name('alliances.index');
 
+    // CRUD de Socios
+    Route::resource('partners', PartnerController::class);
+
+    // CRUD de Convenios
+    Route::resource('agreements', AgreementController::class);
+});
+
+/*
+|--------------------------------------------------------------------------
+| MÓDULO: DOCUMENTACIÓN Y EVIDENCIAS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+    Route::prefix('documents')->name('documents.')->group(function () {
+        Route::middleware(['role:any,admin,quality_manager,auditor,consultant'])->group(function () {
+            Route::get('/', [DocumentController::class, 'index'])->name('index');
+            Route::get('/{document}/versions/{version}/download', [DocumentVersionController::class, 'download'])
+                ->whereNumber('document')
+                ->whereNumber('version')
+                ->name('versions.download');
+            Route::get('/{document}', [DocumentController::class, 'show'])
+                ->whereNumber('document')
+                ->name('show');
+        });
+
+        Route::middleware(['role:any,admin,quality_manager'])->group(function () {
+            Route::get('/create', [DocumentController::class, 'create'])->name('create');
+            Route::post('/', [DocumentController::class, 'store'])->name('store');
+            Route::get('/{document}/edit', [DocumentController::class, 'edit'])
+                ->whereNumber('document')
+                ->name('edit');
+            Route::put('/{document}', [DocumentController::class, 'update'])
+                ->whereNumber('document')
+                ->name('update');
+            Route::delete('/{document}', [DocumentController::class, 'destroy'])
+                ->whereNumber('document')
+                ->name('destroy');
+            Route::post('/{document}/versions', [DocumentVersionController::class, 'store'])
+                ->whereNumber('document')
+                ->name('versions.store');
+            Route::post('/{document}/evidences', [EvidenceController::class, 'store'])
+                ->whereNumber('document')
+                ->name('evidences.store');
+            Route::delete('/{document}/evidences/{evidence}', [EvidenceController::class, 'destroy'])
+                ->whereNumber('document')
+                ->whereNumber('evidence')
+                ->name('evidences.destroy');
+        });
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| MÓDULO: INNOVACIÓN Y MEJORA CONTINUA
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'role:any,admin,planner'])->prefix('innovacion-mejora-continua')->name('innovacion-mejora-continua.')->group(function () {
+
+    // Home del módulo de Innovación y Mejora Continua
+    Route::get('/', [InnovacionMejoraController::class, 'index'])->name('index');
+
+    // Iniciativas (Gestión de iniciativas)
+    Route::prefix('initiatives')->name('initiatives.')->group(function () {
+        Route::get('/', [InitiativeController::class, 'index'])->name('index');           // listado de iniciativas
+        Route::get('/create', [InitiativeController::class, 'create'])->name('create');   // formulario crear
+        Route::post('/', [InitiativeController::class, 'store'])->name('store');          // guardar
+        Route::get('/{initiative}', [InitiativeController::class, 'show'])->name('show'); // ver detalle
+        Route::get('/{initiative}/edit', [InitiativeController::class, 'edit'])->name('edit'); // formulario editar
+        Route::put('/{initiative}', [InitiativeController::class, 'update'])->name('update');  // actualizar
+        Route::delete('/{initiative}', [InitiativeController::class, 'destroy'])->name('destroy'); // eliminar
+
+        // Evaluaciones de iniciativas (por iniciativa)
+        Route::prefix('{initiative}/evaluations')->name('evaluations.')->group(function () {
+            Route::get('/', [InitiativeEvaluationController::class, 'index'])->name('index');        // listado
+            Route::get('/create', [InitiativeEvaluationController::class, 'create'])->name('create'); // formulario
+            Route::post('/', [InitiativeEvaluationController::class, 'store'])->name('store');       // guardar
+            Route::get('/{evaluation}', [InitiativeEvaluationController::class, 'show'])->name('show'); // detalle
+            Route::get('/{evaluation}/edit', [InitiativeEvaluationController::class, 'edit'])->name('edit'); // editar
+            Route::put('/{evaluation}', [InitiativeEvaluationController::class, 'update'])->name('update'); // actualizar
+            Route::delete('/{evaluation}', [InitiativeEvaluationController::class, 'destroy'])->name('destroy'); // eliminar
+        });
+    });
+
+    // Dashboards del módulo (opcional)
+    Route::prefix('dashboards')->name('dashboards.')->group(function () {
+        Route::get('/', [InnovacionMejoraController::class, 'dashboard'])->name('index');
+    });
+});
 
 /*
 |--------------------------------------------------------------------------
 | MÓDULO: GESTIÓN DE CALIDAD
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth'])->prefix('quality')->name('quality.')->group(function () {
 
     // Dashboard Principal de Calidad
@@ -214,67 +297,6 @@ Route::middleware(['auth'])->prefix('quality')->name('quality.')->group(function
 
 });
 
-
-
-
-
-Route::get('/debug/roles', function () {
-    $u = auth()->user();
-    return response()->json([
-        'user_id' => $u?->id,
-        'raw_roles' => $u->roles ?? $u->role ?? null,
-        'as_array' => is_array($u->roles ?? $u->role ?? null),
-    ]);
-})->middleware('auth');
-
-Route::middleware(['auth'])->group(function () {
-    // Vista general
-    Route::get('/alliances', [AllianceController::class, 'index'])->name('alliances.index');
-
-    // CRUD de Socios
-    Route::resource('partners', PartnerController::class);
-
-    // CRUD de Convenios
-    Route::resource('agreements', AgreementController::class);
-});
-
-use App\Http\Controllers\InnovacionMejoraContinua\InnovacionMejoraController;
-use App\Http\Controllers\InnovacionMejoraContinua\InitiativeController;
-use App\Http\Controllers\InnovacionMejoraContinua\InitiativeEvaluationController;
-
-Route::middleware(['auth', 'role:any,admin,planner'])->prefix('innovacion-mejora-continua')->name('innovacion-mejora-continua.')->group(function () {
-
-    // Home del módulo de Innovación y Mejora Continua
-    Route::get('/', [InnovacionMejoraController::class, 'index'])->name('index');
-
-    // Iniciativas (Gestión de iniciativas)
-    Route::prefix('initiatives')->name('initiatives.')->group(function () {
-        Route::get('/', [InitiativeController::class, 'index'])->name('index');           // listado de iniciativas
-        Route::get('/create', [InitiativeController::class, 'create'])->name('create');   // formulario crear
-        Route::post('/', [InitiativeController::class, 'store'])->name('store');          // guardar
-        Route::get('/{initiative}', [InitiativeController::class, 'show'])->name('show'); // ver detalle
-        Route::get('/{initiative}/edit', [InitiativeController::class, 'edit'])->name('edit'); // formulario editar
-        Route::put('/{initiative}', [InitiativeController::class, 'update'])->name('update');  // actualizar
-        Route::delete('/{initiative}', [InitiativeController::class, 'destroy'])->name('destroy'); // eliminar
-
-        // Evaluaciones de iniciativas (por iniciativa)
-        Route::prefix('{initiative}/evaluations')->name('evaluations.')->group(function () {
-            Route::get('/', [InitiativeEvaluationController::class, 'index'])->name('index');        // listado
-            Route::get('/create', [InitiativeEvaluationController::class, 'create'])->name('create'); // formulario
-            Route::post('/', [InitiativeEvaluationController::class, 'store'])->name('store');       // guardar
-            Route::get('/{evaluation}', [InitiativeEvaluationController::class, 'show'])->name('show'); // detalle
-            Route::get('/{evaluation}/edit', [InitiativeEvaluationController::class, 'edit'])->name('edit'); // editar
-            Route::put('/{evaluation}', [InitiativeEvaluationController::class, 'update'])->name('update'); // actualizar
-            Route::delete('/{evaluation}', [InitiativeEvaluationController::class, 'destroy'])->name('destroy'); // eliminar
-        });
-    });
-
-    // Dashboards del módulo (opcional)
-    Route::prefix('dashboards')->name('dashboards.')->group(function () {
-        Route::get('/', [InnovacionMejoraController::class, 'dashboard'])->name('index');
-    });
-});
-
 /*
 |--------------------------------------------------------------------------
 | MÓDULO: COLABORACIÓN Y COMUNICACIÓN DIGITAL
@@ -313,9 +335,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/collaboration/search', [SearchController::class, 'index'])->name('collab.search');
 });
 
-
 /*
 |--------------------------------------------------------------------------
-| MÓDULO: DOCUMENTACIÓN Y EVIDENCIAS
+| MÓDULO: PRUEBA DE ROLES
 |--------------------------------------------------------------------------
 */
+
+Route::get('/debug/roles', function () {
+    $u = auth()->user();
+    return response()->json([
+        'user_id' => $u?->id,
+        'raw_roles' => $u->roles ?? $u->role ?? null,
+        'as_array' => is_array($u->roles ?? $u->role ?? null),
+    ]);
+})->middleware('auth');

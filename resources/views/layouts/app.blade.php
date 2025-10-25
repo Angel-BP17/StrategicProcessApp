@@ -35,55 +35,61 @@
             <header class="sticky top-0 z-40 bg-slate-950/85 backdrop-blur border-b border-slate-800/60">
                 <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3 text-sm">
                     <h1 class="text-base font-semibold text-slate-100">@yield('title', 'Panel')</h1>
-                    @php $notis = auth()->user()->unreadNotifications()->latest()->take(10)->get(); @endphp
-                    <div class="relative">
-                        <!-- Botón toggle -->
-                        <button id="notification-toggle" type="button"
-                            class="inline-flex items-center gap-1 text-slate-100 hover:text-yellow-200 transition relative"
-                            aria-haspopup="true" aria-expanded="false" aria-controls="notification-list">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
-                                width="24" aria-hidden="true">
-                                <path fill="#FFFF55"
-                                    d="M160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h80v80H160Zm320-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z" />
-                            </svg>
-                            <span id="notification-count"
-                                class="ml-0.5 inline-flex min-w-5 h-5 items-center justify-center rounded-full bg-yellow-500 text-slate-900 text-[11px] font-bold px-1">
-                                {{ $notis->count() }}
-                            </span>
-                        </button>
 
-                        <!-- Panel: oculto por defecto -->
-                        <div id="notification-list"
-                            class="absolute right-0 mt-2 w-72 bg-white text-slate-900 shadow-xl rounded-lg p-3 space-y-1 border border-slate-200 hidden"
-                            role="menu" aria-labelledby="notification-toggle" tabindex="-1">
-                            <div class="flex items-center justify-between mb-2">
-                                <h3 class="text-sm font-semibold text-slate-800">Notificaciones</h3>
-                                <button type="button" id="notification-close"
-                                    class="text-xs text-slate-500 hover:text-slate-700"
-                                    aria-label="Cerrar notificaciones">Cerrar</button>
+                    {{-- Empuja a la derecha saludo + notificaciones + logout --}}
+                    <div class="ml-auto flex items-center gap-3">
+                        <div class="text-xs sm:text-sm text-slate-300">Hola, {{ Auth::user()->first_name }}</div>
+
+                        @php $notis = auth()->user()->unreadNotifications()->latest()->take(10)->get(); @endphp
+                        <div class="relative">
+                            <!-- Botón toggle -->
+                            <button id="notification-toggle" type="button"
+                                class="inline-flex items-center gap-1 text-slate-100 hover:text-yellow-200 transition relative"
+                                aria-haspopup="true" aria-expanded="false" aria-controls="notification-list">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
+                                    width="24" aria-hidden="true">
+                                    <path fill="#FFFF55"
+                                        d="M160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h80v80H160Zm320-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z" />
+                                </svg>
+                                <span id="notification-count"
+                                    class="ml-0.5 inline-flex min-w-5 h-5 items-center justify-center rounded-full bg-yellow-500 text-slate-900 text-[11px] font-bold px-1">
+                                    {{ $notis->count() }}
+                                </span>
+                            </button>
+
+                            <!-- Panel: oculto por defecto -->
+                            <div id="notification-list"
+                                class="absolute right-0 mt-2 w-72 bg-white text-slate-900 shadow-xl rounded-lg p-3 space-y-1 border border-slate-200 hidden"
+                                role="menu" aria-labelledby="notification-toggle" tabindex="-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-sm font-semibold text-slate-800">Notificaciones</h3>
+                                    <button type="button" id="notification-close"
+                                        class="text-xs text-slate-500 hover:text-slate-700"
+                                        aria-label="Cerrar notificaciones">Cerrar</button>
+                                </div>
+
+                                @forelse ($notis as $n)
+                                    <div class="text-sm py-1" role="menuitem" tabindex="-1">
+                                        {{ $n->data['type'] === 'mention' ? 'Te mencionaron' : 'Nueva tarea' }} —
+                                        {{ $n->created_at->diffForHumans() }}
+                                    </div>
+                                @empty
+                                    <div class="text-sm py-2 text-slate-500" data-empty="true" role="menuitem"
+                                        tabindex="-1">
+                                        No tienes notificaciones.
+                                    </div>
+                                @endforelse
                             </div>
-
-                            @forelse ($notis as $n)
-                                <div class="text-sm py-1" role="menuitem" tabindex="-1">
-                                    {{ $n->data['type'] === 'mention' ? 'Te mencionaron' : 'Nueva tarea' }} —
-                                    {{ $n->created_at->diffForHumans() }}
-                                </div>
-                            @empty
-                                <div class="text-sm py-2 text-slate-500" data-empty="true" role="menuitem"
-                                    tabindex="-1">
-                                    No tienes notificaciones.
-                                </div>
-                            @endforelse
                         </div>
+
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit"
+                                class="px-4 py-2 text-sm font-semibold text-white bg-sky-500/90 border border-sky-400/40 rounded-lg shadow-md shadow-sky-500/20 hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-300/70 transition-all duration-200">
+                                Cerrar Sesión
+                            </button>
+                        </form>
                     </div>
-                    <div class="ml-auto text-xs sm:text-sm text-slate-300">Hola, {{ Auth::user()->first_name }}</div>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit"
-                            class="px-4 py-2 text-sm font-semibold text-white bg-sky-500/90 border border-sky-400/40 rounded-lg shadow-md shadow-sky-500/20 hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-300/70 transition-all duration-200">
-                            Cerrar Sesión
-                        </button>
-                    </form>
                 </div>
             </header>
 

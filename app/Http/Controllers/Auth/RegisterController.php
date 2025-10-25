@@ -32,16 +32,27 @@ class RegisterController extends Controller
     public function register(RegisterRequest $request)
     {
 
-        // Crear usuario en base a la estructura de la tabla
-        User::create([
-            'first_name' => $request->first_name,
-            'last_name'  => $request->last_name,
-            'full_name'  => $request->first_name ." ". $request->last_name,
-            'dni'        => 'TEMP-' . rand(10000, 99999), // valor temporal
-            'email'      => $request->email,
-            'password'   => Hash::make($request->password),
-            'role' => ["planner","admin"],
-        ]);
+        if (User::count() >= 1) {
+            User::create([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'full_name' => $request->first_name . " " . $request->last_name,
+                'dni' => 'TEMP-' . rand(10000, 99999), // valor temporal
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => ["planner"],
+            ]);
+        } else {
+            User::create([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'full_name' => $request->first_name . " " . $request->last_name,
+                'dni' => 'TEMP-' . rand(10000, 99999), // valor temporal
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => ["planner", "admin"],
+            ]);
+        }
 
         return redirect()->route('welcome')->with('success', '¡Registro exitoso!');
     }
