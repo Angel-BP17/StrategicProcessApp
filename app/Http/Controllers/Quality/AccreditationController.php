@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Quality;
 
 use App\Http\Controllers\Controller;
-use App\Models\Quality\Accreditation; // <-- Importamos el modelo
+use App\Models\Quality\Accreditation;
 use Illuminate\Http\Request;
 
 class AccreditationController extends Controller
@@ -48,10 +48,10 @@ class AccreditationController extends Controller
 
         // 3. Redirigimos de vuelta al listado con un mensaje
         return redirect()->route('quality.accreditations.index')
-                        ->with('success', 'Acreditación registrada con éxito.');
+            ->with('success', 'Acreditación registrada con éxito.');
     }
 
-        public function edit(Accreditation $accreditation)
+    public function edit(Accreditation $accreditation)
     {
         // Enviamos la acreditación que queremos editar a la nueva vista
         return view('quality.accreditations.edit', [
@@ -75,16 +75,16 @@ class AccreditationController extends Controller
 
         // 3. Redirigimos de vuelta al listado
         return redirect()->route('quality.accreditations.index')
-                        ->with('success', 'Acreditación actualizada con éxito.');
+            ->with('success', 'Acreditación actualizada con éxito.');
     }
 
     public function destroy(Accreditation $accreditation)
     {
-    // 1. Eliminamos el registro
-    $accreditation->delete();
+        // 1. Eliminamos el registro
+        $accreditation->delete();
 
-    // 2. Redirigimos de vuelta al listado con un mensaje de éxito
-    return redirect()->route('quality.accreditations.index')
-                     ->with('success', 'Acreditación eliminada con éxito.');
+        // 2. Redirigimos de vuelta al listado con un mensaje de éxito
+        return redirect()->route('quality.accreditations.index')
+            ->with('success', 'Acreditación eliminada con éxito.');
     }
 }

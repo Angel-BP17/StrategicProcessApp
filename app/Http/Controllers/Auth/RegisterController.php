@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-// use Illuminate\Support\Facades\Validator;
-// use Illuminate\Foundation\Auth\RegistersUsers;
 
 class RegisterController extends Controller
 {
@@ -37,10 +35,10 @@ class RegisterController extends Controller
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'full_name' => $request->first_name . " " . $request->last_name,
-                'dni' => 'TEMP-' . rand(10000, 99999), // valor temporal
+                'dni' => 'TEMP-' . rand(10000, 99999),
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => ["planner"],
+                'role' => ["planner", "admin"],
             ]);
         } else {
             User::create([

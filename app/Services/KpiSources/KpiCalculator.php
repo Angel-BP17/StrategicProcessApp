@@ -1,6 +1,6 @@
 <?php
 // app/Services/KpiCalculator.php
-namespace App\Services;
+namespace App\Services\KpiSources;
 use App\Models\Planning\Kpi;
 use App\Models\Planning\KpiMeasurement;
 

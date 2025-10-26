@@ -43,4 +43,8 @@ class TaskAssignedNotification extends Notification
             ->action('Notification Action', url('/'))
             ->line('Thank you for using our application!');
     }
+    public function toDatabase($notifiable)
+    {
+        return $this->toArray($notifiable);
+    }
 }

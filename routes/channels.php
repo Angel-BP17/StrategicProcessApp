@@ -15,9 +15,9 @@ Broadcast::channel('channel.{channelId}', function ($user, $channelId) {
 
     // Permite si el usuario pertenece al equipo del canal o si el canal es público
     if (method_exists($channel, 'isMember') && $channel->isMember($user->id)) {
-        return ['id' => $user->id, 'name' => $user->full_name ?? $user->email];
+        return ['id' => $user->id, 'full_name' => $user->full_name ?? $user->email];
     }
-    return ['id' => $user->id, 'name' => $user->full_name ?? $user->email]; // fallback público
+    return ['id' => $user->id, 'full_name' => $user->full_name ?? $user->email]; // fallback público
 });
 
 Broadcast::channel('user.{id}', fn($user, $id) => (int) $user->id === (int) $id);

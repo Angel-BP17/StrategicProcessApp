@@ -2,6 +2,7 @@
 
 namespace App\Models\Quality;
 
+use App\Models\Documentation\DocumentVersion;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,14 +26,14 @@ class Audit extends Model
         'type', // 'internal' o 'external'
         'state', // 'planned', 'in_progress', etc.
         'objective',
-        'range', // 'range' es 'alcance' en español
+        'audit_range', // 'range' es 'alcance' en español
     ];
 
     /**
      * Opcional, pero buena práctica:
      * Definir las relaciones con otras tablas.
      */
-    
+
     // Relación: Una auditoría pertenece a un Usuario (responsable)
     public function responsible()
     {
@@ -45,5 +46,8 @@ class Audit extends Model
         return $this->hasMany(Finding::class);
     }
 
-    // ... (luego agregaremos más relaciones) ...
+    public function reportDocumentVersion()
+    {
+        return $this->belongsTo(DocumentVersion::class, 'report_document_version_id');
+    }
 }
