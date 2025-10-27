@@ -68,4 +68,41 @@
             </div>
         </form>
     </div>
+    <script>
+        (function(){
+            const form = document.querySelector('form');
+            if(!form) return;
+            form.addEventListener('submit', async function(e){
+                e.preventDefault();
+                const fd = new FormData(form);
+                const payload = Object.fromEntries(fd.entries());
+                console.log('Enviando (payload):', payload);
+
+                // CSRF token hidden input exists thanks to @csrf
+                const token = document.querySelector('input[name="_token"]')?.value;
+                try {
+                    const res = await fetch(form.action, {
+                        method: form.method || 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': token,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        body: new URLSearchParams(fd)
+                    });
+                    const text = await res.text();
+                    console.log('Respuesta (status:', res.status + '):', text);
+                    // si quieres seguir con la redirección original en caso de éxito:
+                    if (res.redirected) {
+                        window.location.href = res.url;
+                        return;
+                    }
+                    // si respuesta JSON:
+                    try { console.log('JSON parse:', JSON.parse(text)); } catch(_) {}
+                } catch (err) {
+                    console.error('Error en fetch:', err);
+                }
+            }, { once: true });
+        })();
+    </script>
 @endsection
