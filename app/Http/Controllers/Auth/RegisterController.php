@@ -6,54 +6,31 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-// use Illuminate\Support\Facades\Validator;
-// use Illuminate\Foundation\Auth\RegistersUsers;
 
 class RegisterController extends Controller
 {
-    // removed RegistersUsers trait
-
-    /**
-     * Show the registration form.
-     *
-     * @return \Illuminate\View\View
-     */
     public function showRegistrationForm()
     {
-        return view('auth.register');
+        return response()->json([
+            'message' => 'El registro se gestiona a través de la API.',
+        ]);
     }
 
-    /**
-     * Handle a registration request for the application.
-     *
-     * @param  \App\Http\Requests\RegisterRequest  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function register(RegisterRequest $request)
     {
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'full_name' => $request->first_name . ' ' . $request->last_name,
+            'dni' => 'TEMP-' . rand(10000, 99999),
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => ["planner", "admin"],
+        ]);
 
-        if (User::count() >= 1) {
-            User::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'full_name' => $request->first_name . " " . $request->last_name,
-                'dni' => 'TEMP-' . rand(10000, 99999), // valor temporal
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => ["planner", "admin"],
-            ]);
-        } else {
-            User::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'full_name' => $request->first_name . " " . $request->last_name,
-                'dni' => 'TEMP-' . rand(10000, 99999), // valor temporal
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => ["planner", "admin"],
-            ]);
-        }
-
-        return redirect()->route('welcome')->with('success', '¡Registro exitoso!');
+        return response()->json([
+            'message' => 'Registro exitoso.',
+            'data' => $user,
+        ], 201);
     }
 }

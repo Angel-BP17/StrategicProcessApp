@@ -10,15 +10,20 @@ class AgreementController extends Controller
 {
     public function index()
     {
-        // Siempre mostramos el panel unificado
         $agreements = Agreement::with('partner')->latest()->get();
-        return view('alliances.index', compact('agreements'));
+
+        return response()->json([
+            'data' => $agreements,
+        ]);
     }
 
     public function create()
     {
         $partners = Partner::all();
-        return view('alliances.agreements.create', compact('partners'));
+
+        return response()->json([
+            'partners' => $partners,
+        ]);
     }
 
     public function store(Request $request)
@@ -36,16 +41,22 @@ class AgreementController extends Controller
         // Asignamos el usuario que crea el convenio
         $data['created_by_user_id'] = auth()->id();
 
-        Agreement::create($data);
+        $agreement = Agreement::create($data);
 
-        return redirect()->route('alliances.index')
-                         ->with('success', 'Convenio creado correctamente.');
+        return response()->json([
+            'message' => 'Convenio creado correctamente.',
+            'data' => $agreement->load('partner'),
+        ], 201);
     }
 
     public function edit(Agreement $agreement)
     {
         $partners = Partner::all();
-        return view('alliances.agreements.edit', compact('agreement', 'partners'));
+
+        return response()->json([
+            'agreement' => $agreement->load('partner'),
+            'partners' => $partners,
+        ]);
     }
 
     public function update(Request $request, Agreement $agreement)
@@ -62,14 +73,18 @@ class AgreementController extends Controller
 
         $agreement->update($data);
 
-        return redirect()->route('alliances.index')
-                         ->with('success', 'Convenio actualizado correctamente.');
+        return response()->json([
+            'message' => 'Convenio actualizado correctamente.',
+            'data' => $agreement->fresh()->load('partner'),
+        ]);
     }
 
     public function destroy(Agreement $agreement)
     {
         $agreement->delete();
-        return redirect()->route('alliances.index')
-                         ->with('success', 'Convenio eliminado correctamente.');
+
+        return response()->json([
+            'message' => 'Convenio eliminado correctamente.',
+        ]);
     }
 }

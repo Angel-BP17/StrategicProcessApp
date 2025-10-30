@@ -8,16 +8,13 @@ use App\Models\InnovacionMejoraContinua\Initiative;
 use App\Models\Planning\StrategicPlan;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class InitiativeController extends Controller
 {
-    // Listar todas las iniciativas
     public function index(Request $request)
     {
         $query = Initiative::with(['responsibleUser', 'responsibleTeam', 'evaluations']);
 
-        // Filtro por búsqueda
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -27,38 +24,38 @@ class InitiativeController extends Controller
             });
         }
 
-        // Filtro por estado
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filtro por usuario responsable
         if ($request->filled('responsible_user_id')) {
             $query->where('responsible_user_id', $request->responsible_user_id);
         }
 
-        // Filtro por equipo responsable
         if ($request->filled('responsible_team_id')) {
             $query->where('responsible_team_id', $request->responsible_team_id);
         }
 
         $initiatives = $query->orderBy('created_at', 'desc')->paginate(15);
 
-        return view('innovacion_mejora_continua.initiatives.index', compact('initiatives'));
+        return response()->json([
+            'data' => $initiatives,
+        ]);
     }
 
-    // Mostrar formulario de creación
     public function create()
     {
-        // Obtener usuarios y equipos para los selects
         $users = User::orderBy('full_name')->get();
         $teams = Team::orderBy('name')->get();
         $plans = StrategicPlan::orderBy('title')->get();
 
-        return view('innovacion_mejora_continua.initiatives.create', compact('users', 'teams', 'plans'));
+        return response()->json([
+            'users' => $users,
+            'teams' => $teams,
+            'plans' => $plans,
+        ]);
     }
 
-    // Guardar nueva iniciativa
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -70,23 +67,17 @@ class InitiativeController extends Controller
             'status' => 'required|in:propuesta,evaluada,aprobada,implementada,cerrada',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'estimated_impact' => 'nullable|string|max:255'
-        ], [
-            'plan_id.required' => 'El ID del plan es obligatorio',
-            'title.required' => 'El título es obligatorio',
-            'summary.required' => 'El resumen es obligatorio',
-            'end_date.after_or_equal' => 'La fecha de fin debe ser posterior a la fecha de inicio',
-            'status.in' => 'El estado seleccionado no es válido'
+            'estimated_impact' => 'nullable|string|max:255',
         ]);
 
         $initiative = Initiative::create($validated);
 
-        return redirect()
-            ->route('innovacion-mejora-continua.initiatives.show', $initiative)
-            ->with('success', 'Iniciativa creada exitosamente');
+        return response()->json([
+            'message' => 'Iniciativa creada exitosamente.',
+            'data' => $initiative,
+        ], 201);
     }
 
-    // Mostrar detalle de iniciativa
     public function show(Initiative $initiative)
     {
         $initiative->load([
@@ -95,24 +86,28 @@ class InitiativeController extends Controller
             'evaluations' => function ($query) {
                 $query->orderBy('evaluation_date', 'desc');
             },
-            'evaluations.evaluator'
+            'evaluations.evaluator',
         ]);
 
-        return view('innovacion_mejora_continua.initiatives.show', compact('initiative'));
+        return response()->json([
+            'initiative' => $initiative,
+        ]);
     }
 
-    // Mostrar formulario de edición
     public function edit(Initiative $initiative)
     {
-        // Obtener usuarios y equipos para los selects
         $users = User::orderBy('full_name')->get();
         $teams = Team::orderBy('name')->get();
         $plans = StrategicPlan::orderBy('title')->get();
 
-        return view('innovacion_mejora_continua.initiatives.edit', compact('initiative', 'users', 'teams', 'plans'));
+        return response()->json([
+            'initiative' => $initiative,
+            'users' => $users,
+            'teams' => $teams,
+            'plans' => $plans,
+        ]);
     }
 
-    // Actualizar iniciativa
     public function update(Request $request, Initiative $initiative)
     {
         $validated = $request->validate([
@@ -124,36 +119,29 @@ class InitiativeController extends Controller
             'status' => 'required|in:propuesta,evaluada,aprobada,implementada,cerrada',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'estimated_impact' => 'nullable|string|max:255'
-        ], [
-            'plan_id.required' => 'El ID del plan es obligatorio',
-            'title.required' => 'El título es obligatorio',
-            'summary.required' => 'El resumen es obligatorio',
-            'end_date.after_or_equal' => 'La fecha de fin debe ser posterior a la fecha de inicio',
-            'status.in' => 'El estado seleccionado no es válido'
+            'estimated_impact' => 'nullable|string|max:255',
         ]);
 
         $initiative->update($validated);
 
-        return redirect()
-            ->route('innovacion-mejora-continua.initiatives.show', $initiative)
-            ->with('success', 'Iniciativa actualizada exitosamente');
+        return response()->json([
+            'message' => 'Iniciativa actualizada exitosamente.',
+            'data' => $initiative->fresh(),
+        ]);
     }
 
-    // Eliminar iniciativa (soft delete)
     public function destroy(Initiative $initiative)
     {
-        // Verificar si tiene evaluaciones antes de eliminar
         if ($initiative->evaluations()->count() > 0) {
-            return redirect()
-                ->back()
-                ->with('error', 'No se puede eliminar una iniciativa que tiene evaluaciones registradas');
+            return response()->json([
+                'message' => 'No se puede eliminar una iniciativa que tiene evaluaciones registradas.',
+            ], 422);
         }
 
         $initiative->delete();
 
-        return redirect()
-            ->route('innovacion-mejora-continua.initiatives.index')
-            ->with('success', 'Iniciativa eliminada exitosamente');
+        return response()->json([
+            'message' => 'Iniciativa eliminada exitosamente.',
+        ]);
     }
 }

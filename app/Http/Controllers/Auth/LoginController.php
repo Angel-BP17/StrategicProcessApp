@@ -4,14 +4,16 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.login');
+        return response()->json([
+            'message' => 'Formulario de inicio de sesión no disponible en la API.',
+        ]);
     }
 
     public function login(LoginRequest $request)
@@ -19,17 +21,27 @@ class LoginController extends Controller
         $credentials = $request->validated();
 
         if (Auth::attempt($credentials)) {
-            return redirect()->intended();
+            $request->session()->regenerate();
+
+            return response()->json([
+                'message' => 'Inicio de sesión exitoso.',
+                'user' => Auth::user(),
+            ]);
         }
 
-        return back()->withErrors([
-            'email' => 'Las credencias no son correctas.',
-        ]);
+        return response()->json([
+            'message' => 'Las credenciales no son correctas.',
+        ], 422);
     }
 
     public function logout(Request $request)
     {
         Auth::logout();
-        return redirect('/login');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json([
+            'message' => 'Sesión cerrada correctamente.',
+        ]);
     }
 }

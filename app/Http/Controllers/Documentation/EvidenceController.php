@@ -6,11 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Documentation\StoreEvidenceRequest;
 use App\Models\Documentation\Document;
 use App\Models\Documentation\Evidence;
-use Illuminate\Http\RedirectResponse;
 
 class EvidenceController extends Controller
 {
-    public function store(StoreEvidenceRequest $request, Document $document): RedirectResponse
+    public function store(StoreEvidenceRequest $request, Document $document)
     {
         $data = $request->validated();
 
@@ -23,12 +22,12 @@ class EvidenceController extends Controller
         }
 
         if ($duplicateQuery->exists()) {
-            return redirect()
-                ->route('documents.show', $document)
-                ->with('error', 'Esta versión ya está asociada a la misma entidad estratégica.');
+            return response()->json([
+                'message' => 'Esta versión ya está asociada a la misma entidad estratégica.',
+            ], 422);
         }
 
-        $version->evidences()->create([
+        $evidence = $version->evidences()->create([
             'initiative_id' => $data['initiative_id'] ?? null,
             'audit_id' => $data['audit_id'] ?? null,
             'accreditation_id' => $data['accreditation_id'] ?? null,
@@ -36,12 +35,13 @@ class EvidenceController extends Controller
             'notes' => $data['notes'] ?? null,
         ]);
 
-        return redirect()
-            ->route('documents.show', $document)
-            ->with('ok', 'Evidencia vinculada correctamente.');
+        return response()->json([
+            'message' => 'Evidencia vinculada correctamente.',
+            'data' => $evidence,
+        ], 201);
     }
 
-    public function destroy(Document $document, Evidence $evidence): RedirectResponse
+    public function destroy(Document $document, Evidence $evidence)
     {
         $version = $evidence->documentVersion;
 
@@ -51,8 +51,8 @@ class EvidenceController extends Controller
 
         $evidence->delete();
 
-        return redirect()
-            ->route('documents.show', $document)
-            ->with('ok', 'Evidencia eliminada correctamente.');
+        return response()->json([
+            'message' => 'Evidencia eliminada correctamente.',
+        ]);
     }
 }

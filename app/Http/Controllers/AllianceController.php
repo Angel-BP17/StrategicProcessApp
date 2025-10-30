@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Partner;
 use App\Models\Agreement;
+use App\Models\Partner;
 
 class AllianceController extends Controller
 {
@@ -13,6 +12,9 @@ class AllianceController extends Controller
         $partners = Partner::latest()->get();
         $agreements = Agreement::with('partner')->latest()->get();
 
-        return view('alliances.index', compact('partners', 'agreements'));
+        return response()->json([
+            'partners' => $partners,
+            'agreements' => $agreements,
+        ]);
     }
 }
