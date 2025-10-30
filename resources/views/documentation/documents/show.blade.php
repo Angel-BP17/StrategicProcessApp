@@ -95,8 +95,8 @@
                     <div>
                         <dt class="text-slate-400 uppercase tracking-[0.2em] text-[11px]">Versión actual</dt>
                         <dd class="mt-1 text-slate-100 font-semibold">
-                            @if ($latestVersion)
-                                v{{ $latestVersion->version_number }}
+                            @if (isset($document->versions->sortByDesc('version_number')->first()->version_number))
+                                v{{ $document->versions->sortByDesc('version_number')->first()->version_number }}
                             @else
                                 <span class="text-slate-400">Sin versiones</span>
                             @endif
@@ -104,7 +104,7 @@
                     </div>
                     <div>
                         <dt class="text-slate-400 uppercase tracking-[0.2em] text-[11px]">Responsable</dt>
-                        <dd class="mt-1 text-slate-100 font-semibold">{{ $document->creator->name ?? '—' }}</dd>
+                        <dd class="mt-1 text-slate-100 font-semibold">{{ $document->creator->full_name ?? '—' }}</dd>
                     </div>
                     <div>
                         <dt class="text-slate-400 uppercase tracking-[0.2em] text-[11px]">Creado</dt>
@@ -228,7 +228,7 @@
                                     <td class="px-4 py-4 text-slate-300">
                                         {{ $version->file_size ? \Illuminate\Support\Number::fileSize($version->file_size) : '—' }}
                                     </td>
-                                    <td class="px-4 py-4 text-slate-300">{{ $version->uploader->name ?? '—' }}</td>
+                                    <td class="px-4 py-4 text-slate-300">{{ $version->uploader->full_name ?? '—' }}</td>
                                     <td class="px-4 py-4 text-slate-300">
                                         {{ $version->uploaded_at?->format('d/m/Y H:i') ?? '—' }}</td>
                                     <td class="px-4 py-4 text-slate-400">{{ $version->notes ?? '—' }}</td>
@@ -238,171 +238,6 @@
                                             Descargar
                                         </a>
                                     </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </section>
-
-        <section
-            class="mt-8 rounded-3xl border border-slate-800/70 bg-slate-950/70 px-6 py-6 shadow-xl shadow-slate-950/40">
-            <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
-                <div>
-                    <h2 class="text-lg font-semibold text-slate-100">Evidencias y trazabilidad inversa</h2>
-                    <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Iniciativas, auditorías, KPI y
-                        acreditaciones</p>
-                </div>
-            </div>
-
-            @if ($canManageDocuments)
-                @if ($document->versions->isNotEmpty())
-                    <form method="POST" action="{{ route('documents.evidences.store', $document) }}"
-                        class="mb-6 rounded-2xl border border-dashed border-emerald-600/40 bg-emerald-500/5 px-5 py-5">
-                        @csrf
-                        <div class="grid gap-4 lg:grid-cols-2">
-                            <div>
-                                <label class="text-sm font-semibold text-slate-200">Versión a vincular</label>
-                                <select name="document_version_id" required
-                                    class="mt-2 w-full rounded-2xl border border-emerald-700/40 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40">
-                                    <option value="">Selecciona una versión</option>
-                                    @foreach ($document->versions as $version)
-                                        <option value="{{ $version->id }}" @selected(old('document_version_id') == $version->id)>
-                                            v{{ $version->version_number }} — {{ $version->file_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-slate-200">Notas internas (opcional)</label>
-                                <textarea name="notes" rows="3"
-                                    class="mt-2 w-full rounded-2xl border border-emerald-700/40 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40">{{ old('notes') }}</textarea>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 grid gap-4 lg:grid-cols-2">
-                            <div>
-                                <label class="text-sm font-semibold text-slate-200">Iniciativa estratégica</label>
-                                <select name="initiative_id"
-                                    class="mt-2 w-full rounded-2xl border border-emerald-700/40 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40">
-                                    <option value="">No vincular</option>
-                                    @foreach ($initiatives as $initiative)
-                                        <option value="{{ $initiative->id }}" @selected(old('initiative_id') == $initiative->id)>
-                                            {{ $initiative->title }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-slate-200">Auditoría</label>
-                                <select name="audit_id"
-                                    class="mt-2 w-full rounded-2xl border border-emerald-700/40 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40">
-                                    <option value="">No vincular</option>
-                                    @foreach ($audits as $audit)
-                                        <option value="{{ $audit->id }}" @selected(old('audit_id') == $audit->id)>
-                                            {{ $audit->area ?? 'Auditoría #' . $audit->id }}
-                                            @if ($audit->start_date)
-                                                — desde {{ \Illuminate\Support\Str::of($audit->start_date)->limit(10) }}
-                                            @endif
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-slate-200">Acreditación</label>
-                                <select name="accreditation_id"
-                                    class="mt-2 w-full rounded-2xl border border-emerald-700/40 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40">
-                                    <option value="">No vincular</option>
-                                    @foreach ($accreditations as $accreditation)
-                                        <option value="{{ $accreditation->id }}" @selected(old('accreditation_id') == $accreditation->id)>
-                                            {{ $accreditation->entity ?? 'Acreditación #' . $accreditation->id }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-sm font-semibold text-slate-200">Medición de KPI</label>
-                                <select name="kpi_measurement_id"
-                                    class="mt-2 w-full rounded-2xl border border-emerald-700/40 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40">
-                                    <option value="">No vincular</option>
-                                    @foreach ($kpiMeasurements as $measurement)
-                                        <option value="{{ $measurement->id }}" @selected(old('kpi_measurement_id') == $measurement->id)>
-                                            {{ $measurement->kpi->name ?? 'KPI #' . $measurement->kpi_id }}
-                                            @if ($measurement->measured_at)
-                                                — {{ $measurement->measured_at }}
-                                            @endif
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 flex justify-end">
-                            <button type="submit"
-                                class="inline-flex items-center gap-2 rounded-2xl bg-emerald-500/90 px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/40 transition hover:-translate-y-0.5">
-                                Asociar evidencia
-                            </button>
-                        </div>
-                        <p class="mt-3 text-xs text-emerald-200">Selecciona al menos una entidad estratégica para completar
-                            la asociación.</p>
-                    </form>
-                @else
-                    <div
-                        class="mb-6 rounded-2xl border border-dashed border-emerald-500/40 bg-emerald-500/10 px-5 py-5 text-sm text-emerald-200">
-                        Primero registra una versión del documento para poder vincularla como evidencia.
-                    </div>
-                @endif
-            @endif
-
-            @if ($evidenceEntries->isEmpty())
-                <div
-                    class="rounded-2xl border border-dashed border-slate-700/60 bg-slate-900/60 px-5 py-8 text-center text-slate-400">
-                    Aún no se ha vinculado este documento como evidencia de iniciativas, auditorías, acreditaciones o KPI.
-                </div>
-            @else
-                <div class="overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/60">
-                    <table class="w-full text-xs sm:text-sm">
-                        <thead>
-                            <tr class="bg-slate-900/80 text-slate-300 uppercase tracking-wide text-[11px] sm:text-xs">
-                                <th class="px-4 py-3 text-left font-semibold">Versión</th>
-                                <th class="px-4 py-3 text-left font-semibold">Tipo de evidencia</th>
-                                <th class="px-4 py-3 text-left font-semibold">Entidad vinculada</th>
-                                <th class="px-4 py-3 text-left font-semibold">Registrado</th>
-                                <th class="px-4 py-3 text-left font-semibold">Notas</th>
-                                @if ($canManageDocuments)
-                                    <th class="px-4 py-3 text-left font-semibold">Acciones</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-800/70">
-                            @foreach ($evidenceEntries as $entry)
-                                @php
-                                    $version = $entry['version'];
-                                    $evidence = $entry['evidence'];
-                                @endphp
-                                <tr class="hover:bg-slate-900/60 transition">
-                                    <td class="px-4 py-4 text-slate-100 font-semibold">v{{ $version->version_number }}
-                                    </td>
-                                    <td class="px-4 py-4 text-slate-300">{{ $evidence->target_type_label ?? '—' }}</td>
-                                    <td class="px-4 py-4 text-slate-300">{{ $evidence->target_name ?? '—' }}</td>
-                                    <td class="px-4 py-4 text-slate-300">
-                                        {{ $evidence->created_at?->format('d/m/Y H:i') ?? '—' }}</td>
-                                    <td class="px-4 py-4 text-slate-400">{{ $evidence->notes ?? '—' }}</td>
-                                    @if ($canManageDocuments)
-                                        <td class="px-4 py-4">
-                                            <form method="POST"
-                                                action="{{ route('documents.evidences.destroy', [$document, $evidence]) }}"
-                                                onsubmit="return confirm('¿Deseas quitar esta evidencia?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="inline-flex items-center gap-1 rounded-full border border-rose-500/50 px-3 py-1 text-[11px] font-semibold text-rose-200 hover:border-rose-400 hover:text-rose-100 transition">
-                                                    Quitar
-                                                </button>
-                                            </form>
-                                        </td>
-                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>

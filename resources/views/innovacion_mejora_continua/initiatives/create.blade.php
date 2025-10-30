@@ -25,9 +25,22 @@
                 <div class="md:col-span-2">
                     <label for="plan_id" class="text-sm font-semibold text-slate-300">ID del plan <span
                             class="text-rose-400">*</span></label>
-                    <input type="text" id="plan_id" name="plan_id" value="{{ old('plan_id') }}" required
-                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('plan_id') border-rose-500/70 @enderror"
-                        placeholder="Ej: PLAN-2025-001" />
+                    <select name="plan_id"
+                        class="w-full bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 text-sm outline-none focus:border-sky-500/60">
+                        <option value="">— Sin plan —</option>
+                        @foreach ($plans as $p)
+                            <option value="{{ $p->id }}" @selected((string) old('plan_id') === (string) $p->id)>
+                                {{ $p->title }}
+                                @if ($p->start_date || $p->end_date)
+                                    ({{ optional($p->start_date)->format('Y-m-d') }} —
+                                    {{ optional($p->end_date)->format('Y-m-d') }})
+                                @endif
+                                @if ($p->status)
+                                    — {{ $p->status }}
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
                     @error('plan_id')
                         <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
                     @enderror
@@ -52,15 +65,6 @@
                         <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
                     @enderror
                     <p class="mt-2 text-xs text-slate-500">Describe brevemente el propósito y alcance de la iniciativa.</p>
-                </div>
-                <div class="md:col-span-2">
-                    <label for="description" class="text-sm font-semibold text-slate-300">Descripción completa</label>
-                    <textarea id="description" name="description" rows="6"
-                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('description') border-rose-500/70 @enderror"
-                        placeholder="Detalla objetivos, metodología, recursos y resultados esperados">{{ old('description') }}</textarea>
-                    @error('description')
-                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
-                    @enderror
                 </div>
                 <div>
                     <label for="responsible_user_id" class="text-sm font-semibold text-slate-300">Usuario

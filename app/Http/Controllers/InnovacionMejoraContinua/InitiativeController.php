@@ -5,6 +5,7 @@ namespace App\Http\Controllers\InnovacionMejoraContinua;
 use App\Http\Controllers\Controller;
 use App\Models\Collaboration\Team;
 use App\Models\InnovacionMejoraContinua\Initiative;
+use App\Models\Planning\StrategicPlan;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,10 +20,10 @@ class InitiativeController extends Controller
         // Filtro por búsqueda
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'ILIKE', "%{$search}%")
-                  ->orWhere('summary', 'ILIKE', "%{$search}%")
-                  ->orWhere('description', 'ILIKE', "%{$search}%");
+                    ->orWhere('summary', 'ILIKE', "%{$search}%")
+                    ->orWhere('description', 'ILIKE', "%{$search}%");
             });
         }
 
@@ -52,8 +53,9 @@ class InitiativeController extends Controller
         // Obtener usuarios y equipos para los selects
         $users = User::orderBy('full_name')->get();
         $teams = Team::orderBy('name')->get();
-        
-        return view('innovacion_mejora_continua.initiatives.create', compact('users', 'teams'));
+        $plans = StrategicPlan::orderBy('title')->get();
+
+        return view('innovacion_mejora_continua.initiatives.create', compact('users', 'teams', 'plans'));
     }
 
     // Guardar nueva iniciativa
@@ -88,9 +90,9 @@ class InitiativeController extends Controller
     public function show(Initiative $initiative)
     {
         $initiative->load([
-            'responsibleUser', 
-            'responsibleTeam', 
-            'evaluations' => function($query) {
+            'responsibleUser',
+            'responsibleTeam',
+            'evaluations' => function ($query) {
                 $query->orderBy('evaluation_date', 'desc');
             },
             'evaluations.evaluator'
@@ -105,8 +107,9 @@ class InitiativeController extends Controller
         // Obtener usuarios y equipos para los selects
         $users = User::orderBy('full_name')->get();
         $teams = Team::orderBy('name')->get();
-        
-        return view('innovacion_mejora_continua.initiatives.edit', compact('initiative', 'users', 'teams'));
+        $plans = StrategicPlan::orderBy('title')->get();
+
+        return view('innovacion_mejora_continua.initiatives.edit', compact('initiative', 'users', 'teams', 'plans'));
     }
 
     // Actualizar iniciativa

@@ -1,42 +1,9 @@
-{{-- resources/views/collaboration.blade.php --}}
+{{-- resources/views/collaboration/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Colaboración y Comunicación Digital')
 
 @section('content')
-    @php
-        /** @var \App\Models\Collaboration\Channel|null $channel */
-        $channelId = $channel->id ?? null;
-        $channelName = $channel->name ?? '—';
-        $channelMeta =
-            optional($channel)->topic ??
-            (optional($channel)->description ?? 'Selecciona o crea un canal para empezar a colaborar.');
-
-        $messages = $channel?->messages ?? collect();
-        $tasks = $channel?->tasks ?? collect();
-
-        $files = collect();
-        if ($messages->count() > 0) {
-            $files = \App\Models\Documentation\DocumentVersion::query()
-                ->where('linked_type', 'message')
-                ->whereIn('linked_id', $messages->pluck('id'))
-                ->orderByDesc('uploaded_at')
-                ->limit(6)
-                ->get();
-        }
-
-        $userId = auth()->id();
-        $allChannels = \App\Models\Collaboration\Channel::with('team')->orderBy('name')->get();
-
-        $ownedChannels = $allChannels
-            ->filter(fn($c) => (int) ($c->created_by_user_id ?? 0) === (int) $userId)
-            ->values();
-
-        $memberChannels = $allChannels
-            ->filter(fn($c) => $c->isMember((int) $userId) && (int) ($c->created_by_user_id ?? 0) !== (int) $userId)
-            ->values();
-    @endphp
-
     <div class="space-y-8 text-slate-100">
 
         {{-- Encabezado --}}
@@ -47,12 +14,6 @@
                     {{ $channelMeta }}
                 </p>
             </div>
-
-            @php
-                $raw = auth()->user()->role ?? (auth()->user()->roles ?? []);
-                $roles = is_array($raw) ? $raw : [$raw];
-                $isAdmin = in_array('admin', $roles, true);
-            @endphp
 
             @if ($isAdmin)
                 <a href="{{ route('collab.channels.create') }}"
@@ -72,8 +33,10 @@
                 </a>
             @endif
         </header>
-        {{-- Canales del usuario --}}
+
+        {{-- Canales del usuario + públicos --}}
         <section class="grid gap-6 md:grid-cols-2">
+            {{-- Creados por mí --}}
             <div class="bg-slate-950/60 border border-slate-800/70 rounded-2xl shadow-xl shadow-slate-900/50 p-6">
                 <h2 class="text-lg font-semibold text-white">Canales creados por mí</h2>
                 @if ($ownedChannels->isEmpty())
@@ -87,15 +50,17 @@
                                     <span class="text-sm font-semibold text-white"># {{ $c->name }}</span>
                                     <span
                                         class="text-xs text-slate-400">{{ $c->team->name ?? 'Sin equipo asignado' }}</span>
-                                    <span
-                                        class="text-xs text-slate-500">{{ collect(optional($c->team)->members ?? [])->count() }}
-                                        integrantes</span>
+                                    <span class="text-xs text-slate-500">
+                                        {{ collect(optional($c->team)->members ?? [])->count() }} integrantes
+                                    </span>
                                 </a>
                             </li>
                         @endforeach
                     </ul>
                 @endif
             </div>
+
+            {{-- Donde participo + Públicos (con "Unirme") --}}
             <div class="bg-slate-950/60 border border-slate-800/70 rounded-2xl shadow-xl shadow-slate-900/50 p-6">
                 <h2 class="text-lg font-semibold text-white">Canales donde participo</h2>
                 @if ($memberChannels->isEmpty())
@@ -109,10 +74,37 @@
                                     <span class="text-sm font-semibold text-white"># {{ $c->name }}</span>
                                     <span
                                         class="text-xs text-slate-400">{{ $c->team->name ?? 'Sin equipo asignado' }}</span>
-                                    <span
-                                        class="text-xs text-slate-500">{{ collect(optional($c->team)->members ?? [])->count() }}
-                                        integrantes</span>
+                                    <span class="text-xs text-slate-500">
+                                        {{ collect(optional($c->team)->members ?? [])->count() }} integrantes
+                                    </span>
                                 </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+
+                {{-- Públicos --}}
+                <h3 class="text-sm font-semibold text-white mt-6">Canales públicos</h3>
+
+                @if ($publicChannelsToJoin->isEmpty())
+                    <p class="text-xs text-slate-500 mt-2">No hay canales públicos disponibles para unirte.</p>
+                @else
+                    <ul class="mt-3 space-y-2">
+                        @foreach ($publicChannelsToJoin as $c)
+                            <li
+                                class="flex items-center justify-between rounded-xl border border-slate-800/60 bg-slate-950/40 px-4 py-3">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-semibold text-white"># {{ $c->name }}</span>
+                                    <span class="text-xs text-slate-500">
+                                        {{ collect(optional($c->team)->members ?? [])->count() }} integrantes
+                                    </span>
+                                </div>
+                                <form method="POST" action="{{ route('collab.channels.join', $c->id) }}">
+                                    @csrf
+                                    <button class="text-xs text-emerald-300 hover:text-emerald-200 hover:underline">
+                                        Unirme al canal
+                                    </button>
+                                </form>
                             </li>
                         @endforeach
                     </ul>
@@ -203,8 +195,9 @@
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-white">Documentos compartidos</h2>
                 @if ($channelId)
-                    <a href="#nuevo-mensaje" class="text-sm text-sky-300 hover:text-sky-200 transition font-medium">Subir
-                        documento</a>
+                    <a href="#nuevo-mensaje" class="text-sm text-sky-300 hover:text-sky-200 transition font-medium">
+                        Subir documento
+                    </a>
                 @endif
             </div>
 
@@ -229,7 +222,7 @@
                                 {{ \Illuminate\Support\Str::upper($f->mime_type ?? '') }}
                             </p>
                             <div class="mt-2">
-                                <a href="{{ $url }}" target="_blank"
+                                <a href="{{ '/estrategico/StrategicProcessApp/public' . $url }}" target="_blank"
                                     class="text-sm text-sky-300 hover:text-sky-200 hover:underline">Ver / Descargar</a>
                             </div>
                         </div>
@@ -244,12 +237,23 @@
                 <h2 class="text-lg font-semibold text-white">Calendario colaborativo</h2>
                 @if ($channelId)
                     <form method="POST" action="{{ route('collab.tasks.store', $channelId) }}"
-                        class="flex items-center gap-2">
+                        class="flex flex-wrap items-center gap-2">
                         @csrf
                         <input name="title" placeholder="Nueva tarea…"
                             class="bg-slate-950/60 border border-slate-800/60 rounded px-3 py-1.5 text-sm outline-none focus:border-emerald-500/60">
+
                         <input name="due_date" type="date"
                             class="bg-slate-950/60 border border-slate-800/60 rounded px-3 py-1.5 text-sm outline-none focus:border-emerald-500/60">
+
+                        {{-- Nuevo: asignación a usuario (TaskAssigment) --}}
+                        <select name="assignee_id"
+                            class="bg-slate-950/60 border border-slate-800/60 rounded px-3 py-1.5 text-sm outline-none focus:border-emerald-500/60">
+                            <option value="">— Asignar a…</option>
+                            @foreach ($assignableUsers as $u)
+                                <option value="{{ $u->id }}">{{ $u->full_name }}</option>
+                            @endforeach
+                        </select>
+
                         <button
                             class="text-sm text-emerald-300 hover:text-emerald-200 transition font-medium">Agregar</button>
                     </form>
@@ -300,11 +304,9 @@
         @push('scripts')
             <script>
                 (() => {
-                    // Regex unificada con unicode: @Angel, @Bustamante, @Angel_Bustamante, @Angel-Bustamante, @Angel.Bustamante
                     const atNameToken = /@([\p{L}]+(?:[._-][\p{L}]+)*)/gu;
                     const MENTION_LIMIT = 10;
 
-                    // Selectores (el textarea ahora tiene id="message-input")
                     const input = document.querySelector('#message-input') ||
                         document.querySelector('form#nuevo-mensaje textarea[name="content"]');
                     const counter = document.querySelector('#mention-counter');
@@ -319,7 +321,6 @@
 
                     function extractMentionTokens(text) {
                         if (!text) return [];
-                        // ⚠️ IMPORTANTE: resetear lastIndex por la bandera 'g'
                         atNameToken.lastIndex = 0;
                         const tokens = [];
                         let match;
@@ -327,14 +328,12 @@
                             tokens.push(match[1]);
                         }
                         const norm = tokens.map(t => t.trim().toLowerCase()).filter(Boolean);
-                        return norm.filter((t, i) => norm.indexOf(t) === i); // únicos preservando orden
+                        return norm.filter((t, i) => norm.indexOf(t) === i);
                     }
 
                     function highlightMentions(text) {
                         if (!text) return '';
-                        // Primero escapamos TODO para evitar XSS
                         const safe = escapeHTML(text);
-                        // Usamos una NUEVA regex para no compartir estado (o reseteamos lastIndex)
                         const rx = /@([\p{L}]+(?:[._-][\p{L}]+)*)/gu;
                         return safe.replace(rx, (_, tok) => {
                             return `<span class="mention bg-yellow-300/20 text-yellow-200 px-1 rounded">@${tok}</span>`;
@@ -344,8 +343,6 @@
                     function updateMentionUI() {
                         const text = input?.value ?? '';
                         const tokens = extractMentionTokens(text);
-
-                        console.debug('[mentions] tokens:', tokens);
 
                         if (tokens.length > MENTION_LIMIT) {
                             console.warn(`[mentions] Se excede el límite de ${MENTION_LIMIT}; el backend truncará.`);
@@ -360,11 +357,9 @@
 
                     if (input) {
                         ['input', 'change', 'keyup', 'paste'].forEach(evt => input.addEventListener(evt, updateMentionUI));
-                        updateMentionUI(); // inicial
+                        updateMentionUI();
                     } else {
-                        console.warn(
-                            '[mentions] No se encontró el textarea de mensaje (#message-input o form#nuevo-mensaje textarea[name="content"]).'
-                        );
+                        console.warn('[mentions] No se encontró el textarea de mensaje.');
                     }
                 })();
             </script>

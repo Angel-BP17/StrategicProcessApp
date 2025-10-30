@@ -293,7 +293,6 @@ Route::middleware(['auth'])->prefix('quality')->name('quality.')->group(function
     Route::get('/evaluation-criteria/{criterion}/edit', [EvaluationCriterionController::class, 'edit'])->name('evaluation-criteria.edit');
     Route::put('/evaluation-criteria/{criterion}', [EvaluationCriterionController::class, 'update'])->name('evaluation-criteria.update');
     Route::delete('/evaluation-criteria/{criterion}', [EvaluationCriterionController::class, 'destroy'])->name('evaluation-criteria.destroy');
-    Route::delete('/evaluation-criteria/{criterion}', [EvaluationCriterionController::class, 'destroy'])->name('evaluation-criteria.destroy');
 
 });
 

@@ -73,8 +73,6 @@ class ChannelController extends Controller
             ]);
         }
 
-        // AUTORIZAR con policy (solo admins globales)
-        $this->authorize('create', [Channel::class, $team]);
 
         // Crear canal. Dejamos al creador como moderator del canal.
         $channel = Channel::create([

@@ -32,7 +32,7 @@ class DocumentVersionController extends Controller
     }
 
     public function download(Document $document, DocumentVersion $version): StreamedResponse
-    {   
+    {
         abort_unless($version->document_id === $document->id, 404);
 
         $disk = $this->versionManager->getDisk();

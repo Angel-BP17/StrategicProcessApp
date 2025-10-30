@@ -22,7 +22,6 @@ class UpdateStrategicObjectiveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'plan_id' => ['required', 'exists:strategic_plans,id'],
             'title' => ['required', 'string', 'max:200'],
             'description' => ['nullable', 'string'],
             'goal_value' => ['nullable', 'numeric'],

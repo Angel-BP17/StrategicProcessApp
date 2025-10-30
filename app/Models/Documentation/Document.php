@@ -12,7 +12,7 @@ class Document extends Model
     public const STATUSES = ['draft', 'active', 'archived'];
     protected $table = 'documents';
     protected $fillable = ['title', 'category', 'entity_type', 'entity_id', 'version', 'status', 'file_path', 'created_by'];
-     protected $casts = [
+    protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

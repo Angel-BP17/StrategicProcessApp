@@ -29,8 +29,8 @@ class KpiController extends Controller
     public function store(CreateKpiRequest $request, StrategicPlan $plan, StrategicObjective $objective)
     {
         $data = $request->validated();
-        $kpi = Kpi::create($data);
-        return redirect()->route('planning.kpis.show', [$plan->id, $objective->id, $kpi->id])
+        Kpi::create($data);
+        return redirect()->route('planning.objectives.show', [$objective->plan, $objective->id])
             ->with('ok', 'KPI creado');
     }
 
@@ -39,7 +39,7 @@ class KpiController extends Controller
      */
     public function show(StrategicPlan $plan, StrategicObjective $objective, Kpi $kpi)
     {
-        $kpi->load(['measurements' => fn($q) => $q->orderByDesc('measured_at')->limit(20),'measurements.user']);
+        $kpi->load(['measurements' => fn($q) => $q->orderByDesc('measured_at')->limit(20), 'measurements.user']);
         return view('planning.kpis.show', compact('plan', 'objective', 'kpi'));
     }
 
@@ -73,7 +73,7 @@ class KpiController extends Controller
             return back()->with('error', 'No se puede eliminar: el KPI tiene mediciones.');
         }
         $kpi->delete();
-        return redirect()->route('planning.objectives.show', [$plan->id, $objective->id])
+        return redirect()->route('planning.objectives.show', [$objective->plan, $objective->id])
             ->with('ok', 'KPI eliminado');
     }
     public function storeMeasurement(CreateKpiMeasurementRequest $request, StrategicPlan $plan, StrategicObjective $objective, Kpi $kpi)
@@ -89,7 +89,7 @@ class KpiController extends Controller
     public function deleteMeasurement(StrategicPlan $plan, StrategicObjective $objective, Kpi $kpi, KpiMeasurement $measurement)
     {
         $this->authorize('objective.manage');
-        abort_if($measurement->kpi_id !== $kpi->id, 404);
+        abort_if($measurement->kpi_id != $kpi->id, 404);
         $measurement->delete();
         return back()->with('ok', 'Medición eliminada');
     }

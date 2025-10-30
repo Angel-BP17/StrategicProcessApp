@@ -5,9 +5,11 @@
         <nav class="mb-6 text-xs uppercase tracking-[0.3em] text-slate-500 flex flex-wrap items-center gap-2">
             <a href="{{ route('innovacion-mejora-continua.index') }}" class="hover:text-slate-200 transition">Innovación</a>
             <span class="text-slate-600">/</span>
-            <a href="{{ route('innovacion-mejora-continua.initiatives.index') }}" class="hover:text-slate-200 transition">Iniciativas</a>
+            <a href="{{ route('innovacion-mejora-continua.initiatives.index') }}"
+                class="hover:text-slate-200 transition">Iniciativas</a>
             <span class="text-slate-600">/</span>
-            <a href="{{ route('innovacion-mejora-continua.initiatives.show', $initiative) }}" class="hover:text-slate-200 transition">{{ Str::limit($initiative->title, 30) }}</a>
+            <a href="{{ route('innovacion-mejora-continua.initiatives.show', $initiative) }}"
+                class="hover:text-slate-200 transition">{{ Str::limit($initiative->title, 30) }}</a>
             <span class="text-slate-600">/</span>
             <span class="text-slate-300">Editar</span>
         </nav>
@@ -24,44 +26,56 @@
 
             <div class="grid gap-6 md:grid-cols-2">
                 <div class="md:col-span-2">
-                    <label for="plan_id" class="text-sm font-semibold text-slate-300">ID del plan <span class="text-rose-400">*</span></label>
-                    <input type="text" id="plan_id" name="plan_id" value="{{ old('plan_id', $initiative->plan_id) }}" required
-                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('plan_id') border-rose-500/70 @enderror" />
+                    <label for="plan_id" class="text-sm font-semibold text-slate-300">ID del plan <span
+                            class="text-rose-400">*</span></label>
+                    <select name="plan_id"
+                        class="w-full bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 text-sm outline-none focus:border-sky-500/60">
+                        <option value="">— Sin plan —</option>
+                        @foreach ($plans as $p)
+                            <option value="{{ $p->id }}" @selected((string) $initiative->plan_id === (string) $p->id)>
+                                {{ $p->title }}
+                                @if ($p->start_date || $p->end_date)
+                                    ({{ optional($p->start_date)->format('Y-m-d') }} —
+                                    {{ optional($p->end_date)->format('Y-m-d') }})
+                                @endif
+                                @if ($p->status)
+                                    — {{ $p->status }}
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
                     @error('plan_id')
                         <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
                     @enderror
                 </div>
                 <div class="md:col-span-2">
-                    <label for="title" class="text-sm font-semibold text-slate-300">Título de la iniciativa <span class="text-rose-400">*</span></label>
-                    <input type="text" id="title" name="title" value="{{ old('title', $initiative->title) }}" required
+                    <label for="title" class="text-sm font-semibold text-slate-300">Título de la iniciativa <span
+                            class="text-rose-400">*</span></label>
+                    <input type="text" id="title" name="title" value="{{ old('title', $initiative->title) }}"
+                        required
                         class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('title') border-rose-500/70 @enderror" />
                     @error('title')
                         <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
                     @enderror
                 </div>
                 <div class="md:col-span-2">
-                    <label for="summary" class="text-sm font-semibold text-slate-300">Resumen <span class="text-rose-400">*</span></label>
+                    <label for="summary" class="text-sm font-semibold text-slate-300">Resumen <span
+                            class="text-rose-400">*</span></label>
                     <textarea id="summary" name="summary" rows="4" required
                         class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('summary') border-rose-500/70 @enderror">{{ old('summary', $initiative->summary) }}</textarea>
                     @error('summary')
                         <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
                     @enderror
                 </div>
-                <div class="md:col-span-2">
-                    <label for="description" class="text-sm font-semibold text-slate-300">Descripción completa</label>
-                    <textarea id="description" name="description" rows="6"
-                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('description') border-rose-500/70 @enderror">{{ old('description', $initiative->description) }}</textarea>
-                    @error('description')
-                        <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
-                    @enderror
-                </div>
                 <div>
-                    <label for="responsible_user_id" class="text-sm font-semibold text-slate-300">Usuario responsable</label>
+                    <label for="responsible_user_id" class="text-sm font-semibold text-slate-300">Usuario
+                        responsable</label>
                     <select id="responsible_user_id" name="responsible_user_id"
                         class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 @error('responsible_user_id') border-rose-500/70 @enderror">
                         <option value="">Seleccionar usuario</option>
                         @foreach ($users as $user)
-                            <option value="{{ $user->id }}" @selected(old('responsible_user_id', $initiative->responsible_user_id) == $user->id)>{{ $user->name }}</option>
+                            <option value="{{ $user->id }}" @selected(old('responsible_user_id', $initiative->responsible_user_id) == $user->id)>{{ $user->full_name }}
+                            </option>
                         @endforeach
                     </select>
                     @error('responsible_user_id')
@@ -83,7 +97,8 @@
                 </div>
                 <div>
                     <label for="start_date" class="text-sm font-semibold text-slate-300">Fecha de inicio</label>
-                    <input type="date" id="start_date" name="start_date" value="{{ old('start_date', optional($initiative->start_date)->format('Y-m-d')) }}"
+                    <input type="date" id="start_date" name="start_date"
+                        value="{{ old('start_date', optional($initiative->start_date)->format('Y-m-d')) }}"
                         class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('start_date') border-rose-500/70 @enderror" />
                     @error('start_date')
                         <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
@@ -91,18 +106,21 @@
                 </div>
                 <div>
                     <label for="end_date" class="text-sm font-semibold text-slate-300">Fecha de fin</label>
-                    <input type="date" id="end_date" name="end_date" value="{{ old('end_date', optional($initiative->end_date)->format('Y-m-d')) }}"
+                    <input type="date" id="end_date" name="end_date"
+                        value="{{ old('end_date', optional($initiative->end_date)->format('Y-m-d')) }}"
                         class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/40 @error('end_date') border-rose-500/70 @enderror" />
                     @error('end_date')
                         <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="status" class="text-sm font-semibold text-slate-300">Estado <span class="text-rose-400">*</span></label>
+                    <label for="status" class="text-sm font-semibold text-slate-300">Estado <span
+                            class="text-rose-400">*</span></label>
                     <select id="status" name="status" required
                         class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-500/40 @error('status') border-rose-500/70 @enderror">
                         @foreach (['propuesta', 'evaluada', 'aprobada', 'implementada', 'cerrada'] as $state)
-                            <option value="{{ $state }}" @selected(old('status', $initiative->status) == $state)>{{ ucfirst($state) }}</option>
+                            <option value="{{ $state }}" @selected(old('status', $initiative->status) == $state)>{{ ucfirst($state) }}
+                            </option>
                         @endforeach
                     </select>
                     @error('status')
@@ -111,8 +129,10 @@
                 </div>
                 <div class="md:col-span-2">
                     <label for="estimated_impact" class="text-sm font-semibold text-slate-300">Impacto estimado</label>
-                    <input type="text" id="estimated_impact" name="estimated_impact" value="{{ old('estimated_impact', $initiative->estimated_impact) }}"
-                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 @error('estimated_impact') border-rose-500/70 @enderror" placeholder="Ej: Reducción del 20% en tiempos de proceso" />
+                    <input type="text" id="estimated_impact" name="estimated_impact"
+                        value="{{ old('estimated_impact', $initiative->estimated_impact) }}"
+                        class="mt-2 w-full rounded-2xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 @error('estimated_impact') border-rose-500/70 @enderror"
+                        placeholder="Ej: Reducción del 20% en tiempos de proceso" />
                     @error('estimated_impact')
                         <p class="mt-2 text-xs font-medium text-rose-300">{{ $message }}</p>
                     @enderror

@@ -15,6 +15,26 @@
                 Ver objetivo</a>
         </div>
 
+        @if ($errors->any())
+            <div class="mb-6 bg-red-500/10 border border-red-500/50 rounded-lg p-4">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-semibold text-red-400 mb-1">Error</h3>
+                        <ul class="text-sm text-red-300 space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <form
             class="rounded-3xl border border-slate-800/70 bg-slate-950/70 px-6 py-8 shadow-2xl shadow-slate-950/40 backdrop-blur space-y-8"
             method="POST" action="{{ route('planning.objectives.update', [$plan, $objective]) }}">
@@ -69,10 +89,10 @@
         </form>
     </div>
     <script>
-        (function(){
+        (function() {
             const form = document.querySelector('form');
-            if(!form) return;
-            form.addEventListener('submit', async function(e){
+            if (!form) return;
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const fd = new FormData(form);
                 const payload = Object.fromEntries(fd.entries());
@@ -98,11 +118,15 @@
                         return;
                     }
                     // si respuesta JSON:
-                    try { console.log('JSON parse:', JSON.parse(text)); } catch(_) {}
+                    try {
+                        console.log('JSON parse:', JSON.parse(text));
+                    } catch (_) {}
                 } catch (err) {
                     console.error('Error en fetch:', err);
                 }
-            }, { once: true });
+            }, {
+                once: true
+            });
         })();
     </script>
 @endsection

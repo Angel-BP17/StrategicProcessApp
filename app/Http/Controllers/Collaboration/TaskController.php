@@ -6,41 +6,36 @@ use App\Http\Controllers\Controller;
 use App\Models\Collaboration\Channel;
 use App\Models\Collaboration\Task;
 use App\Models\Collaboration\TaskAssignment;
+use App\Models\User;
 use App\Notifications\TaskAssignedNotification;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    public function store(Request $r, Channel $channel)
+    public function store(Request $request, Channel $channel)
     {
-        $data = $r->validate([
+        $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
             'due_date' => ['nullable', 'date'],
-            'priority' => ['nullable', 'string', 'max:50'],
-            'assignees' => ['array'],
-            'assignees.*' => ['exists:users,id'],
+            'assignee_id' => ['nullable', 'integer', 'exists:users,id'],
         ]);
 
-        $task = Task::create($data + [
-            'channel_id' => $channel->id,
+        $task = $channel->tasks()->create([
+            'title' => $data['title'],
+            'due_date' => $data['due_date'] ?? null,
             'status' => 'open',
-            'created_by_user_id' => $r->user()->id,
+            'created_by_user_id' => $request->user()->id,
         ]);
 
-        foreach (($data['assignees'] ?? []) as $uid) {
+        if (!empty($data['assignee_id'])) {
             TaskAssignment::create([
                 'task_id' => $task->id,
-                'user_id' => $uid,
-                'assigned_by_user_id' => $r->user()->id,
-                'assigned_at' => now(),
+                'user_id' => (int) $data['assignee_id'],
+                'assigned_by' => $request->user()->id,
             ]);
-            // Notificación Laravel
-            if ($user = User::find($uid))
-                $user->notify(new TaskAssignedNotification($task));
         }
 
-        return back()->with('ok', 'Tarea creada');
+        return back();
     }
 
     public function toggle(Task $task)
