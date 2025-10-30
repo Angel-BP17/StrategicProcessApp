@@ -12,10 +12,8 @@ use App\Models\Quality\Accreditation;
 use App\Models\Quality\Audit;
 use App\Services\Documentation\DocumentVersionManager;
 use App\Support\Documentation\DocumentAccess;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
 
 class DocumentController extends Controller
 {
@@ -23,7 +21,7 @@ class DocumentController extends Controller
     {
     }
 
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         $filters = [
             'q' => $request->string('q')->toString(),
@@ -35,13 +33,13 @@ class DocumentController extends Controller
             ->with(['creator', 'latestVersion'])
             ->withCount('versions')
             ->search($filters['q'])
-            ->when($filters['category'], fn($query, $category) => $query->where('category', $category))
-            ->when($filters['status'], fn($query, $status) => $query->where('status', $status))
+            ->when($filters['category'], fn ($query, $category) => $query->where('category', $category))
+            ->when($filters['status'], fn ($query, $status) => $query->where('status', $status))
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        return view('documentation.documents.index', [
+        return response()->json([
             'documents' => $documents,
             'filters' => $filters,
             'categories' => Document::CATEGORIES,
@@ -50,9 +48,9 @@ class DocumentController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request)
     {
-        return view('documentation.documents.create', [
+        return response()->json([
             'document' => new Document(),
             'categories' => Document::CATEGORIES,
             'statuses' => Document::STATUSES,
@@ -60,7 +58,7 @@ class DocumentController extends Controller
         ]);
     }
 
-    public function store(StoreDocumentRequest $request): RedirectResponse
+    public function store(StoreDocumentRequest $request)
     {
         $validated = $request->validated();
 
@@ -83,17 +81,18 @@ class DocumentController extends Controller
             return $document;
         });
 
-        return redirect()
-            ->route('documents.show', $document)
-            ->with('ok', 'Documento creado correctamente.');
+        return response()->json([
+            'message' => 'Documento creado correctamente.',
+            'data' => $document->load(['creator', 'latestVersion']),
+        ], 201);
     }
 
-    public function show(Document $document, Request $request): View
+    public function show(Document $document, Request $request)
     {
         $document->load([
             'creator',
             'latestVersion',
-            'versions' => fn($query) => $query
+            'versions' => fn ($query) => $query
                 ->with([
                     'uploader',
                     'evidences.initiative',
@@ -106,7 +105,7 @@ class DocumentController extends Controller
 
         $managementAllowed = DocumentAccess::userHasAnyRole($request->user(), DocumentAccess::MANAGE_ROLES);
 
-        return view('documentation.documents.show', [
+        return response()->json([
             'document' => $document,
             'categories' => Document::CATEGORIES,
             'statuses' => Document::STATUSES,
@@ -128,9 +127,9 @@ class DocumentController extends Controller
         ]);
     }
 
-    public function edit(Document $document): View
+    public function edit(Document $document)
     {
-        return view('documentation.documents.edit', [
+        return response()->json([
             'document' => $document,
             'categories' => Document::CATEGORIES,
             'statuses' => Document::STATUSES,
@@ -138,25 +137,28 @@ class DocumentController extends Controller
         ]);
     }
 
-    public function update(UpdateDocumentRequest $request, Document $document): RedirectResponse
+    public function update(UpdateDocumentRequest $request, Document $document)
     {
         $document->update($request->validated());
 
-        return redirect()
-            ->route('documents.show', $document)
-            ->with('ok', 'Documento actualizado correctamente.');
+        return response()->json([
+            'message' => 'Documento actualizado correctamente.',
+            'data' => $document->fresh(['creator', 'latestVersion']),
+        ]);
     }
 
-    public function destroy(Document $document): RedirectResponse
+    public function destroy(Document $document)
     {
         if ($document->versions()->exists()) {
-            return back()->with('error', 'No se puede eliminar un documento que tiene versiones registradas.');
+            return response()->json([
+                'message' => 'No se puede eliminar un documento que tiene versiones registradas.',
+            ], 422);
         }
 
         $document->delete();
 
-        return redirect()
-            ->route('documents.index')
-            ->with('ok', 'Documento eliminado.');
+        return response()->json([
+            'message' => 'Documento eliminado.',
+        ]);
     }
 }

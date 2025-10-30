@@ -1,43 +1,49 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Partner;
 use Illuminate\Http\Request;
-
 
 class PartnerController extends Controller
 {
     public function index()
     {
         $partners = Partner::latest()->get();
-        return view('alliances.index', compact('partners'));
+
+        return response()->json([
+            'data' => $partners,
+        ]);
     }
 
     public function create()
     {
-        return view('alliances.partners.create');
+        return response()->json();
     }
 
     public function store(Request $request)
     {
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'type' => 'required|string|max:100',
-        'contact' => 'nullable|string',
-        'legal_representative' => 'nullable|string|max:255',
-    ]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|max:100',
+            'contact' => 'nullable|string',
+            'legal_representative' => 'nullable|string|max:255',
+        ]);
 
-    $validated['contact'] = ['email' => $request->contact];
-    Partner::create($validated);
+        $validated['contact'] = ['email' => $request->contact];
+        $partner = Partner::create($validated);
 
-    // Redirigir al index general (alianzas)
-    return redirect()->route('alliances.index')
-        ->with('success', 'Socio registrado correctamente.');
+        return response()->json([
+            'message' => 'Socio registrado correctamente.',
+            'data' => $partner,
+        ], 201);
     }
 
     public function edit(Partner $partner)
     {
-        return view('alliances.partners.edit', compact('partner'));
+        return response()->json([
+            'partner' => $partner,
+        ]);
     }
 
     public function update(Request $request, Partner $partner)
@@ -52,14 +58,18 @@ class PartnerController extends Controller
         $validated['contact'] = ['email' => $request->contact];
         $partner->update($validated);
 
-        return redirect()->route('alliances.index')
-    ->with('success', 'Socio actualizado correctamente.');
+        return response()->json([
+            'message' => 'Socio actualizado correctamente.',
+            'data' => $partner->fresh(),
+        ]);
     }
 
     public function destroy(Partner $partner)
     {
         $partner->delete();
-        return redirect()->route('alliances.index')
-            ->with('success', 'Socio eliminado correctamente.');
+
+        return response()->json([
+            'message' => 'Socio eliminado correctamente.',
+        ]);
     }
 }

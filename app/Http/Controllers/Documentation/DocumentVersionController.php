@@ -7,7 +7,6 @@ use App\Http\Requests\Documentation\StoreDocumentVersionRequest;
 use App\Models\Documentation\Document;
 use App\Models\Documentation\DocumentVersion;
 use App\Services\Documentation\DocumentVersionManager;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -17,18 +16,19 @@ class DocumentVersionController extends Controller
     {
     }
 
-    public function store(StoreDocumentVersionRequest $request, Document $document): RedirectResponse
+    public function store(StoreDocumentVersionRequest $request, Document $document)
     {
-        $this->versionManager->createVersion(
+        $version = $this->versionManager->createVersion(
             $document,
             $request->file('file'),
             $request->user()->id,
             $request->input('notes')
         );
 
-        return redirect()
-            ->route('documents.show', $document)
-            ->with('ok', 'Nueva versión registrada correctamente.');
+        return response()->json([
+            'message' => 'Nueva versión registrada correctamente.',
+            'data' => $version,
+        ], 201);
     }
 
     public function download(Document $document, DocumentVersion $version): StreamedResponse

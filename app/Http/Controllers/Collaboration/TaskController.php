@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Collaboration\Channel;
 use App\Models\Collaboration\Task;
 use App\Models\Collaboration\TaskAssignment;
-use App\Models\User;
-use App\Notifications\TaskAssignedNotification;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -35,13 +33,20 @@ class TaskController extends Controller
             ]);
         }
 
-        return back();
+        return response()->json([
+            'message' => 'Tarea creada correctamente.',
+            'data' => $task,
+        ], 201);
     }
 
     public function toggle(Task $task)
     {
         $task->update(['status' => $task->status === 'done' ? 'open' : 'done']);
-        return back();
+
+        return response()->json([
+            'message' => 'Estado de la tarea actualizado.',
+            'data' => $task->fresh(),
+        ]);
     }
 
     public function destroy(Task $task)
@@ -50,6 +55,9 @@ class TaskController extends Controller
         $role = optional($task->channel)->roleOf($user->id);
         abort_unless($task->created_by_user_id === $user->id || in_array($role, ['admin', 'moderator']), 403);
         $task->delete();
-        return back();
+
+        return response()->json([
+            'message' => 'Tarea eliminada correctamente.',
+        ]);
     }
 }

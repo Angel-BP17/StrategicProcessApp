@@ -8,24 +8,38 @@ use Illuminate\Http\Request;
 
 class TeamController extends Controller
 {
-    public function store(Request $r)
+    public function store(Request $request)
     {
-        $t = Team::create($r->validate([
+        $team = Team::create($request->validate([
             'name' => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string'],
-        ]) + ['members' => [['user_id' => $r->user()->id, 'role' => 'admin']]]); // si tienes JSON
-        return back()->with('ok', 'Equipo creado');
+        ]) + ['members' => [['user_id' => $request->user()->id, 'role' => 'admin']]]);
+
+        return response()->json([
+            'message' => 'Equipo creado.',
+            'data' => $team,
+        ], 201);
     }
-    public function join(Request $r, Team $team)
+
+    public function join(Request $request, Team $team)
     {
-        if (method_exists($team, 'addMember'))
-            $team->addMember($r->user()->id, 'member');
-        return back();
+        if (method_exists($team, 'addMember')) {
+            $team->addMember($request->user()->id, 'member');
+        }
+
+        return response()->json([
+            'message' => 'Te has unido al equipo.',
+        ]);
     }
-    public function leave(Request $r, Team $team)
+
+    public function leave(Request $request, Team $team)
     {
-        if (method_exists($team, 'removeMember'))
-            $team->removeMember($r->user()->id);
-        return redirect()->route('collab.index');
+        if (method_exists($team, 'removeMember')) {
+            $team->removeMember($request->user()->id);
+        }
+
+        return response()->json([
+            'message' => 'Has salido del equipo.',
+        ]);
     }
 }
