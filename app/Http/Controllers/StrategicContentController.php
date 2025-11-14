@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Incadev\Core\Models\StrategicContent;
+use IncadevUns\CoreDomain\Models\StrategicContent;
 
 class StrategicContentController extends Controller
 {

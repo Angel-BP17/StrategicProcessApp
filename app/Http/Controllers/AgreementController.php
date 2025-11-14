@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Incadev\Core\Models\Agreement;
+use IncadevUns\CoreDomain\Models\Agreement;
 
 class AgreementController extends Controller
 {

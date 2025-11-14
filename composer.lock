@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6acb8017517e60f6cb13ecb5c7dd6c65",
+    "content-hash": "523e3763d1e40283ed5118307b52e4e1",
     "packages": [
         {
             "name": "brick/math",
@@ -1053,17 +1053,17 @@
             "time": "2025-08-22T14:27:06+00:00"
         },
         {
-            "name": "incadev/core",
-            "version": "v1.0.0",
+            "name": "incadev-uns/core-domain",
+            "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/josevasquezramos/incadev-core.git",
-                "reference": "c4648f02a5abdd44991b4f5c721426f2e203b27d"
+                "url": "https://github.com/incadev-uns/core-domain.git",
+                "reference": "5300629c6f660f4654f4b2677a1153a4c477e6d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/josevasquezramos/incadev-core/zipball/c4648f02a5abdd44991b4f5c721426f2e203b27d",
-                "reference": "c4648f02a5abdd44991b4f5c721426f2e203b27d",
+                "url": "https://api.github.com/repos/incadev-uns/core-domain/zipball/5300629c6f660f4654f4b2677a1153a4c477e6d5",
+                "reference": "5300629c6f660f4654f4b2677a1153a4c477e6d5",
                 "shasum": ""
             },
             "require": {
@@ -1074,7 +1074,8 @@
                 "spatie/laravel-permission": "^6.22"
             },
             "require-dev": {
-                "larastan/larastan": "^3.0",
+                "barryvdh/laravel-ide-helper": "^3.6",
+                "larastan/larastan": "^3.8",
                 "laravel/pint": "^1.14",
                 "nunomaduro/collision": "^8.8",
                 "orchestra/testbench": "^10.0.0||^9.0.0",
@@ -1086,21 +1087,22 @@
                 "phpstan/phpstan-phpunit": "^2.0",
                 "spatie/laravel-ray": "^1.35"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
                     "aliases": {
-                        "Core": "Incadev\\Core\\Facades\\Core"
+                        "CoreDomain": "IncadevUns\\CoreDomain\\Facades\\CoreDomain"
                     },
                     "providers": [
-                        "Incadev\\Core\\CoreServiceProvider"
+                        "IncadevUns\\CoreDomain\\CoreDomainServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Incadev\\Core\\": "src/",
-                    "Incadev\\Core\\Database\\Factories\\": "database/factories/"
+                    "IncadevUns\\CoreDomain\\": "src/",
+                    "IncadevUns\\CoreDomain\\Database\\Factories\\": "database/factories/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1115,23 +1117,23 @@
                 }
             ],
             "description": "Core package implementing Incadev's business domain",
-            "homepage": "https://github.com/josevasquezramos/incadev-core",
+            "homepage": "https://github.com/incadev-uns/core-domain",
             "keywords": [
-                "core",
-                "incadev",
+                "core-domain",
+                "incadev-uns",
                 "laravel"
             ],
             "support": {
-                "issues": "https://github.com/josevasquezramos/incadev-core/issues",
-                "source": "https://github.com/josevasquezramos/incadev-core/tree/v1.0.0"
+                "issues": "https://github.com/incadev-uns/core-domain/issues",
+                "source": "https://github.com/incadev-uns/core-domain/tree/main"
             },
             "funding": [
                 {
-                    "url": "https://github.com/incadev",
+                    "url": "https://github.com/incadev-uns",
                     "type": "github"
                 }
             ],
-            "time": "2025-11-01T13:11:22+00:00"
+            "time": "2025-11-13T03:59:53+00:00"
         },
         {
             "name": "laravel/framework",
@@ -8624,7 +8626,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "incadev-uns/core-domain": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

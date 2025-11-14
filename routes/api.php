@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AgreementController;
+use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\ConversationUserController;
 use App\Http\Controllers\MessageController;
@@ -25,3 +26,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('messages', MessageController::class);
     Route::apiResource('message-files', MessageFileController::class);
 });
+
+Route::apiResource('candidates', CandidateController::class)->except(['update', 'edit']);

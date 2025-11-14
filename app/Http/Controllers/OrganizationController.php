@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Incadev\Core\Models\Organization;
+use IncadevUns\CoreDomain\Models\Organization;
 
 class OrganizationController extends Controller
 {
