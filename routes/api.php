@@ -3,7 +3,6 @@
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\ConversationController;
-use App\Http\Controllers\ConversationUserController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\MessageFileController;
 use App\Http\Controllers\OrganizationController;
@@ -22,7 +21,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('agreements', AgreementController::class);
     Route::apiResource('strategic-documents', StrategicDocumentController::class);
     Route::apiResource('conversations', ConversationController::class);
-    Route::apiResource('conversation-users', ConversationUserController::class);
     Route::apiResource('messages', MessageController::class);
     Route::apiResource('message-files', MessageFileController::class);
 });
