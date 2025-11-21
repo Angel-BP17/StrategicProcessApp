@@ -14,11 +14,13 @@ class StrategicProcessSeeder extends Seeder
     {
         $this->call([
             OrganizationsSeeder::class,
+            StrategicPermissionsSeeder::class,
             AgreementsSeeder::class,
             StrategicContentsSeeder::class,
             ConversationsSeeder::class,
             ConversationUsersSeeder::class,
             MessagesSeeder::class,
+            StrategicPermissionsSeeder::class,
         ]);
     }
 }
