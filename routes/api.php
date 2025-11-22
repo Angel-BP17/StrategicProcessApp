@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('conversations', ConversationController::class);
     Route::apiResource('messages', MessageController::class);
     Route::apiResource('message-files', MessageFileController::class);
+    Route::get('/organizations/lookup/{ruc}', [OrganizationController::class, 'lookupRUC']);
     Route::prefix('strategic')->group(function () {
         Route::get('/goals', [GoalController::class, 'index']); // Ver tarjetas
         Route::post('/goals/{id}/rate', [GoalController::class, 'rate']); // Votar
