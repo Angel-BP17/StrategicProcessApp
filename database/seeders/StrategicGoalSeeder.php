@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Incadev\CoreDomain\Models\StrategicGoal;
+use IncadevUns\CoreDomain\Models\StrategicGoal;
 
 class StrategicGoalSeeder extends Seeder
 {
