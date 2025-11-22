@@ -10,10 +10,12 @@ class ConversationController extends Controller
     public function __construct()
     {
         $this->middleware(['auth:sanctum']);
+        $this->middleware(['role:planner_admin']);
+        /*
         $this->middleware(['permission:conversations.view'])->only(['index', 'show']);
         $this->middleware(['permission:conversations.create'])->only(['store']);
         $this->middleware(['permission:conversations.update'])->only(['update']);
-        $this->middleware(['permission:conversations.delete'])->only(['destroy']);
+        $this->middleware(['permission:conversations.delete'])->only(['destroy']);*/
     }
 
     public function index()

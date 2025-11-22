@@ -11,10 +11,12 @@ class StrategicDocumentController extends Controller
     public function __construct()
     {
         $this->middleware(['auth:sanctum']);
+        $this->middleware(['role:planner_admin']);
+        /*
         $this->middleware(['permission:strategic_documents.view'])->only(['index', 'show']);
         $this->middleware(['permission:strategic_documents.create'])->only(['store']);
         $this->middleware(['permission:strategic_documents.update'])->only(['update']);
-        $this->middleware(['permission:strategic_documents.delete'])->only(['destroy']);
+        $this->middleware(['permission:strategic_documents.delete'])->only(['destroy']);*/
     }
 
     public function index()
