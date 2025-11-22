@@ -51,13 +51,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('conversations', ConversationController::class);
     Route::apiResource('messages', MessageController::class);
     Route::apiResource('message-files', MessageFileController::class);
-    Route::prefix('strategic')->group(function () {
-        Route::get('/goals', [GoalController::class, 'index']); // Ver tarjetas
-        Route::post('/goals/{id}/rate', [GoalController::class, 'rate']); // Votar
-        Route::post('/goals', [GoalController::class, 'store']);
-        Route::put('/goals/{id}', [GoalController::class, 'update']);
-        Route::delete('/goals/{id}', [GoalController::class, 'destroy']);
-    });
+    Route::apiResource('strategic/quality-standards', QualityStandardController::class);
+    Route::post('strategic/quality-standards/{id}/rate', [QualityStandardController::class, 'rate']);
+
 });
 
 Route::apiResource('candidates', CandidateController::class)->except(['update', 'edit']);
