@@ -11,10 +11,12 @@ class MessageController extends Controller
     public function __construct()
     {
         $this->middleware(['auth:sanctum']);
+        $this->middleware(['role:planner_admin']);
+        /*
         $this->middleware(['permission:messages.view'])->only(['index', 'show']);
         $this->middleware(['permission:messages.create'])->only(['store']);
         $this->middleware(['permission:messages.update'])->only(['update']);
-        $this->middleware(['permission:messages.delete'])->only(['destroy']);
+        $this->middleware(['permission:messages.delete'])->only(['destroy']);*/
     }
 
     public function index()

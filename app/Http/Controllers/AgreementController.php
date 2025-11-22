@@ -11,10 +11,11 @@ class AgreementController extends Controller
     public function __construct()
     {
         $this->middleware(['auth:sanctum']);
+        /*
         $this->middleware(['permission:agreements.view'])->only(['index', 'show']);
         $this->middleware(['permission:agreements.create'])->only(['store']);
         $this->middleware(['permission:agreements.update'])->only(['update']);
-        $this->middleware(['permission:agreements.delete'])->only(['destroy']);
+        $this->middleware(['permission:agreements.delete'])->only(['destroy']);*/
     }
 
     public function index()

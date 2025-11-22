@@ -55,6 +55,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('strategic')->group(function () {
         Route::get('/goals', [GoalController::class, 'index']); // Ver tarjetas
         Route::post('/goals/{id}/rate', [GoalController::class, 'rate']); // Votar
+        Route::post('/goals', [GoalController::class, 'store']);
+        Route::put('/goals/{id}', [GoalController::class, 'update']);
+        Route::delete('/goals/{id}', [GoalController::class, 'destroy']);
     });
 });
 
