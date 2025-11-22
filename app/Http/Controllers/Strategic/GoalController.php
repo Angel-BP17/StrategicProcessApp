@@ -72,4 +72,67 @@ class GoalController extends Controller
             'message' => '¡Gracias! Tu opinión ha sido registrada.'
         ]);
     }
+
+    // ... (tus funciones index y rate que ya tenías) ...
+
+    /**
+     * CREAR UNA META (Solo para Admin/Director)
+     * Endpoint: POST /api/strategic/goals
+     */
+    public function store(Request $request)
+    {
+        // 1. Validamos los datos de entrada
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'category' => 'required|string', // Ej: "Infraestructura"
+            'target_score' => 'required|numeric|min:1|max:5', // Ej: 4.5
+            'target_roles' => 'nullable|array', // Ej: ["student", "teacher"]
+            'is_active' => 'boolean'
+        ]);
+
+        // 2. Creamos el objetivo en la BD
+        $goal = StrategicGoal::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Objetivo estratégico creado correctamente',
+            'data' => $goal
+        ]);
+    }
+
+    /**
+     * ACTUALIZAR META
+     * Endpoint: PUT /api/strategic/goals/{id}
+     */
+    public function update(Request $request, $id)
+    {
+        $goal = StrategicGoal::findOrFail($id);
+
+        $validated = $request->validate([
+            'title' => 'string|max:255',
+            'description' => 'nullable|string',
+            'category' => 'string',
+            'target_score' => 'numeric|min:1|max:5',
+            'target_roles' => 'nullable|array',
+            'is_active' => 'boolean'
+        ]);
+
+        $goal->update($validated);
+
+        return response()->json(['success' => true, 'message' => 'Objetivo actualizado']);
+    }
+
+    /**
+     * ELIMINAR META
+     * Endpoint: DELETE /api/strategic/goals/{id}
+     */
+    public function destroy($id)
+    {
+        $goal = StrategicGoal::findOrFail($id);
+        $goal->delete();
+        return response()->json(['success' => true, 'message' => 'Objetivo eliminado']);
+    }
+
+
 }
