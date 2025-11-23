@@ -6,11 +6,13 @@ use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\MessageFileController;
 use App\Http\Controllers\OrganizationController;
-use App\Http\Controllers\StrategicContentController; 
+use App\Http\Controllers\Strategic\QualityStandardController;
+use App\Http\Controllers\StrategicContentController;
 use App\Http\Controllers\StrategicDocumentController;
+use App\Http\Controllers\StrategicObjectiveController;
+use App\Http\Controllers\StrategicPlanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Strategic\GoalController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -45,6 +47,8 @@ Route::post('/logout', function (Request $request) {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('strategic-contents', StrategicContentController::class);
+    Route::apiResource('strategic-plans', StrategicPlanController::class);
+    Route::apiResource('strategic-objectives', StrategicObjectiveController::class);
     Route::apiResource('organizations', OrganizationController::class);
     Route::apiResource('agreements', AgreementController::class);
     Route::apiResource('strategic-documents', StrategicDocumentController::class);
