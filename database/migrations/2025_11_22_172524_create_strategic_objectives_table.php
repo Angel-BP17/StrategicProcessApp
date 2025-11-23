@@ -10,16 +10,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('iniciatives', function (Blueprint $table) {
+        Schema::create('strategic_objectives', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('plan_id')->constrained('strategic_plans')->onDelete('cascade');
             $table->string('title');
-            $table->foreignId('plan_id')->constrained('strategic_plans')->nullOnDelete();
-            $table->string('summary');
+            $table->string('description');
+            $table->decimal('goal_value');
             $table->foreignId('user_id')->constrained('users')->nullOnDelete();
-            $table->string('status');
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->string('estimated_impact');
+            $table->bigInteger('weight')->default(0);
+            $table->jsonb('kpis')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +28,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('iniciatives');
+        Schema::dropIfExists('strategic_objectives');
     }
 };

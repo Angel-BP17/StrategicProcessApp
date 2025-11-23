@@ -29,7 +29,6 @@ class DatabaseSeeder extends Seeder
             ConversationsSeeder::class,
             ConversationUsersSeeder::class,
             AgreementsSeeder::class,
-            
         ]);
     }
 }

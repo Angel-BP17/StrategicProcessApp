@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,6 +12,11 @@ return new class extends Migration
     {
         Schema::create('iniciative_evaluations', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('iniciative_id')->constrained('iniciatives')->nullOnDelete();
+            $table->foreignId('evaluator_user')->constrained('users')->nullOnDelete();
+            $table->string('summary');
+            $table->decimal('score', 5, 2);
+            $table->foreignId('document_id')->nullable()->constrained('strategic_documents')->nullOnDelete();
             $table->timestamps();
         });
     }
