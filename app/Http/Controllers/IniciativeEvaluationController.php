@@ -18,56 +18,51 @@ class IniciativeEvaluationController extends Controller
         $this->middleware('permission:iniciative_evaluations.delete')->only(['destroy']);*/
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $perPage = (int) $request->query('per_page', 20);
+        $q = IniciativeEvaluation::query()->with(['iniciative', 'evaluator', 'document'])->latest('id');
+        return response()->json($q->paginate($perPage));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show(IniciativeEvaluation $iniciativeEvaluation)
     {
-        //
+        return response()->json(
+            $iniciativeEvaluation->load(['iniciative', 'evaluator', 'document'])
+        );
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'iniciative_id' => ['required', 'integer', 'exists:iniciatives,id'],
+            'evaluator_user' => ['required', 'integer', 'exists:users,id'],
+            'summary' => ['required', 'string'],
+            'score' => ['required', 'numeric', 'min:0', 'max:100'],
+            'document_id' => ['nullable', 'integer', 'exists:strategic_documents,id'],
+        ]);
+
+        $ev = IniciativeEvaluation::create($data);
+        return response()->json($ev->load(['iniciative', 'evaluator', 'document']), 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, IniciativeEvaluation $iniciativeEvaluation)
     {
-        //
+        $data = $request->validate([
+            'iniciative_id' => ['sometimes', 'integer', 'exists:iniciatives,id'],
+            'evaluator_user' => ['sometimes', 'integer', 'exists:users,id'],
+            'summary' => ['sometimes', 'string'],
+            'score' => ['sometimes', 'numeric', 'min:0', 'max:100'],
+            'document_id' => ['sometimes', 'nullable', 'integer', 'exists:strategic_documents,id'],
+        ]);
+
+        $iniciativeEvaluation->update($data);
+        return response()->json($iniciativeEvaluation->load(['iniciative', 'evaluator', 'document']));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function destroy(IniciativeEvaluation $iniciativeEvaluation)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $iniciativeEvaluation->delete();
+        return response()->json(['message' => 'Deleted'], 204);
     }
 }

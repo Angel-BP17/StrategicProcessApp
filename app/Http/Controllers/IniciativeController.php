@@ -18,56 +18,55 @@ class IniciativeController extends Controller
         $this->middleware('permission:iniciatives.delete')->only(['destroy']);*/
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $perPage = (int) $request->query('per_page', 20);
+        $q = Iniciative::query()->with(['plan', 'user'])->latest('id');
+        return response()->json($q->paginate($perPage));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show(Iniciative $iniciative)
     {
-        //
+        return response()->json($iniciative->load(['plan', 'user', 'evaluations']));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'plan_id' => ['required', 'integer', 'exists:strategic_plans,id'],
+            'summary' => ['required', 'string'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'status' => ['required', 'string', 'max:50'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'estimated_impact' => ['required', 'string', 'max:50'],
+        ]);
+
+        $ini = Iniciative::create($data);
+        return response()->json($ini->load(['plan', 'user']), 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, Iniciative $iniciative)
     {
-        //
+        $data = $request->validate([
+            'title' => ['sometimes', 'string', 'max:255'],
+            'plan_id' => ['sometimes', 'integer', 'exists:strategic_plans,id'],
+            'summary' => ['sometimes', 'string'],
+            'user_id' => ['sometimes', 'integer', 'exists:users,id'],
+            'status' => ['sometimes', 'string', 'max:50'],
+            'start_date' => ['sometimes', 'date'],
+            'end_date' => ['sometimes', 'date', 'after_or_equal:start_date'],
+            'estimated_impact' => ['sometimes', 'string', 'max:50'],
+        ]);
+
+        $iniciative->update($data);
+        return response()->json($iniciative->load(['plan', 'user']));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function destroy(Iniciative $iniciative)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $iniciative->delete();
+        return response()->json(['message' => 'Deleted'], 204);
     }
 }

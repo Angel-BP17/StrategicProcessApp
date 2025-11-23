@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\KpiGoal;
 use Illuminate\Http\Request;
+use IncadevUns\CoreDomain\Models\KpiGoal;
 use IncadevUns\CoreDomain\Models\StrategicObjective;
 
 class StrategicObjectiveController extends Controller
