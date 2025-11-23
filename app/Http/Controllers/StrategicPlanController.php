@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\GoogleCalendarService;
 use Illuminate\Http\Request;
 use IncadevUns\CoreDomain\Models\StrategicPlan;
 
@@ -38,6 +39,11 @@ class StrategicPlanController extends Controller
         ]);
 
         $plan = StrategicPlan::create($data);
+        /*
+                $gc = new GoogleCalendarService();
+                $event = $gc->createEventForPlan($plan);
+                $gc->attachEventIds($plan, $event);*/
+
         return response()->json($plan, 201);
     }
 
@@ -66,13 +72,21 @@ class StrategicPlanController extends Controller
         ]);
 
         $strategicPlan->update($data);
-        return response()->json($strategicPlan);
+        /*
+                $gc = new GoogleCalendarService();
+                $event = $gc->updateEventForPlan($strategicPlan);
+
+                */
+        return response()->json($strategicPlan->fresh()->loadCount(['objectives', 'iniciatives']));
     }
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(StrategicPlan $strategicPlan)
     {
+        $gc = new GoogleCalendarService();
+        $gc->deleteEventForPlan($strategicPlan);
+
         $strategicPlan->delete();
         return response()->json(['message' => 'Deleted'], 204);
     }

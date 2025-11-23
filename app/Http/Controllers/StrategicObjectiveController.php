@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KpiGoal;
 use Illuminate\Http\Request;
 use IncadevUns\CoreDomain\Models\StrategicObjective;
 
@@ -46,7 +47,11 @@ class StrategicObjectiveController extends Controller
      */
     public function show(StrategicObjective $strategicObjective)
     {
-        return response()->json($strategicObjective->load(['plan', 'user']));
+        $kpis = KpiGoal::whereIn('id', $strategicObjective->kpis)->get();
+        return response()->json([
+            $strategicObjective->load(['plan', 'user']),
+            'kpis' => $kpis
+        ]);
     }
 
     /**
