@@ -31,6 +31,12 @@
             "Database\\Seeders\\": "database/seeders/"
         }
     },
+    "repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/incadev-uns/core-domain"
+    }
+],
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
