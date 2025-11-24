@@ -21,12 +21,11 @@ class QualityStandardController extends Controller
         // Obtenemos el rol del usuario usando Spatie (del Core)
         // getRoleNames() devuelve una colección, tomamos el primero
         $userRole = $user->getRoleNames()->first(); 
-
+        
         // Consultamos los estándares activos filtrando por "Target Roles"
         $standards = QualityStandard::where('is_active', true)
             ->where(function($query) use ($userRole) {
-                // Lógica: Trae el estándar SI la columna 'target_roles' contiene mi rol
-                // O SI es para todos (null)
+                
                 $query->whereJsonContains('target_roles', $userRole)
                       ->orWhereNull('target_roles');
             })
