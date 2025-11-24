@@ -10,7 +10,7 @@ class IniciativeEvaluationController extends Controller
     public function __construct()
     {
         $this->middleware(['auth:sanctum']);
-        $this->middleware(['role:planner_admin']);
+        
         /*
         $this->middleware('permission:iniciative_evaluations.view')->only(['index', 'show']);
         $this->middleware('permission:iniciative_evaluations.create')->only(['store']);

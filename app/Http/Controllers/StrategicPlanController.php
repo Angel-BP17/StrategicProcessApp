@@ -11,7 +11,7 @@ class StrategicPlanController extends Controller
     public function __construct()
     {
         $this->middleware(['auth:sanctum']);
-        $this->middleware(['role:planner_admin']);
+        
         /*
         $this->middleware('permission:strategic_plans.view')->only(['index', 'show']);
         $this->middleware('permission:strategic_plans.create')->only(['store']);

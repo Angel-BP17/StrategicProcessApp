@@ -1296,12 +1296,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/incadev-uns/core-domain.git",
-                "reference": "82a55b84f5f92f2e73898b4d632d6506750c611b"
+                "reference": "a4ef9fc897e38f4f4268fa82e6e65c94eee0a85e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/incadev-uns/core-domain/zipball/82a55b84f5f92f2e73898b4d632d6506750c611b",
-                "reference": "82a55b84f5f92f2e73898b4d632d6506750c611b",
+                "url": "https://api.github.com/repos/incadev-uns/core-domain/zipball/a4ef9fc897e38f4f4268fa82e6e65c94eee0a85e",
+                "reference": "a4ef9fc897e38f4f4268fa82e6e65c94eee0a85e",
                 "shasum": ""
             },
             "require": {
@@ -1371,7 +1371,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-11-23T23:01:47+00:00"
+            "time": "2025-11-24T06:55:20+00:00"
         },
         {
             "name": "laravel/framework",
@@ -9162,6 +9162,6 @@
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "plugin-api-version": "2.6.0"
 }

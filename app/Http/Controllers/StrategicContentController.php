@@ -12,7 +12,7 @@ class StrategicContentController extends Controller
     public function __construct()
     {
         $this->middleware(['auth:sanctum']);
-        $this->middleware(['role:planner_admin']);
+        
         /*
         $this->middleware(['permission:strategic_contents.view'])->only(['index', 'show']);
         $this->middleware(['permission:strategic_contents.create'])->only(['store']);

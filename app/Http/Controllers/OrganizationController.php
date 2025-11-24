@@ -11,7 +11,7 @@ class OrganizationController extends Controller
     public function __construct()
     {
         $this->middleware(['auth:sanctum']);
-        $this->middleware(['role:planner_admin']);
+       
         /*
         $this->middleware(['permission:organizations.view'])->only(['index', 'show']);
         $this->middleware(['permission:organizations.create'])->only(['store']);
