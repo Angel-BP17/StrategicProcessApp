@@ -1490,12 +1490,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/incadev-uns/core-domain.git",
-                "reference": "8d2691ec2b9c6dd06d900043f10ae67baf8dc959"
+                "reference": "7c19b3dd46ce3c45e36972c2dcaa460f45d199be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/incadev-uns/core-domain/zipball/8d2691ec2b9c6dd06d900043f10ae67baf8dc959",
-                "reference": "8d2691ec2b9c6dd06d900043f10ae67baf8dc959",
+                "url": "https://api.github.com/repos/incadev-uns/core-domain/zipball/7c19b3dd46ce3c45e36972c2dcaa460f45d199be",
+                "reference": "7c19b3dd46ce3c45e36972c2dcaa460f45d199be",
                 "shasum": ""
             },
             "require": {
@@ -1565,7 +1565,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-11-25T19:54:21+00:00"
+            "time": "2025-11-30T22:13:20+00:00"
         },
         {
             "name": "laravel/framework",

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\MediaFile;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use DB;
 use Illuminate\Http\Request;
+use IncadevUns\CoreDomain\Models\MediaFile;
 use IncadevUns\CoreDomain\Models\StrategicDocument;
 
 class StrategicDocumentController extends Controller
