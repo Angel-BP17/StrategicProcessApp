@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use IncadevUns\CoreDomain\Models\Iniciative;
 use IncadevUns\CoreDomain\Models\IniciativeEvaluation;
 
 class IniciativeEvaluationController extends Controller
@@ -10,18 +11,20 @@ class IniciativeEvaluationController extends Controller
     public function __construct()
     {
         $this->middleware(['auth:sanctum']);
-        
-        /*
-        $this->middleware('permission:iniciative_evaluations.view')->only(['index', 'show']);
-        $this->middleware('permission:iniciative_evaluations.create')->only(['store']);
-        $this->middleware('permission:iniciative_evaluations.update')->only(['update']);
-        $this->middleware('permission:iniciative_evaluations.delete')->only(['destroy']);*/
     }
 
     public function index(Request $request)
     {
         $perPage = (int) $request->query('per_page', 20);
-        $q = IniciativeEvaluation::query()->with(['iniciative', 'evaluator', 'document'])->latest('id');
+
+        $q = IniciativeEvaluation::query()
+            ->with(['iniciative', 'evaluator', 'document'])
+            ->latest('id');
+
+        if ($request->filled('iniciative_id')) {
+            $q->where('iniciative_id', $request->integer('iniciative_id'));
+        }
+
         return response()->json($q->paginate($perPage));
     }
 
@@ -42,8 +45,15 @@ class IniciativeEvaluationController extends Controller
             'document_id' => ['nullable', 'integer', 'exists:strategic_documents,id'],
         ]);
 
-        $ev = IniciativeEvaluation::create($data);
-        return response()->json($ev->load(['iniciative', 'evaluator', 'document']), 201);
+        $iniciative = Iniciative::findOrFail($data['iniciative_id']);
+
+        $evaluation = IniciativeEvaluation::create($data);
+
+        if ($iniciative->status === 'finalizada') {
+            $iniciative->update(['status' => 'evaluada']);
+        }
+
+        return response()->json($evaluation->load(['iniciative', 'evaluator', 'document']), 201);
     }
 
     public function update(Request $request, IniciativeEvaluation $iniciativeEvaluation)
@@ -56,13 +66,19 @@ class IniciativeEvaluationController extends Controller
             'document_id' => ['sometimes', 'nullable', 'integer', 'exists:strategic_documents,id'],
         ]);
 
+        if (isset($data['iniciative_id'])) {
+            Iniciative::findOrFail($data['iniciative_id']);
+        }
+
         $iniciativeEvaluation->update($data);
+
         return response()->json($iniciativeEvaluation->load(['iniciative', 'evaluator', 'document']));
     }
 
     public function destroy(IniciativeEvaluation $iniciativeEvaluation)
     {
         $iniciativeEvaluation->delete();
+
         return response()->json(['message' => 'Deleted'], 204);
     }
 }

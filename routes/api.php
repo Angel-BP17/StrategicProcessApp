@@ -3,6 +3,8 @@
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\IniciativeController;
+use App\Http\Controllers\IniciativeEvaluationController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\MessageFileController;
 use App\Http\Controllers\OrganizationController;
@@ -26,7 +28,7 @@ Route::post('/login', function (Request $request) {
 
     $user = \App\Models\User::where('email', $request->email)->first();
 
-    if (!$user || !\Hash::check($request->password, $user->password)) {
+    if (! $user || ! \Hash::check($request->password, $user->password)) {
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
@@ -44,7 +46,6 @@ Route::post('/logout', function (Request $request) {
     return response()->json(['message' => 'Logged out successfully']);
 })->middleware('auth:sanctum');
 
-
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('strategic-contents', StrategicContentController::class);
     Route::apiResource('strategic-plans', StrategicPlanController::class);
@@ -58,6 +59,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('strategic/quality-standards', QualityStandardController::class);
     Route::post('strategic/quality-standards/{id}/rate', [QualityStandardController::class, 'rate']);
 
+    // Iniciativas y evaluaciones (alcance reducido)
+    Route::apiResource('iniciatives', IniciativeController::class);
+    Route::post('iniciatives/{iniciative}/transition', [IniciativeController::class, 'transition']);
+    Route::apiResource('iniciative-evaluations', IniciativeEvaluationController::class);
 });
 
 Route::apiResource('candidates', CandidateController::class)->except(['update', 'edit']);
