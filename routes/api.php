@@ -13,6 +13,7 @@ use App\Http\Controllers\StrategicContentController;
 use App\Http\Controllers\StrategicDocumentController;
 use App\Http\Controllers\StrategicObjectiveController;
 use App\Http\Controllers\StrategicPlanController;
+use App\Http\Controllers\SunatController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +48,7 @@ Route::post('/logout', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/sunat/ruc/{ruc}', [SunatController::class, 'consultarRuc']);
     Route::apiResource('strategic-contents', StrategicContentController::class);
     Route::apiResource('strategic-plans', StrategicPlanController::class);
     Route::apiResource('strategic-objectives', StrategicObjectiveController::class);
