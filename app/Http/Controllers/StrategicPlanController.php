@@ -84,8 +84,8 @@ class StrategicPlanController extends Controller
      */
     public function destroy(StrategicPlan $strategicPlan)
     {
-        $gc = new GoogleCalendarService();
-        $gc->deleteEventForPlan($strategicPlan);
+        /*$gc = new GoogleCalendarService();
+        $gc->deleteEventForPlan($strategicPlan);*/
 
         $strategicPlan->delete();
         return response()->json(['message' => 'Deleted'], 204);
