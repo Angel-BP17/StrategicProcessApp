@@ -48,7 +48,7 @@ Route::post('/logout', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/sunat/ruc/{ruc}', [SunatController::class, 'consultarRuc']);
+    //Route::get('/sunat/ruc/{ruc}', [SunatController::class, 'consultarRuc']);
     Route::apiResource('strategic-contents', StrategicContentController::class);
     Route::apiResource('strategic-plans', StrategicPlanController::class);
     Route::apiResource('strategic-objectives', StrategicObjectiveController::class);
