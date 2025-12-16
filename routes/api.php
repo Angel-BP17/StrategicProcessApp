@@ -14,6 +14,7 @@ use App\Http\Controllers\StrategicDocumentController;
 use App\Http\Controllers\StrategicObjectiveController;
 use App\Http\Controllers\StrategicPlanController;
 use App\Http\Controllers\SunatController;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,7 +30,7 @@ Route::post('/login', function (Request $request) {
 
     $user = \App\Models\User::where('email', $request->email)->first();
 
-    if (! $user || ! \Hash::check($request->password, $user->password)) {
+    if (!$user || !\Hash::check($request->password, $user->password)) {
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
@@ -51,7 +52,10 @@ Route::middleware('auth:sanctum')->group(function () {
     //Route::get('/sunat/ruc/{ruc}', [SunatController::class, 'consultarRuc']);
     Route::apiResource('strategic-contents', StrategicContentController::class);
     Route::apiResource('strategic-plans', StrategicPlanController::class);
-    Route::apiResource('strategic-objectives', StrategicObjectiveController::class);
+    Route::apiResource('strategic-plans.objectives', StrategicObjectiveController::class)->parameters([
+        'strategic-plans' => 'strategicPlan',
+        'objectives' => 'strategicObjective',
+    ]);
     Route::apiResource('organizations', OrganizationController::class);
     Route::apiResource('agreements', AgreementController::class);
     Route::apiResource('strategic-documents', StrategicDocumentController::class);
@@ -65,6 +69,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('iniciatives', IniciativeController::class);
     Route::post('iniciatives/{iniciative}/transition', [IniciativeController::class, 'transition']);
     Route::apiResource('iniciative-evaluations', IniciativeEvaluationController::class);
+
+    //Usuarios con roles de planificación
+    Route::get('planning-users', function () {
+        return User::role(['continuous_improvement', 'planner_admin', 'planner'])
+            ->with('roles')
+            ->get();
+    });
 });
 
 Route::apiResource('candidates', CandidateController::class)->except(['update', 'edit']);
