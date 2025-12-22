@@ -32,7 +32,13 @@ class OrganizationController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'ruc' => ['required', 'string', 'max:20', 'unique:organizations,ruc'],
+            //'ruc' => ['required', 'string', 'max:20', 'unique:organizations,ruc'],
+            'ruc' => [
+                'required',
+                'string',
+                'regex:/^\d{11}$/',
+                'unique:organizations,ruc',
+            ],
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', 'string', 'max:100'],
             'contact_phone' => ['nullable', 'string', 'max:50'],
@@ -45,7 +51,13 @@ class OrganizationController extends Controller
     public function update(Request $request, Organization $organization)
     {
         $data = $request->validate([
-            'ruc' => ['sometimes', 'string', 'max:20', 'unique:organizations,ruc,' . $organization->id],
+            //'ruc' => ['sometimes', 'string', 'max:20', 'unique:organizations,ruc,' . $organization->id],
+            'ruc' => [
+                'sometimes',
+                'string',
+                'regex:/^\d{11}$/',
+                'unique:organizations,ruc,' . $organization->id,
+            ],
             'name' => ['sometimes', 'string', 'max:255'],
             'type' => ['sometimes', 'string', 'max:100'],
             'contact_phone' => ['sometimes', 'nullable', 'string', 'max:50'],
