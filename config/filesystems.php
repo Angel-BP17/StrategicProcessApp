@@ -64,6 +64,17 @@ return [
             'driver' => 'cloudinary',
             'url' => env('CLOUDINARY_URL'),   // usamos la URL completa del .env
         ],
+        'gcs' => [
+            'driver' => 'gcs',
+            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID'),
+            'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET'),
+            'path_prefix' => env('GOOGLE_CLOUD_STORAGE_PATH_PREFIX', ''), // prefijo opcional ej. "uns"
+            'uniform_bucket_level_access' => env('GCS_UNIFORM_BUCKET_LEVEL_ACCESS', true), // bucket sin ACL
+            'visibility' => env('GCS_DEFAULT_VISIBILITY', 'private'),
+            // Usa GOOGLE_APPLICATION_CREDENTIALS si está definido, de lo contrario el path relativo en storage
+            'key_file' => env('GOOGLE_APPLICATION_CREDENTIALS') ?: (storage_path(env('GOOGLE_CLOUD_KEY_FILE')) ?: null),
+            'throw' => true, // en prod queremos fallar rápido y loguear
+        ],
     ],
 
     /*

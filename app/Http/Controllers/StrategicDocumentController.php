@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use IncadevUns\CoreDomain\Models\MediaFile;
 use IncadevUns\CoreDomain\Models\StrategicDocument;
+use App\Services\GcsStorageService;
 
 class StrategicDocumentController extends Controller
 {
@@ -25,16 +27,28 @@ class StrategicDocumentController extends Controller
 
     public function index()
     {
-        return response()->json(StrategicDocument::query()->latest('id')->paginate(20));
+        $paginator = StrategicDocument::query()
+            ->with('file')
+            ->latest('id')
+            ->paginate(20);
+
+        // Adjuntamos URL firmada para el frontend
+        $paginator->getCollection()->transform(function ($doc) {
+            $signedUrl = $this->signedUrl($doc->file);
+            $doc->setAttribute('file_url', $signedUrl);
+            $doc->file?->setAttribute('secure_url', $signedUrl);
+            return $doc;
+        });
+
+        return response()->json($paginator);
     }
 
     public function show(StrategicDocument $strategicDocument)
     {
         $strategicDocument->load('file');
-        $secureUrl = $strategicDocument->file->secure_url ?? ($strategicDocument->file->url ?? null);
-        if ($secureUrl) {
-            $strategicDocument->setAttribute('file_url', $secureUrl);
-        }
+        $signedUrl = $this->signedUrl($strategicDocument->file);
+        $strategicDocument->setAttribute('file_url', $signedUrl);
+        $strategicDocument->file?->setAttribute('secure_url', $signedUrl);
 
         return response()->json($strategicDocument);
     }
@@ -53,31 +67,17 @@ class StrategicDocumentController extends Controller
 
         $file = $request->file('file');
         $user = Auth::user();
+        $gcs = new GcsStorageService();
 
         DB::beginTransaction();
 
         try {
-            $cloudUrl = config('cloudinary.cloud_url')
-                ?? config('filesystems.disks.cloudinary.url')
-                ?? env('CLOUDINARY_URL');
-            if (!$cloudUrl) {
-                throw new \RuntimeException('Cloudinary URL not configured');
-            }
-
-            // Upload to Cloudinary
-            $upload = Cloudinary::uploadApi()->upload(
-                $file->getRealPath(),
-                [
-                    'folder' => 'uns/strategic-documents',
-                    'resource_type' => 'auto',
-                    'type' => 'upload'
-                ]
-            );
+            $upload = $gcs->upload($file, 'strategic-documents');
 
             // Create media_files entry
             $media = MediaFile::create([
-                'provider' => 'cloudinary',
-                'disk' => 'cloudinary',
+                'provider' => 'gcs',
+                'disk' => 'gcs',
                 'public_id' => $upload['public_id'] ?? null,
                 'resource_type' => $upload['resource_type'] ?? null,
                 'format' => $upload['format'] ?? null,
@@ -117,7 +117,11 @@ class StrategicDocumentController extends Controller
 
             return response()->json([
                 'message' => 'Documento guardado correctamente',
-                'document' => $document->load('file'),
+                'document' => tap($document->load('file'), function ($doc) {
+                    $signedUrl = $this->signedUrl($doc->file);
+                    $doc->setAttribute('file_url', $signedUrl);
+                    $doc->file?->setAttribute('secure_url', $signedUrl);
+                }),
             ], 201);
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -148,30 +152,18 @@ class StrategicDocumentController extends Controller
         $user = $request->user();
         $strategicDocument->load('file');
         $oldFile = $strategicDocument->file;
+        $gcs = new GcsStorageService();
 
-        DB::transaction(function () use ($request, $data, $user, $strategicDocument, $oldFile) {
+        DB::transaction(function () use ($request, $data, $user, $strategicDocument, $oldFile, $gcs) {
             // If a new file arrives, upload and replace
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
 
-                $cloudUrl = config('cloudinary.cloud_url')
-                    ?? config('filesystems.disks.cloudinary.url')
-                    ?? env('CLOUDINARY_URL');
-                if (!$cloudUrl) {
-                    throw new \RuntimeException('Cloudinary URL not configured');
-                }
-
-                $upload = Cloudinary::uploadApi()->upload(
-                    $file->getRealPath(),
-                    [
-                        'folder' => 'uns/strategic-documents',
-                        'resource_type' => 'auto',
-                    ]
-                );
+                $upload = $gcs->upload($file, 'strategic-documents');
 
                 $mediaFile = MediaFile::create([
-                    'provider' => 'cloudinary',
-                    'disk' => 'cloudinary',
+                    'provider' => 'gcs',
+                    'disk' => 'gcs',
                     'public_id' => $upload['public_id'] ?? null,
                     'resource_type' => $upload['resource_type'] ?? null,
                     'format' => $upload['format'] ?? null,
@@ -190,10 +182,8 @@ class StrategicDocumentController extends Controller
                 $strategicDocument->file_id = $mediaFile->id;
 
                 if ($oldFile && $oldFile->public_id) {
-                    Cloudinary::destroy($oldFile->public_id, [
-                        'resource_type' => $oldFile->resource_type ?? 'raw',
-                        'invalidate' => true,
-                    ]);
+                    // Delete from GCS using stored path as key
+                    $gcs->delete($oldFile->public_id);
                     $oldFile->delete();
                 }
             }
@@ -207,6 +197,9 @@ class StrategicDocumentController extends Controller
         });
 
         $strategicDocument->load('file');
+        $signedUrl = $this->signedUrl($strategicDocument->file);
+        $strategicDocument->setAttribute('file_url', $signedUrl);
+        $strategicDocument->file?->setAttribute('secure_url', $signedUrl);
 
         return response()->json($strategicDocument);
     }
@@ -218,20 +211,8 @@ class StrategicDocumentController extends Controller
 
         DB::transaction(function () use ($strategicDocument, $file) {
             if ($file && $file->public_id) {
-                $resourceType = $file->resource_type ?: 'auto';
-                $cloudUrl = config('cloudinary.cloud_url')
-                    ?? config('filesystems.disks.cloudinary.url')
-                    ?? env('CLOUDINARY_URL');
-
-                if (!$cloudUrl) {
-                    throw new \RuntimeException('Cloudinary URL not configured');
-                }
-
-                // Destroy using UploadApi (no destroy method on the facade instance)
-                Cloudinary::uploadApi()->destroy($file->public_id, [
-                    'resource_type' => $resourceType,
-                    'invalidate' => true,
-                ]);
+                // Delete from GCS by stored path
+                (new GcsStorageService())->delete($file->public_id);
             }
 
             $strategicDocument->delete();
@@ -242,5 +223,21 @@ class StrategicDocumentController extends Controller
         });
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Generate a short-lived signed URL for the given media file.
+     */
+    private function signedUrl(?MediaFile $file, int $minutes = 60): ?string
+    {
+        if (!$file || !$file->public_id) {
+            return null;
+        }
+
+        return (new GcsStorageService())->temporaryUrl(
+            $file->public_id,
+            $minutes,
+            ['contentType' => $file->mime_type]
+        );
     }
 }
